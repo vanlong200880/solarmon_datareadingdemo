@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Language">
+	<select id="getList">
+		SELECT
+			l.`id`, 
+			l.`name`,
+			l.`iso_code`,
+			l.`status`,
+			l.`default`
+		FROM `language` AS l WHERE l.status = 1 ORDER BY l.`default` DESC
+	</select>
+</mapper>

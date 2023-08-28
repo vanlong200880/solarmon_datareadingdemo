@@ -1,0 +1,105 @@
+<div class="main" style="width: 100%;">
+  <div class="form-mail" style="width: 680px; margin: 0 auto;">
+    <table class="headTable" style="margin-top:0px;border:none;width:100%">
+      <tbody>
+
+        <tr>
+          <td style="border: 0px ;">
+            <p style="padding: 5px 0; display: inline-block; width: 100%; margin: 0; font-size: 20px;">
+              <strong>Cảnh báo bất thường của PV</strong>
+            </p>
+          </td>
+        </tr>
+
+
+        <tr>
+          <td style="border: 0px ;">
+            <p style="padding: 5px 0; display: inline-block; width: 100%; margin: 0;">
+              <strong>Dự án: </strong> #{project_name}
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="border: 0px;">
+
+            <table style="border: 1px solid #DDD; width: 100%; border-collapse: collapse; border-spacing: 0; margin-top: 15px;" cellpadding="0">
+              <tr>
+                <td style="border-bottom: 1px solid #DDD; border-right: 1px solid #DDD; padding : 0">
+                  <p style="padding: 10px 7px; display: inline-block; width: 100%; margin: 0;">
+                    <strong>Device: </strong> #{device_name}
+                  </p>
+                </td>
+              </tr>
+
+
+              <tr>
+                <td style="border-bottom: 1px solid #DDD;">
+                  <p style="padding: 10px 7px; display: inline-block; width: 100%; margin: 0;">
+                    <strong>Mã sự cố: </strong> #{error_code}
+                  </p>
+                </td>
+
+              </tr>
+              
+
+              <tr>
+                <td style="border-bottom: 1px solid #DDD;">
+                  <p style="padding: 10px 7px; display: inline-block; width: 100%; margin: 0;">
+                    <strong>Loại cảnh báo: </strong> #{error_level_name}
+                  </p>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="border: 0px ;">
+                  <p style="padding: 10px 7px; display: inline-block; width: 100%; margin: 0;">
+                    <strong>Thời gian: </strong> #{error_date}
+                  </p>
+                </td>
+              </tr>
+
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="border: 0px ;">
+            <p style="margin-top: 15px; background: #f3f5f7; padding: 7px 10px;">
+               <strong>Nguyên nhân sự cố: </strong>
+            </p>
+
+            <p style="margin-top: 5px; padding: 5px 10px;">  #{message}</p>
+            <p> #{description}</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="border: 0px;">
+            <p style="margin-top: 15px; background: #f3f5f7; padding: 7px 10px;">
+              <strong>Khuyến nghị sửa:</strong>
+            </p>
+
+            <p style="margin-top: 5px; padding: 5px 10px;">#{solutions}</p>
+
+          </td>
+        </tr>
+
+        
+
+        <tr>
+          <td style="border: 0px ;">
+            <p style="margin-top: 40px; padding: 0;"></p>
+              Trân trọng,
+            </p>
+            <p style="margin: 0; padding: 0; font-weight: bold;">
+              Techedge.vn
+            </p>
+          </td>
+        </tr>
+
+
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,181 @@
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ProjectGroup">
+
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO project_group(
+			status,
+			created_date,
+			created_by,
+			updated_date,
+			updated_by
+
+		)VALUES(
+			#{status},
+			NOW(),
+			#{created_by},
+			NOW(),
+			#{updated_by}
+		)
+	</insert>
+
+	<insert id="insertProjectGroupDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `project_group_detail` 
+		(
+			`id_project_group`, 
+			`id_language`, 
+			`name`,
+			`description`
+		)
+		VALUES
+		<foreach collection="dataDetail" item="item" index="index" separator=",">
+				(
+					#{item.id_project_group}, 
+					#{item.id_language},
+					#{item.name}, 
+					#{item.description}
+				)
+		</foreach>
+	</insert>
+
+	<update id="updateProjectGroup">
+		UPDATE project_group
+		SET
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="deleteProjectGroupDetail">
+		DELETE FROM `project_group_detail`
+		WHERE id_project_group = #{id}
+	</delete>
+
+	<select id="getList">
+		SELECT
+			r.id,
+			r.created_date,
+			r.created_by,
+			r.updated_date,
+			r.updated_by,
+			r.`status`,
+			rd.`name`,
+			rd.description
+		FROM
+			`project_group` AS r
+			LEFT JOIN project_group_detail rd ON rd.id_project_group = r.id 
+		WHERE
+			r.`status` IN(0,1)
+			AND rd.id_language = #{id_language}
+
+			<if test="name != null">
+				AND  (
+					rd.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					r.`id` = #{id}
+				)
+			</if>
+
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY r.id DESC
+			</otherwise>
+		</choose>
+
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+
+	</select>
+
+	<select id="getSize">
+		SELECT
+			count(r.id) totalRow
+		FROM `project_group` AS r
+		LEFT JOIN project_group_detail rd ON rd.id_project_group = r.id 
+		WHERE r.status IN(0,1) AND rd.id_language = #{id_language}
+		<if test="name != null">
+				AND  (
+					rd.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					r.`id` = #{id}
+				)
+			</if>
+	</select>
+
+	<update id="delete">
+		UPDATE project_group
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+
+	<update id="updateStatus">
+		UPDATE project_group
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+	<select id="getDetail">
+		SELECT
+			c.`id`,
+			c.`status`
+		FROM `project_group` c 
+		WHERE c.id = #{id};
+
+		SELECT
+			cd.id_project_group,
+			cd.`id_language`,
+			cd.`name`,
+			cd.`description`,
+			l.iso_code,
+			l.is_default
+		FROM project_group_detail cd
+		LEFT JOIN `language` l ON l.id = cd.id_language
+		WHERE cd.id_project_group = #{id} GROUP BY l.id ORDER BY l.is_default DESC;
+	</select>
+
+
+
+	<select id="getDropDownList">
+		SELECT
+			r.id,
+			rd.`name`,
+			rd.`name` AS label,
+			r.id AS `value`
+		FROM
+			`project_group` AS r
+			LEFT JOIN project_group_detail rd ON rd.id_project_group = r.id 
+		WHERE
+			rd.id_language = #{id_language} AND r.`status` = 1
+		ORDER BY
+			r.`id` ASC
+	</select>
+
+</mapper>

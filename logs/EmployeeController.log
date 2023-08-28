@@ -1,0 +1,40 @@
+[2021-06-20T03:37:34.739] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/app-software/api/app/controller/EmployeeController.js:341:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/app-software/api/app/controller/EmployeeController.js:518:57)
+}
+[2021-06-20T04:28:35.789] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/app-software/api/app/controller/EmployeeController.js:341:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/app-software/api/app/controller/EmployeeController.js:518:57)
+}
+[2021-09-05T01:09:45.453] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:339:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:516:57)
+}
+[2021-09-05T01:10:30.068] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:339:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:516:57)
+}
+[2021-09-05T01:10:33.011] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:339:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:516:57)
+}
+[2021-09-05T01:10:34.166] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:339:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:516:57)
+}
+[2021-09-05T01:10:48.653] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:339:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:516:57)
+}
+[2021-09-05T01:10:51.863] [ERROR] EmployeeController - [Arguments] {
+  '0': TypeError: Cannot read property 'toLowerCase' of undefined
+      at EmployeeController.writeFileUpload (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:339:40)
+      at EmployeeController.saveAction (/Volumes/Data/Sources/solars/api/app/controller/EmployeeController.js:516:57)
+}

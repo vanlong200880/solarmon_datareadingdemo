@@ -1,0 +1,20 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BaseElasticEntity = function BaseElasticEntity() {
+	_classCallCheck(this, BaseElasticEntity);
+
+	this.id = null;
+	this.created_date = null;
+	this.created_by = null;
+	this.updated_by = null;
+	this.updated_date = null;
+};
+
+exports.default = BaseElasticEntity;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9lbnRpdGllcy9CYXNlRWxhc3RpY0VudGl0eS5qcyJdLCJuYW1lcyI6WyJCYXNlRWxhc3RpY0VudGl0eSIsImlkIiwiY3JlYXRlZF9kYXRlIiwiY3JlYXRlZF9ieSIsInVwZGF0ZWRfYnkiLCJ1cGRhdGVkX2RhdGUiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7O0lBQU1BLGlCLEdBQ0wsNkJBQWM7QUFBQTs7QUFDYixNQUFLQyxFQUFMLEdBQVUsSUFBVjtBQUNBLE1BQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxNQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsTUFBS0MsVUFBTCxHQUFrQixJQUFsQjtBQUNBLE1BQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxDOztrQkFFYUwsaUIiLCJmaWxlIjoiQmFzZUVsYXN0aWNFbnRpdHkuanMiLCJzb3VyY2VzQ29udGVudCI6WyJjbGFzcyBCYXNlRWxhc3RpY0VudGl0eSB7XG5cdGNvbnN0cnVjdG9yKCkge1xuXHRcdHRoaXMuaWQgPSBudWxsO1xuXHRcdHRoaXMuY3JlYXRlZF9kYXRlID0gbnVsbDtcblx0XHR0aGlzLmNyZWF0ZWRfYnkgPSBudWxsO1xuXHRcdHRoaXMudXBkYXRlZF9ieSA9IG51bGw7XG5cdFx0dGhpcy51cGRhdGVkX2RhdGUgPSBudWxsO1xuXHR9XG59XG5leHBvcnQgZGVmYXVsdCBCYXNlRWxhc3RpY0VudGl0eTsiXX0=

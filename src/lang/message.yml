@@ -1,0 +1,77 @@
+{
+  en: {
+    minLength: {
+      input: '${1} cannot be less than ${2} characters',
+      select: '${1} needs to select at least ${2} items',
+    },
+    maxLength: {
+      input: '${1} cannot exceed ${2} characters',
+      select: '${1} can only select up to ${2} items',
+    },
+    least: '${1} needs to select at least ${2}',
+    most: '${1} can only select up to ${2}',
+    type: {
+      array: '${1} must be an array format',
+      number: '${1} must be a numeric format',
+      integer: '${1} must be an integer',
+      mobile: '${1} must be a phone number',
+      email: '${1} must be a mailbox format',
+      url: '${1} must be URL format',
+    },
+    required: '${1} cannot be empty',
+    equal: '${1} must be the same as ${2}',
+    min: '${1} cannot be less than ${2}',
+    max: '${1} cannot be greater than ${2}',
+    step: 'The ${1} step must be ${2}',
+  },
+  vi: {
+    minLength: {
+      input: '${1} không thể nhỏ hơn ${2} ký tự',
+      select: '${1} cần chọn ít nhất ${2} mục'
+    },
+    maxLength: {
+        input: '${1} không thể vượt quá ${2} ký tự',
+        select: '${1} chỉ có thể chọn tối đa ${2} mục'
+    },
+    least: '${1} cần chọn ít nhất ${2}',
+    most: '${1} chỉ có thể chọn tối đa ${2}',
+    type: {
+      array: '${1} phải là định dạng mảng',
+      number: '${1} phải là định dạng số',
+      integer: '${1} phải là số nguyên',
+      mobile: '${1} phải là số điện thoại',
+      email: '${1} phải là định dạng hộp thư',
+      url: '${1} phải là định dạng URL'
+    },
+    required: '${1} không được để trống',
+    equal: '${1} phải bằng ${2}',
+    min: '${1} không thể nhỏ hơn ${2}',
+    max: '${1} không thể lớn hơn ${2}',
+    step: 'Bước ${1} phải là ${2}'
+  },
+  cn: {
+    minLength: {
+        input: '${1}不能少于${2}个字符',
+        select: '${1}至少需要选择${2}项'
+    },
+    maxLength: {
+        input: '${1}不能超过${2}个字符',
+        select: '${1}最多只能选择${2}项'
+    },
+    least: '${1}至少需要选择${2}项',
+    most: '${1}最多只能选择${2}项',
+    type: {
+        array: '${1}必须是数组格式',
+        number: '${1}必须是数值格式',
+        integer: '${1}必须是整数',
+        mobile: '${1}必须是手机号',
+        email: '${1}必须是邮箱格式',
+        url: '${1}必须是网址格式'
+    },
+    required: '${1}不能为空',
+    equal: '${1}必须与${2}相同',
+    min: '${1}不能小于${2}',
+    max: '${1}不能大于${2}',
+    step: '${1}步进值必须为${2}'
+  }
+}

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Role">
+
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO role(
+			status,
+			created_date,
+			created_by,
+			updated_date,
+			updated_by
+
+		)VALUES(
+			#{status},
+			NOW(),
+			#{created_by},
+			NOW(),
+			#{updated_by}
+		)
+	</insert>
+
+	<insert id="insertRoleDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `role_detail` 
+		(
+			`id_role`, 
+			`id_language`, 
+			`name`,
+			`description`
+		)
+		VALUES
+		<foreach collection="dataDetail" item="item" index="index" separator=",">
+				(
+					#{item.id_role}, 
+					#{item.id_language},
+					#{item.name}, 
+					#{item.description}
+				)
+		</foreach>
+	</insert>
+
+	<update id="updateRole">
+		UPDATE role
+		SET
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+
+		WHERE
+			 id = #{id}
+	</update>
+
+	<delete id="deleteRoleDetail">
+		DELETE FROM `role_detail`
+		WHERE id_role = #{id}
+	</delete>
+
+	<select id="getList">
+		SELECT
+			r.id,
+			r.created_date,
+			r.created_by,
+			r.updated_date,
+			r.updated_by,
+			r.`status`,
+			rd.`name`,
+			rd.description
+		FROM
+			`role` AS r
+			LEFT JOIN role_detail rd ON rd.id_role = r.id 
+		WHERE
+			r.`status` IN(0,1)
+			AND rd.id_language = #{id_language}
+
+			<if test="name != null">
+				AND  (
+					rd.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					r.`id` = #{id}
+				)
+			</if>
+
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY r.id DESC
+			</otherwise>
+		</choose>
+
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+
+	</select>
+
+	<select id="getSize">
+		SELECT
+			count(r.id) totalRow
+		FROM `role` AS r
+		LEFT JOIN role_detail rd ON rd.id_role = r.id 
+		WHERE r.status IN(0,1) AND rd.id_language = #{id_language}
+		<if test="name != null">
+				AND  (
+					rd.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					r.`id` = #{id}
+				)
+			</if>
+	</select>
+
+	<update id="delete">
+		UPDATE role
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+
+	<update id="updateStatus">
+		UPDATE role
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+	<select id="getDetail">
+		SELECT
+			c.`id`,
+			c.`status`
+		FROM `role` c 
+		WHERE c.id = #{id};
+
+		SELECT
+			cd.id_role,
+			cd.`id_language`,
+			cd.`name`,
+			cd.`description`,
+			l.iso_code,
+			l.is_default
+		FROM role_detail cd
+		LEFT JOIN `language` l ON l.id = cd.id_language
+		WHERE cd.id_role = #{id} GROUP BY l.id ORDER BY l.is_default DESC;
+	</select>
+
+
+
+	<select id="getDropDownList">
+		SELECT
+			r.id,
+			rd.`name`,
+			rd.`name` AS label,
+			r.id AS `value` 
+		FROM
+			`role` AS r
+			LEFT JOIN role_detail rd ON rd.id_role = r.id 
+		WHERE rd.id_language = #{id_language} AND r.`status` = 1
+		ORDER BY
+			r.`id` ASC
+	</select>
+
+
+	<select id="getListScreenPermissions">
+		SELECT
+			s.id,
+			rsm.auths,
+			rd.screen_name,
+			s.has_child,
+			s.id AS id_screen,
+			s.path,
+			s.parent,
+			s.`level`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 1) AS `view`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 2) AS `new`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 4) AS `delete`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 8) AS `edit`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 16) AS `excel`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 32) AS `pdf`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 64) AS `print`, 
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 128) AS `translate`,
+			(IFNULL(rsm.auths,0) <![CDATA[&]]> 256) AS `approval`
+						
+						
+		FROM
+			role_screen_map rsm
+			LEFT JOIN screen s ON s.id = rsm.id_screen
+			LEFT JOIN screen_detail rd ON rd.id_screen = s.id 
+			LEFT JOIN role r ON r.id = rsm.id_role
+		WHERE rsm.id_role = #{id_role} 
+		AND rd.id_language = #{id_language} 
+		AND s.`status` = 1 
+		AND r.`status` = 1 
+		ORDER BY s.`level`, s.`parent` ASC
+	</select>
+
+	<update id="updateRolePermissions"> 
+		<foreach item="item" index="index" collection="screens" separator=";" >
+			UPDATE
+				`role_screen_map`
+			SET 
+				auths = #{item.auths}
+			WHERE
+				id_role = #{item.id_role}
+				AND id_screen = #{item.id_screen}
+		</foreach>
+	</update>
+
+	
+	<select id="getScreenMap">
+		SELECT
+			s.id AS id_screen,
+			sd.screen_name,
+			IF( s.path = '/dashboard' OR s.path = '/profile', 511, 0 ) AS auths 
+		FROM
+			screen s
+			LEFT JOIN screen_detail sd ON sd.id_screen = s.id 
+		WHERE
+			s.`status` = 1 
+			AND sd.id_language = #{id_language}
+	</select>
+
+	
+	<insert id="insertRoleScreenMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO role_screen_map(
+			id_role,
+			id_screen,
+			auths
+
+		)VALUES(
+			#{id_role},
+			#{id_screen},
+			#{auths}
+		)
+	</insert>
+
+	<select id="checkExistRoleScreenMap">
+		SELECT
+			* 
+		FROM
+			role_screen_map rpsm
+		WHERE
+			rpsm.id_screen = #{id_screen} AND rpsm.id_role = #{id_role}
+	</select>
+
+
+</mapper>

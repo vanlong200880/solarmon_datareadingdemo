@@ -1,0 +1,65 @@
+import BaseEntity from './BaseEntity';
+
+class ModelInverterGrowattGW80KTL3Entity extends BaseEntity {
+	constructor() {
+		super();
+		this.time = null;
+		this.id_device = null;
+		this.manufacturer8 = null;
+		this.manufacturer7 = null;
+		this.manufacturer6 = null;
+		this.manufacturer5 = null;
+		this.manufacturer4 = null;
+		this.manufacturer3 = null;
+		this.manufacturer2 = null;
+		this.manufacturer1 = null;
+		this.model = null;
+		this.serialNumber1_2 = null;
+		this.serialNumber3_4 = null;
+		this.serialNumber5_6 = null;
+		this.serialNumber7_8 = null;
+		this.serialNumber9_10 = null;
+		this.currentPhaseA = null;
+		this.currentPhaseB = null;
+		this.currentPhaseC = null;
+		this.voltagePhaseA = null;
+		this.voltagePhaseB = null;
+		this.voltagePhaseC = null;
+		this.activePower = null;
+		this.powerFrequency = null;
+		this.dailyEnergy = null;
+		this.apparentPower = null;
+		this.reactivePower = null;
+		this.powerFactor = null;
+		this.activeEnergy = null;
+		this.dcPower = null;
+		this.inverterTemperature = null;
+		this.internalTemperature = null;
+		this.boostTemperature = null;
+		this.mppt1Current = null;
+		this.mppt1Voltage = null;
+		this.mppt1Power = null;
+		this.mppt2Current = null;
+		this.mppt2Voltage = null;
+		this.mppt2Power = null;
+		this.mppt3Current = null;
+		this.mppt3Voltage = null;
+		this.mppt3Power = null;
+		this.mppt4Current = null;
+		this.mppt4Voltage = null;
+		this.mppt4Power = null;
+		this.mppt5Current = null;
+		this.mppt5Voltage = null;
+		this.mppt5Power = null;
+		this.mppt6Current = null;
+		this.mppt6Voltage = null;
+		this.mppt6Power = null;
+		this.mppt7Current = null;
+		this.mppt7Voltage = null;
+		this.mppt7Power = null;
+		this.mppt8Current = null;
+		this.mppt8Voltage = null;
+		this.mppt8Power = null;
+	}
+}
+export default ModelInverterGrowattGW80KTL3Entity;

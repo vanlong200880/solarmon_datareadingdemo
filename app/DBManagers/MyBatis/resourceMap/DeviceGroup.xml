@@ -1,0 +1,155 @@
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DeviceGroup">
+
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO device_group(
+			`name`,
+			`table_name`,
+			`code_prefix`,
+			status,
+			created_date,
+			created_by,
+			updated_date,
+			updated_by
+
+		)VALUES(
+			#{name},
+			#{table_name},
+			#{code_prefix},
+			#{status},
+			NOW(),
+			#{created_by},
+			NOW(),
+			#{updated_by}
+		)
+	</insert>
+
+	<update id="updateDeviceGroup">
+		UPDATE device_type
+		SET
+			`name` = #{name},
+			table_name = #{table_name},
+			code_prefix = #{code_prefix},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+
+		WHERE
+			id = #{id}
+	</update>
+
+	<select id="getList">
+		SELECT
+			r.id,
+			r.`name`,
+			r.table_name,
+			r.code_prefix,
+			r.created_date,
+			r.created_by,
+			r.updated_date,
+			r.updated_by,
+			r.`status`
+		FROM
+			`device_group` AS r
+		WHERE
+			r.`status` IN(0,1)
+
+			<if test="name != null">
+				AND  (
+					.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					r.`id` = #{id}
+				)
+			</if>
+
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY r.id DESC
+			</otherwise>
+		</choose>
+
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+
+	</select>
+
+	<select id="getSize">
+		SELECT
+			count(r.id) totalRow
+		FROM `device_type` AS r
+		WHERE r.status IN(0,1)
+		<if test="name != null">
+				AND  (
+					r.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					r.`id` = #{id}
+				)
+			</if>
+	</select>
+
+	<update id="delete">
+		UPDATE device_group
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+
+	<update id="updateStatus">
+		UPDATE device_group
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+	<select id="getDetail">
+		SELECT
+			c.`id`,
+			c.`status`,
+			c.name,
+			c.table_name,
+			c.code_prefix
+		FROM `device_group` c 
+		WHERE c.id = #{id};
+	</select>
+
+
+
+	<select id="getDropDownList">
+		SELECT
+			r.id,
+			r.`name`,
+			r.`name` AS label,
+			r.id AS `value` 
+		FROM
+			`device_group` AS r
+		WHERE r.`status` = 1
+		ORDER BY
+			r.`id` ASC
+	</select>
+	
+</mapper>

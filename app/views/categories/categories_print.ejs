@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>
+    <%=data.title%>
+  </title>
+  <link href="<%=data.url%>/css/print.css" rel="stylesheet" type="text/css" />
+  <!-- <style>
+    @page {
+      size: A4
+    }
+  </style> -->
+</head>
+
+<body class="A4">
+    <table style="width: 100%;">
+      <tbody>
+        <% 
+        var pageNum =0;
+        var col_header = data.columns.length; 
+        %>
+        <% if(!Libs.isBlank(data.headquarter)){ %>
+        <tr>
+          <% 
+          var url_logo = data.url + "/system/showImageAction?file_path="+ data.headquarter.logo+"&headquarter_id="+data.headquarter.id;
+            if(!Libs.isBlank(url_logo)){ 
+            col_header = col_header -1; 
+            %>
+          <td align="left" width="100">
+            <img src="<%=url_logo%>"
+              width="100" />
+          </td>
+          <% } %>
+          <td colspan="<%=col_header %>" v-align="top">
+            <span align="left">
+              <%=data.headquarter.name%>
+            </span><br>
+            <% if(!Libs.isBlank(data.headquarter.address)) { %>
+            <span align="left">
+              <%=i18n.__('headquarter.address')%>:
+              <%=data.headquarter.address%></span><br>
+            <% } %>
+            <% if(!Libs.isBlank(data.headquarter.phone1) || !Libs.isBlank(data.headquarter.phone2)) { %>
+            <span align="left">
+              <%=i18n.__("headquarter.phone")%>:
+              <% if(!Libs.isBlank(data.headquarter.phone1)) { %>
+              <%=data.headquarter.phone1%>
+              <%} 
+                    if(!Libs.isBlank(data.headquarter.phone2)) { %>
+              -
+              <%=data.headquarter.phone2%>
+              <% } %>
+            </span><br>
+            <% } %>
+            <% if(!Libs.isBlank(data.headquarter.email)) { %>
+            <span align="left">
+              <%=i18n.__("headquarter.email")%>:
+              <%=data.headquarter.email %>
+            </span><br>
+            <% } %>
+            <% if(!Libs.isBlank(data.headquarter.website)) { %>
+            <span align="left">
+              <%=i18n.__("headquarter.website")%>:
+              <%=data.headquarter.website %>
+            </span>
+            <% } %>
+          </td>
+        </tr>
+        <% } %>
+        <tr>
+          <td colspan="<%=data.columns.length%>" align="center" class="header-title">
+            <%=data.title%>
+          </td>
+        </tr>
+        <% if(data.center_params){ %>
+        <% for(var i=0; i < data.center_params.length; i++) { %>
+          <tr><td colspan="<%=data.columns.length%>" align="center">
+            <%= data.center_params[i].value %>
+          </td></tr>
+          <% } %>
+          <% } %>
+        
+        <tr>
+          <td colspan="<%=data.columns.length%>">
+            <table class="table-content">
+              <thead>
+                <tr>
+                  <th align="right" width="50px">
+                    #
+                  </th>
+                  <%if(data.columns){%>
+                  <% for(var i=0; i < data.columns.length; i++) { %>
+                  <th <%=data.columns[i].width %>
+                    <%= data.columns[i].align %> >
+                    <%= data.columns[i].text %>
+                  </th>
+                  <% } %>
+                  <% } %>
+                </tr>
+                </thead>
+                <tbody>
+                <%if(data.result){%>
+                <% for(var i=0; i < data.result.length; i++) { %>
+                <tr>
+                  <td align="right">
+                    <%=i+1 %>
+                  </td>
+                  <%if(data.columns){%>
+                  <% for(var j=0; j < data.columns.length; j++) { %>
+                  <td <%=data.columns[j].align %>  style="max-width: 0px">
+                  
+                    <%  
+                          var cols = data.columns[j].id;
+                          var val =  data.result[i][cols];
+                          if(!Libs.isBlank(data.columns[j].type) && data.columns[j].type=='number' ) {
+                            val = Libs.formatNum(val);
+                          }
+                      %>
+                    <span style="word-wrap: break-word;overflow-wrap: break-word;">
+                      <%=val  %>
+                    </span>
+                  </td>
+                  <% } %>
+                  <% } %>
+                </tr>
+                <% } 
+                }%>
+                   
+              </tbody>
+             
+            </table>
+          </td>
+        </tr>
+        
+    </tbody>
+    
+    </table>
+   
+     
+    
+</body>
+
+</html>

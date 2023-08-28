@@ -1,0 +1,223 @@
+
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Device">
+
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO device(
+			id_device,
+			id_project,
+			id_device_type,
+			id_device_group,
+			`name`,
+			`model`,
+			`serial_number`,
+			`manufacturer`,
+			`installed_at`,
+			status,
+			created_date,
+			created_by,
+			updated_date,
+			updated_by
+
+		)VALUES(
+			#{id_device},
+			#{id_project},
+			#{id_device_type},
+			#{id_device_group},
+			#{name},
+			#{model},
+			#{serial_number},
+			#{manufacturer},
+			#{installed_at},
+			#{status},
+			NOW(),
+			#{created_by},
+			NOW(),
+			#{updated_by}
+		)
+	</insert>
+
+
+	<update id="updateDevice">
+		UPDATE device
+		SET
+			id_device = #{id_device},
+			id_project = #{id_project},
+			id_device_type = #{id_device_type},
+			id_device_group = #{id_device_group},
+			`name` = #{name},
+			`model` = #{model},
+			`serial_number` = #{serial_number},
+			`manufacturer` = #{manufacturer},
+			`installed_at` = #{installed_at},
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE id = #{id}
+	</update>
+
+	<select id="checkIdDeviceExist">
+		SELECT 
+		`id`, `id_device`
+		FROM device d
+		WHERE d.id_device = #{id_device} 
+		<if test="id != null">
+		AND d.id != #{id}
+		</if>
+	</select>
+
+
+	<select id="getListDeviceByProject">
+		SELECT
+			d.id,
+			d.id_device,
+			d.id_project,
+			d.id_device_type,
+			d.id_device_group,
+			d.`name`,
+			d.model,
+			d.serial_number,
+			d.manufacturer,
+			DATE_FORMAT( d.installed_at, '%d/%m/%Y' ) AS installed_at, 
+			d.`status`,
+			d.is_virtual,
+			dtd.`name` AS device_type_name,
+			dg.`name` AS device_group_name,
+			0 AS is_share
+		FROM
+			device d
+			LEFT JOIN device_type dt ON dt.id = d.id_device_type
+			LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id AND dtd.id_language = #{id_language}
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE d.`status` IN(0,1) AND dt.`status` = 1 AND dg.`status` = 1 
+		AND d.id_project = #{id_project}
+
+		UNION ALL 
+
+		SELECT
+			d.id,
+			d.id_device,
+			pm.id_project,
+			d.id_device_type,
+			d.id_device_group,
+			d.`name`,
+			d.model,
+			d.serial_number,
+			d.manufacturer,
+			d.installed_at,
+			d.`status`,
+			pm.is_virtual,
+			dtd.`name` AS device_type_name,
+			dg.`name` AS device_group_name,
+			1 AS is_share
+		FROM
+			project_map_device_virtual pm
+			LEFT JOIN device d ON d.id = pm.id_device
+			LEFT JOIN device_type dt ON dt.id = d.id_device_type
+			LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id AND dtd.id_language = #{id_language}
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE d.`status` = 1 AND dt.`status` = 1 AND dg.`status` = 1 
+		AND pm.id_project = #{id_project}
+			
+	</select>
+
+
+
+	<select id="getListDeviceByProjectShare">
+		SELECT
+			d.id,
+			d.id_device,
+			d.id_project,
+			d.id_device_type,
+			d.id_device_group,
+			d.`name`,
+			d.model,
+			d.serial_number,
+			d.manufacturer,
+			DATE_FORMAT( d.installed_at, '%d/%m/%Y' ) AS installed_at, 
+			d.`status`,
+			d.is_virtual,
+			dtd.`name` AS device_type_name,
+			dg.`name` AS device_group_name,
+			0 AS is_share,
+			0 AS is_checked
+		FROM
+			device d
+			LEFT JOIN device_type dt ON dt.id = d.id_device_type
+			LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id AND dtd.id_language = #{id_language}
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE d.`status` = 1 AND dt.`status` = 1 AND dg.`status` = 1 
+		AND d.id_project = #{id_project}
+	</select>
+
+
+	
+	<select id="checkExitsDeviceShare">
+		SELECT * from 
+		project_map_device_virtual pm WHERE pm.id_device = #{id_device} AND pm.id_project = #{id_project}
+	</select>
+
+
+	<insert id="saveDeviceShare" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO project_map_device_virtual(
+			id_project,
+			id_device
+		)VALUES(
+			#{id_project},
+			#{id_device}
+		)
+	</insert>
+
+
+
+	<update id="delete">
+		UPDATE device
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+	<delete id="deleteDeviceMap">
+		DELETE FROM `project_map_device_virtual`
+		WHERE id_project = #{id_project} AND id_device = #{id}
+	</delete>
+
+
+	<update id="updateStatus">
+		UPDATE device
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+	<update id="updateIsVirtual">
+		UPDATE device
+		SET
+			is_virtual = #{is_virtual},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+	<update id="updateIsVirtualMap">
+		UPDATE project_map_device_virtual
+		SET
+			is_virtual = #{is_virtual}
+		WHERE
+			id_device = #{id}  and id_project = #{id_project}
+	</update>
+
+
+</mapper>

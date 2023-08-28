@@ -1,0 +1,26 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BaseEntity = function BaseEntity() {
+	_classCallCheck(this, BaseEntity);
+
+	this.mode = null;
+	this.is_paging = 1;
+	this.created_by = '';
+	this.created_date = '';
+	this.updated_by = '';
+	this.updated_date = '';
+	this.is_active = 1;
+	this.current_row = 0;
+	this.order_by = null;
+	this.sort_column = null;
+	this.max_record = Constants.data.max_record;
+};
+
+exports.default = BaseEntity;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9lbnRpdGllcy9CYXNlRW50aXR5LmpzIl0sIm5hbWVzIjpbIkJhc2VFbnRpdHkiLCJtb2RlIiwiaXNfcGFnaW5nIiwiY3JlYXRlZF9ieSIsImNyZWF0ZWRfZGF0ZSIsInVwZGF0ZWRfYnkiLCJ1cGRhdGVkX2RhdGUiLCJpc19hY3RpdmUiLCJjdXJyZW50X3JvdyIsIm9yZGVyX2J5Iiwic29ydF9jb2x1bW4iLCJtYXhfcmVjb3JkIiwiQ29uc3RhbnRzIiwiZGF0YSJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7SUFBTUEsVSxHQUNMLHNCQUFjO0FBQUE7O0FBQ2IsTUFBS0MsSUFBTCxHQUFZLElBQVo7QUFDQSxNQUFLQyxTQUFMLEdBQWlCLENBQWpCO0FBQ0EsTUFBS0MsVUFBTCxHQUFrQixFQUFsQjtBQUNBLE1BQUtDLFlBQUwsR0FBb0IsRUFBcEI7QUFDQSxNQUFLQyxVQUFMLEdBQWtCLEVBQWxCO0FBQ0EsTUFBS0MsWUFBTCxHQUFvQixFQUFwQjtBQUNBLE1BQUtDLFNBQUwsR0FBaUIsQ0FBakI7QUFDQSxNQUFLQyxXQUFMLEdBQW1CLENBQW5CO0FBQ0EsTUFBS0MsUUFBTCxHQUFnQixJQUFoQjtBQUNBLE1BQUtDLFdBQUwsR0FBbUIsSUFBbkI7QUFDQSxNQUFLQyxVQUFMLEdBQWtCQyxVQUFVQyxJQUFWLENBQWVGLFVBQWpDO0FBQ0EsQzs7a0JBRWFYLFUiLCJmaWxlIjoiQmFzZUVudGl0eS5qcyIsInNvdXJjZXNDb250ZW50IjpbImNsYXNzIEJhc2VFbnRpdHkge1xuXHRjb25zdHJ1Y3RvcigpIHtcblx0XHR0aGlzLm1vZGUgPSBudWxsO1xuXHRcdHRoaXMuaXNfcGFnaW5nID0gMTtcblx0XHR0aGlzLmNyZWF0ZWRfYnkgPSAnJztcblx0XHR0aGlzLmNyZWF0ZWRfZGF0ZSA9ICcnO1xuXHRcdHRoaXMudXBkYXRlZF9ieSA9ICcnO1xuXHRcdHRoaXMudXBkYXRlZF9kYXRlID0gJyc7XG5cdFx0dGhpcy5pc19hY3RpdmUgPSAxO1xuXHRcdHRoaXMuY3VycmVudF9yb3cgPSAwO1xuXHRcdHRoaXMub3JkZXJfYnkgPSBudWxsO1xuXHRcdHRoaXMuc29ydF9jb2x1bW4gPSBudWxsO1xuXHRcdHRoaXMubWF4X3JlY29yZCA9IENvbnN0YW50cy5kYXRhLm1heF9yZWNvcmQ7XG5cdH1cbn1cbmV4cG9ydCBkZWZhdWx0IEJhc2VFbnRpdHk7Il19

@@ -1,0 +1,82 @@
+<div class="main" style="width: 100%;">
+  <div class="form-mail" style="margin: 0 auto;">
+
+    <table class="headTable" style="margin-top:0px;border:none;width:100%">
+      <tbody>
+        <tr>
+          <td style="border: 0px; text-align: left;">
+            <a href="https://solarmon.techedge.vn" target="_blank">
+              <img style="width: 120px;" src="#{logo}" />
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+
+    <div class="alarm" style="border-top: 2px solid #DDD; margin-top: 15px;">
+      <table class="table table-bordered"
+        style="width: 100%; border: 1px solid #DDD; border-collapse: collapse; margin-top: 40px;">
+        <thead class="table-light">
+          <tr style="background-color: #f3f5f7;">
+            <th colspan="8" style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">
+              <p class="text-center" style="padding: 0; margin: 0">ALARMS DAILY REPORT</p>
+            </th>
+          </tr>
+          <tr>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">STT</th>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Project name</th>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Component</th>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Type</th>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Level</th>
+
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Issues</th>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Opened</th>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <if test="countAlers == 1">
+            <foreach collection="alerts" item="item" index="index">
+              <tr>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{index + 1}</td>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.project_name}</td>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.name}</td>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.error_type_name}</td>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.error_level_name}</td>
+  
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">
+                  <if test="message != ''">
+                    #{item.message}
+                  </if>
+                  <if test="description != ''">
+                    #{item.description}
+                  </if>
+                </td>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.start_date_format}</td>
+                <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.status_name}</td>
+              </tr>
+            </foreach>
+          </if>
+
+
+          <if test="countAlers == 0">
+            <tr>
+              <td colspan="8" style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">
+                <p style="padding: 30px; margin: 0; text-align: center;">NO DATA</p>
+              </td>
+            </tr>
+          </if>
+
+          
+
+
+        </tbody>
+      </table>
+    </div>
+
+
+
+  </div>
+</div>

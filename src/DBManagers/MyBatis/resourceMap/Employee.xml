@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Employee">
+	<select id="getEmployeeLogin">
+		SELECT
+			e.id,
+			e.`password`,
+			e.first_name,
+			e.last_name,
+			e.id AS id_employee,
+			e.salt,
+			e.email,
+			avatar,
+			concat( e.first_name, ' ', e.last_name ) AS `full_name`,
+			GROUP_CONCAT( erm.id_role SEPARATOR ',' ) AS id_roles 
+		FROM
+			employee e
+			LEFT JOIN employee_role_map erm ON erm.id_employee = e.id
+			LEFT JOIN role r ON r.id = erm.id_role 
+		WHERE
+			e.email = #{email} 
+			AND e.`status` = 1 
+			AND r.`status` = 1 
+		GROUP BY
+			e.id;
+	</select>
+
+
+	<select id="getEmployeePermissions">
+		SELECT
+			m.id,
+			m.id_screen,
+			m.screen_name,
+			IF(m.class_icon != '', m.class_icon, '') AS class_icon,
+			m.has_child,
+			m.`level`,
+			m.parent,
+			m.module_path,
+			m.group_type,
+			(MAX( m.`view` ) + MAX( m.`new` ) + MAX( m.`delete` ) + MAX( m.`edit` ) + MAX( m.`excel` ) + MAX( m.`pdf` ) + MAX( m.`print` ) + MAX( m.`translate` ) + MAX( m.`approval` )) AS auths 
+		FROM
+			(
+			SELECT
+				rd.`name` AS role_name,
+				erm.id_role,
+				sd.screen_name,
+				s.id AS id_screen,
+				s.path as module_path,
+				s.class_icon,
+				s.has_child,
+				s.`level`,
+				s.parent,
+				s.id,
+				s.group_type,
+				rpsm.auths,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 1) AS `view`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 2) AS `new`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 4) AS `delete`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 8) AS `edit`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 16) AS `excel`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 32) AS `pdf`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 64) AS `print`, 
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 128) AS `translate`,
+				(IFNULL(rpsm.auths,0) <![CDATA[&]]> 256) AS `approval` 
+			FROM
+				employee e
+				LEFT JOIN employee_role_map erm ON e.id = erm.id_employee
+				LEFT JOIN role r ON r.id = erm.id_role
+				LEFT JOIN role_detail rd ON rd.id_role = r.id  AND rd.id_language = 1
+				LEFT JOIN role_screen_map rpsm ON r.id = rpsm.id_role
+				LEFT JOIN screen s ON s.id = rpsm.id_screen
+				LEFT JOIN screen_detail sd ON sd.id_screen = s.id AND sd.id_language = 1
+				LEFT JOIN `language` l ON l.id = rd.id_language
+			WHERE
+				l.id =  1
+				AND e.`status` = 1 
+				AND r.`status` = 1 
+				AND s.`status` = 1 
+				AND l.`status` = 1
+				AND r.id IN 
+					<foreach item="item" index="index" collection="id_roles"
+						open="(" separator="," close=")">
+							#{item}
+					</foreach>
+
+			ORDER BY
+				r.id ASC 
+			) AS m 
+		GROUP BY
+			m.id_screen 
+	</select>
+
+
+
+	<select id="getListLanguage">
+		SELECT
+			l.id,
+			l.`name`,
+			l.iso_code,
+			l.icon,
+			l.is_default
+		FROM
+			`language` l
+		WHERE
+			l.`status` = 1
+			ORDER BY l.is_default DESC
+	</select>
+
+
+	<select id="checkEmployeeForgotPassword">
+		SELECT
+			e.`id`,
+			e.`email`,
+			e.`first_name`,
+			e.`last_name`,
+			concat(e.first_name,' ' , e.last_name ) AS `full_name`
+		FROM
+			employee e
+		WHERE
+			e.email = #{email} 
+			LIMIT 1;
+	</select>
+
+	<update id="resetChangePassword">
+		UPDATE `employee`
+		SET
+			<if test="password != null and salt != null">
+				password = #{password},
+				salt = #{salt}
+			</if>
+		WHERE
+			email = #{email} and id = #{id}
+	</update>
+
+<select id="getDetailUpdateProfile">
+		SELECT
+			e.`id`,
+			e.`email`,
+			e.`first_name`,
+			e.`last_name`,
+			e.phone,
+			e.avatar,
+			e.avatar AS avatar_full,
+			DATE_FORMAT(e.birthday, '%d/%m/%Y') AS birthday,
+			
+			concat(e.first_name,' ' , e.last_name ) AS `full_name`
+		FROM
+			employee e
+		WHERE
+			e.id = #{id}
+			AND  e.`status` = 1
+			LIMIT 1;
+	</select>
+
+
+	<select id="getDetail">
+		SELECT
+			e.`id`,
+			e.`email`,
+			e.`first_name`,
+			e.`last_name`,
+			e.phone,
+			e.avatar,
+			e.status,
+			e.gender,
+			e.avatar AS avatar_full,
+			DATE_FORMAT(e.birthday, '%d/%m/%Y') AS birthday,
+			concat(e.first_name,' ' , e.last_name ) AS `full_name`
+		FROM
+			employee e
+		WHERE
+			e.id = #{id}
+			LIMIT 1;
+
+		SELECT
+			* 
+		FROM
+			employee_role_map erm 
+		WHERE
+			erm.id_employee = #{id};	
+	</select>
+
+
+
+	<update id="updateProfile">
+		UPDATE employee
+		SET
+			first_name = #{first_name},
+			last_name = #{last_name},
+			phone = #{phone},
+			birthday = #{birthday},
+			avatar = #{avatar}
+		WHERE
+			id = #{id}
+	</update>
+
+
+	<select id="checkEmployeeExist">
+		SELECT
+			e.`id`,
+			e.`email`,
+			e.`first_name`,
+			e.`last_name`,
+			e.phone,
+			e.avatar,
+			e.password,
+			e.salt,
+			e.avatar AS avatar_full,
+			DATE_FORMAT(e.birthday, '%d/%m/%Y') AS birthday,
+			concat(e.first_name,' ' , e.last_name ) AS `full_name`
+		FROM
+			employee e
+		WHERE
+			e.email = #{email}
+			AND  e.`status` = 1
+			LIMIT 1
+	</select>
+
+
+	
+	<update id="updateEmployeePassword">
+		UPDATE employee
+		SET
+			password = #{password},
+			salt = #{salt}
+		WHERE
+			email = #{email} and id = #{id}
+	</update>
+
+
+	<select id="getList">
+		SELECT
+			e.id,
+			e.first_name,
+			e.last_name,
+			DATE_FORMAT(e.birthday,'%d/%m/%Y') as birthday,
+			e.gender,
+			e.phone,
+			e.email,
+			e.avatar,
+			concat(e.first_name,' ' , e.last_name ) AS `full_name`,
+			e.`status`,
+			rm.ids_role,
+			rm.role_name
+		FROM
+			employee e
+			LEFT JOIN (
+				SELECT 
+					erm.id_employee, 
+					erm.id_role,
+					GROUP_CONCAT(erm.id_role SEPARATOR ', ') AS ids_role,
+					GROUP_CONCAT(rd.name SEPARATOR ', ') AS role_name
+				FROM employee_role_map erm 
+				LEFT JOIN role r ON r.id = erm.id_role
+				LEFT JOIN role_detail rd ON rd.id_role = r.id 
+				WHERE r.status = 1 AND rd.id_language = #{id_language} GROUP BY erm.id_employee ORDER BY r.id DESC
+			)rm ON e.id = rm.id_employee
+			
+		WHERE
+			e.`status` IN(0,1)
+			<if test="full_name != null">
+				AND (e.first_name LIKE CONCAT('%', #{full_name},'%') OR e.last_name LIKE CONCAT('%', #{full_name},'%'))
+			</if>
+		GROUP BY e.id
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY e.id DESC
+			</otherwise>
+		</choose>
+
+
+ 		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+	</select>
+
+	<select id="getSize">
+		SELECT
+			count(e.id) totalRow
+		FROM `employee` AS e
+		WHERE e.`status` IN(0,1)
+		<if test="full_name != null">
+			AND (e.first_name LIKE CONCAT('%', #{full_name},'%') OR e.last_name LIKE CONCAT('%', #{full_name},'%'))
+		</if>	
+	</select>
+
+
+	<select id="getListAll">
+		SELECT
+			e.id,
+			e.first_name,
+			e.last_name,
+			e.phone,
+			e.email,
+			concat(e.first_name,' ' , e.last_name ) AS `full_name`,
+			e.`status`,
+			rm.ids_role,
+			rm.role_name,
+			0 AS is_checked
+		FROM
+			employee e
+			LEFT JOIN (
+				SELECT 
+					erm.id_employee, 
+					erm.id_role,
+					GROUP_CONCAT(erm.id_role SEPARATOR ', ') AS ids_role,
+					GROUP_CONCAT(rd.name SEPARATOR ', ') AS role_name
+				FROM employee_role_map erm 
+				LEFT JOIN role r ON r.id = erm.id_role
+				LEFT JOIN role_detail rd ON rd.id_role = r.id 
+				WHERE r.status = 1 AND rd.id_language = #{id_language} GROUP BY erm.id_employee ORDER BY r.id DESC
+			)rm ON e.id = rm.id_employee
+			
+		WHERE
+			e.`status` IN(0,1)
+		GROUP BY e.id
+	</select>
+
+
+	<select id="checkEmployeeExistByEmail">
+		SELECT 
+		`id`, `email`, `first_name`, `last_name`
+		FROM employee e
+		WHERE e.email = #{email}
+	</select>
+
+
+	<insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `employee`
+		(
+			`first_name`,
+			`last_name`,
+			`phone`,
+			`email`,
+			`password`,
+			`salt`,
+			`gender`,
+			`birthday`,
+			`avatar`,
+			`created_date`,
+			`created_by`,
+			`status`
+			
+		)VALUES(
+			#{first_name},
+			#{last_name},
+			#{phone},
+			#{email},
+			#{password},
+			#{salt},
+			#{gender},
+			#{birthday},
+			#{avatar},
+			NOW(),
+			#{created_by},
+			#{status}
+		);
+	</insert>
+
+	<insert id="insertEmployeeRoleMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `employee_role_map` 
+		(
+			`id_employee`, 
+			`id_role`
+		)
+		VALUES
+		<foreach collection="role_data" item="item" index="index" separator=",">
+				(
+					#{item.id_employee}, 
+					#{item.id_role}
+				)
+		</foreach>
+	</insert>
+
+
+	<update id="updateStatus">
+		UPDATE employee
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+
+	<update id="delete">
+		UPDATE employee
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+
+	</update>
+
+
+	<delete id="deleteEmployeeRoleMap">
+		DELETE FROM `employee_role_map`
+		WHERE id_employee = #{id}
+	</delete>
+
+	<update id="update">
+		UPDATE `employee`
+		SET
+			`first_name` = #{first_name},
+			`last_name` = #{last_name},
+			`gender` = #{gender},
+			`phone` = #{phone},
+			`birthday` = #{birthday},
+			`updated_by` = #{updated_by},
+			`updated_date` = NOW(),
+			`status` = #{status},
+			`avatar` = #{avatar}
+		WHERE
+			id = #{id}
+	</update>
+
+	<update id="updateAndPassword">
+		UPDATE `employee`
+		SET
+			`first_name` = #{first_name},
+			`last_name` = #{last_name},
+			`gender` = #{gender},
+			`phone` = #{phone},
+			`birthday` = #{birthday},
+			`updated_by` = #{updated_by},
+			`updated_date` = NOW(),
+			`status` = #{status},
+			`avatar` = #{avatar},
+			`password` = #{password},
+			`salt` = #{salt}
+		WHERE
+			id = #{id}
+	</update>
+
+	<select id="getListProjectConfigMail">
+		SELECT
+			p.id,
+			ep.id_employee,
+			ep.id_project,
+			pd.`name`,
+			IFNULL(mr.mail_now, 0) AS mail_now,
+			IFNULL(mr.mail_day, 0) AS mail_day,
+			IFNULL(mr.mail_month, 0) AS mail_month,
+			IFNULL(mr.mail_year, 0) AS mail_year,
+			IF((mr.mail_now IS NULL || mr.mail_now = 0 || mr.mail_day IS NULL || mr.mail_day = 0 || mr.mail_month IS NULL || mr.mail_month = 0 || mr.mail_year IS NULL || mr.mail_year = 0 ), 0, 1) AS `mail_all`
+		FROM
+			emloyee_project_map ep
+			LEFT JOIN project p ON p.id = ep.id_project
+			LEFT JOIN project_detail pd ON pd.id_project = p.id AND pd.id_language = #{id_language}
+			LEFT JOIN `mail_receive_config` mr ON mr.id_project = p.id
+		WHERE ep.id_employee = #{id_employee}
+		AND p.`status` = 1
+			<if test="name != null">
+				AND (pd.name LIKE CONCAT('%', #{name},'%'))
+			</if>
+		GROUP BY p.id
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY p.id DESC
+			</otherwise>
+		</choose>
+
+
+ 		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+	</select>
+
+	<select id="getListProjectConfigMailSize">
+		SELECT
+			count(p.id) totalRow
+		FROM
+			emloyee_project_map ep
+			LEFT JOIN project p ON p.id = ep.id_project
+			LEFT JOIN project_detail pd ON pd.id_project = p.id AND pd.id_language = #{id_language}
+			LEFT JOIN `mail_receive_config` mr ON mr.id_project = p.id
+		WHERE ep.id_employee = #{id_employee}
+		AND p.`status` = 1
+		<if test="name != null">
+			AND (pd.name LIKE CONCAT('%', #{name},'%'))
+		</if>	
+	</select>
+
+	<update id="updateStatusMailConfig">
+		UPDATE mail_receive_config
+		SET
+			mail_now = #{mail_now},
+			mail_day = #{mail_day},
+			mail_month = #{mail_month},
+			mail_year = #{mail_year}
+		WHERE
+			id_project = #{id_project} AND id_employee = #{id_employee}
+	</update>
+
+	<insert id="insertMailConfig" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `mail_receive_config` 
+		(
+			`id_employee`, 
+			`id_project`,
+			`mail_now`,
+			`mail_day`,
+			`mail_month`,
+			`mail_year`
+		)
+		VALUES(
+				#{id_employee}, 
+				#{id_project},
+				#{mail_now},
+				#{mail_day},
+				#{mail_month},
+				#{mail_year}
+			)
+	</insert>
+
+
+	<select id="checkMailConfigExist">
+		SELECT
+			*
+		FROM
+			mail_receive_config e
+		WHERE
+			e.id_employee = #{id_employee}
+			AND  e.`id_project` = #{id_project}
+			LIMIT 1
+	</select>
+
+
+</mapper>

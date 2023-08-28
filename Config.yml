@@ -1,0 +1,110 @@
+# System config
+{
+  server: {
+    domain: [],
+    context_path: 'api',
+    use_cluster: true,
+    env : 'production',
+    listenPort: 3009,
+    protocol: 'http://',
+    use_ssl: false,
+    ssl_option: {
+      listenPort: 8002,
+      protocol: 'https://',
+      privateKey: '/home/tichnguyen/sslFLEX/domain.key',
+      certificate: '/home/tichnguyen/sslFLEX/domain.crt'
+    },
+    # put your server key here
+    fcm_key: "AAAAuBr8G-o:APA91bGDy1OsXUO6McamN_AZVtWWQR8InQss2SDb80c7pTPX1oMbrqtXcpXDvkU5jKvV-9jEereaBISt6IeHyBEFYdfpGeH9mQ7wwMPvXdN-YoQ79GYb1K4LUeno93YAYPj7FzYmCspt",
+    secret_token: {
+      secret_key: '3PxPJByozT522IXRje6qolL',
+      # dv phut
+      timeout: 1440
+    },
+    smtpConfig: {
+      host : "smtp.gmail.com",
+      secureConnection : false,
+      port: 587, #v465
+      auth : {
+          user: 'kekara@flex.com.vn',
+          pass: 'j3v0qehwji1'
+        }
+    },
+    toEmailConfig: [
+      # 'tich.nguyen@flex.com.vn',
+      # 'chuong.ma@flex.com.vn',
+      'lam.nguyen@flex.com.vn',
+      # 'khanh.le@flex.com.vn'
+    ],
+    encrypt: {
+      algorithm: 'aes-256-ctr',
+      secret_key: 'tzSZ5wAh18Vq'
+    },
+    token_param: {
+      timeout: 4200,
+      key: 'x-access-token'
+    },
+    # wkhtmltopdf_command: "/usr/bin/wkhtmltox-0.12.4/wkhtmltox/bin/wkhtmltopdf",
+    wkhtmltopdf_command: "wkhtmltopdf",
+    tmp_dir: "tmp/",
+    report_dir: "views/",
+    report_ext: ".html",
+    public_path: [
+      '/system/showImageAction',
+      '/system/getCode',
+      '/system/showBarcodeAction',
+      '/lims/getListMachine',
+      '/lims/getMachineById',
+      '/lims/updateMachineById',
+      '/lims/uploadDataLims'
+    ]
+  },
+  i18n: {
+    locales: ['en','vi','cn'],
+    defaultLocale: 'vi',
+    directory: '/app/lang',
+    extension: '.json',
+  },
+  mybatis: {
+		dir_mapper: 'resourceMap/'
+    
+  },
+  mysql: {
+    host     : 'pm.flex.com.vn',
+    port     : 3307,
+    user		: 'flex',
+    password     : 'n26vtx',
+    database : 'cloud_clinic',
+    # The maximum number of connections to create at once. (Default: 10)
+    connectionLimit : 20000, 
+    typeCast : true,
+    multipleStatements: true,
+    # The maximum number of connection requests the pool will queue before returning an error from getConnection. If set to 0, there is no limit to the number of queued connection requests. (Default: 0)
+    queueLimit: 0, 
+    # The milliseconds before a timeout occurs during the connection acquisition. This is slightly different from connectTimeout, because acquiring a pool connection does not always involve making a connection. (Default: 10000)
+    acquireTimeout: 10000, 
+    waitForConnections: true
+  },
+  redis: {
+    host: '192.168.10.16',
+		port: 6379,
+		socket_keepalive: true,
+		connect_timeout: 3600000,
+		password: '+-c5#f$EcG67xYN8d2ep9qj=hXLnjz3AB&=N',
+		db: 1
+  },
+  elasticSearch: {
+    host : [ {
+        host : '192.168.2.4',
+        auth : 'elastic:flexElas.',
+        protocol : 'http',
+        port : 9200
+      }
+    ],
+    elasPageSize: 20, 
+    index: 'cloud_clinic'
+  },
+
+  kafka: {
+  },
+}

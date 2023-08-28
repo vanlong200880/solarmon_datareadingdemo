@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientReport">
+
+	<select id="getDataReportMonth">
+		SELECT
+				p.id,
+				p.hash_id,
+				p.thumbnail,
+				p.address,
+				p.lat,
+				p.lng,
+				p.installed_power,
+				DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+				DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+				DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+				YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+				pd.`name`,
+				pd.site_name,
+				pgd.`name` AS project_group_name,
+				IFNULL(t.config_revenue,0) AS config_revenue,
+				DATE_FORMAT(NOW(), '%d/%m/%Y') AS current_day,
+				DATE_FORMAT( LAST_DAY(#{end_date}) , '%d' ) AS last_day,
+				DATE_FORMAT( #{end_date} , '%Y' ) AS year,
+				DATE_FORMAT( #{end_date} , '%c' ) AS month,
+				DATE_FORMAT( #{end_date} , '%b' ) AS month_string,
+				DATE_FORMAT( #{end_date} , '%m/%Y' ) AS month_year,
+				p.config_yi,
+				p.config_po,
+				p.total_loss_factor,
+				p.config_yi1,
+				p.config_po1,
+				p.total_loss_factor1
+			FROM
+				project p
+				LEFT JOIN project_detail pd ON pd.id_project = p.id 
+				AND pd.id_language = #{id_language}
+				LEFT JOIN project_group pg ON pg.id = p.id_project_group
+				LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id AND pgd.id_language = #{id_language}
+				
+				LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id 
+
+				LEFT JOIN(
+					SELECT pc.id_project, pc.config_revenue FROM project_config pc WHERE NOW() <![CDATA[>=]]> pc.start_date AND NOW() <![CDATA[<=]]> pc.end_date AND pc.`status` = 1 GROUP BY pc.id_project
+				)t ON t.id_project = p.id	
+			WHERE p.`status` = 1 AND pg.`status` = 1 AND epm.id_employee = #{id_employee} AND p.hash_id = #{hash_id} LIMIT 1;
+
+
+			SELECT 
+				d.id,
+				d.id_project,
+				d.id_device_group,
+				dg.table_name
+			FROM
+				device d
+				LEFT JOIN device_group dg ON dg.id = d.id_device_group
+				LEFT JOIN project p ON p.id = d.id_project 
+			WHERE
+				p.hash_id = #{hash_id} 
+				AND d.`status` = 1 
+				AND d.is_virtual = 1
+				AND dg.`status` = 1
+				AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+				GROUP BY dg.id;
+
+
+			SELECT
+				a.id,
+				a.id_error,
+				a.id_alert_state,
+				FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+				CASE
+					WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN TIMESTAMPDIFF( DAY, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+					WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN TIMESTAMPDIFF( HOUR, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+					WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN TIMESTAMPDIFF( MINUTE, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) ) ELSE 0
+				END AS times_ago,
+				CASE
+					WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN 'DAY'
+					WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN 'HOUR'
+					WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN 'MINUTE' ELSE 'NOW'
+				END AS times_ago_unit,
+
+				a.end_date,
+				a.`status`,
+				IF(a.`status` = 1, 'Opened', 'Closed') as status_name,
+				a.note,
+				ed.message,
+				ed.description,
+				ed.solutions,
+				eld.`name` as error_level_name,
+				etd.`name` AS error_type_name,
+				el.thumbnail,
+				e.id_error_level,
+				d.name,
+				e.id_error_type,
+				0 AS is_checked,
+				asd.`name` AS alert_state_name
+			FROM
+				alert a 
+				LEFT JOIN error e ON e.id = a.id_error
+				LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+				
+				LEFT JOIN error_level el ON el.id = e.id_error_level
+				LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+				
+				LEFT JOIN error_type et ON et.id = e.id_error_type
+				LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = #{id_language}
+				LEFT JOIN device d ON d.id = a.id_device
+				LEFT JOIN project p ON p.id = d.id_project
+				LEFT JOIN alert_state als ON als.id = a.id_alert_state
+				LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id AND asd.id_language = #{id_language}
+			WHERE
+				a.`status` IN(0, 1) AND el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1  AND p.`status` = 1
+				AND FROM_UNIXTIME( a.start_date, '%m/%Y' ) = DATE_FORMAT( #{end_date}, '%m/%Y' )  
+				AND d.is_virtual = 1
+				
+				AND d.id IN (
+					SELECT
+							d.id
+						FROM
+							project_map_device_virtual pm
+							LEFT JOIN device d ON d.id = pm.id_device
+							LEFT JOIN project p ON p.id = pm.id_project 
+						WHERE
+							p.hash_id = #{hash_id}
+							AND p.`status` = 1 
+							AND d.`status` = 1 
+							AND d.is_virtual = 1 
+						GROUP BY
+							d.id
+						UNION ALL
+						SELECT d.id FROM device d 
+						LEFT JOIN project p ON p.id = d.id_project
+						WHERE
+						p.hash_id = #{hash_id}
+							AND p.`status` = 1 
+							AND d.`status` = 1 
+							AND d.is_virtual = 1 
+				);
+
+
+
+
+	</select>
+
+
+<select id="dataEnergyMonth">
+		SELECT
+			t.time_format,
+			t.time_full,
+			t.category_time_format,
+			t.last_day,
+			t.day,
+			ROUND(( SUM( t.activePower ) / 1000 ), 1 ) AS activePower,
+			ROUND(( SUM( t.activeEnergy ) / 1000 ),1 ) AS activeEnergy,
+			ROUND(( SUM( t.max_activeEnergy ) / 1000 ),1 ) AS max_activeEnergy,
+			ROUND(( SUM( t.min_activeEnergy ) / 1000 ),1 ) AS min_activeEnergy
+		FROM
+			(
+				<foreach collection="groupInverter" item="item" index="index" separator="union all">
+				<![CDATA[
+					SELECT
+						m.time,
+						m.time_format,
+						m.time_full,
+						m.activePower,
+						m.category_time_format,
+						SUM(m.activeEnergy) AS activeEnergy,
+						SUM(m.max_activeEnergy) AS max_activeEnergy,
+						SUM(m.min_activeEnergy) AS min_activeEnergy,
+						m.last_day,
+						m.day,
+						m.group_day
+						FROM
+						(
+							SELECT
+							dv.time,
+							FROM_UNIXTIME(dv.time, '%Y-%m-%d') AS time_format,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS time_full,
+							FROM_UNIXTIME(dv.time, '%e') AS day,
+							DATE_FORMAT( LAST_DAY(#{item.end_date}) , '%d' ) AS last_day,
+							FROM_UNIXTIME( dv.time, '%e. %b' ) AS category_time_format,
+							SUM(dv.activePower) AS activePower,
+							MAX(dv.activeEnergy) AS max_activeEnergy,
+							MIN(dv.activeEnergy) AS min_activeEnergy,
+							ROUND(
+								(
+								MAX(dv.activeEnergy) - MIN(dv.activeEnergy)
+								),
+								1
+							) AS activeEnergy,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+							FROM
+							${item.table_name} dv
+							LEFT JOIN device d ON d.id = dv.id_device
+							LEFT JOIN project p ON p.id = d.id_project
+							WHERE
+							p.hash_id = #{item.hash_id} 
+							AND d.id_device_group = #{item.id_device_group} 
+							AND FROM_UNIXTIME( dv.time, '%m' ) = DATE_FORMAT( #{item.end_date}, '%m' ) 
+							AND FROM_UNIXTIME( dv.time, '%Y' ) = DATE_FORMAT( #{item.end_date}, '%Y' )
+							AND p.`status` = 1
+							AND d.`status` = 1
+							AND d.is_virtual = 1
+							AND dv.activeEnergy > 0
+							GROUP BY
+							time_format, d.id
+						) m
+						GROUP BY
+						m.time_format
+					
+					]]>
+		      </foreach>
+			) t 
+		GROUP BY
+			t.time_format
+	</select>
+
+
+<select id="getDataReportYear">
+
+		SELECT
+				p.id,
+				p.hash_id,
+				p.thumbnail,
+				p.address,
+				p.lat,
+				p.lng,
+				p.installed_power,
+				DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+				DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+				DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+				YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+				pd.`name`,
+				pd.site_name,
+				pgd.`name` AS project_group_name,
+				IFNULL(t.config_revenue,0) AS config_revenue,
+				DATE_FORMAT(NOW(), '%d/%m/%Y') AS current_day,
+				DATE_FORMAT( LAST_DAY(#{end_date}) , '%d' ) AS last_day,
+				DATE_FORMAT( #{end_date} , '%Y' ) AS year,
+				DATE_FORMAT( #{end_date} , '%c' ) AS month,
+				DATE_FORMAT( #{end_date} , '%b' ) AS month_string,
+				DATE_FORMAT( #{end_date} , '%m/%Y' ) AS month_year,
+
+				DATE_FORMAT( #{start_date} , '%b' ) AS start_month,
+				DATE_FORMAT( #{start_date} , '%Y' ) AS start_year,
+				DATE_FORMAT( #{start_date} , '%b/%Y' ) AS start_string,
+
+				DATE_FORMAT( #{end_date} , '%b' ) AS end_month,
+				DATE_FORMAT( #{end_date} , '%Y' ) AS end_year,
+				DATE_FORMAT( #{end_date} , '%b/%Y' ) AS end_string
+
+			FROM
+				project p
+				LEFT JOIN project_detail pd ON pd.id_project = p.id 
+				AND pd.id_language = #{id_language}
+				LEFT JOIN project_group pg ON pg.id = p.id_project_group
+				LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id AND pgd.id_language = #{id_language}
+				
+				LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id 
+
+				LEFT JOIN(
+					SELECT pc.id_project, pc.config_revenue FROM project_config pc WHERE NOW() <![CDATA[>=]]> pc.start_date AND NOW() <![CDATA[<=]]> pc.end_date AND pc.`status` = 1 GROUP BY pc.id_project
+				)t ON t.id_project = p.id	
+			WHERE p.`status` = 1 AND pg.`status` = 1 AND epm.id_employee = #{id_employee} AND p.hash_id = #{hash_id} LIMIT 1;
+
+
+			SELECT 
+				d.id,
+				d.id_project,
+				d.id_device_group,
+				dg.table_name
+			FROM
+				device d
+				LEFT JOIN device_group dg ON dg.id = d.id_device_group
+				LEFT JOIN project p ON p.id = d.id_project 
+			WHERE
+				p.hash_id = #{hash_id} 
+				AND d.`status` = 1 
+				AND d.is_virtual = 1
+				AND dg.`status` = 1
+				AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+				GROUP BY dg.id;
+
+
+			SELECT
+				etd.`name`,
+				IFNULL(SUM(t.total_alarm), 0 ) AS total_alarm,
+				et.thumbnail
+			FROM
+				error_type et
+				LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id 
+				AND etd.id_language = 1
+				LEFT JOIN (
+					SELECT
+						et.id,
+						COUNT( a.id ) AS total_alarm 
+					FROM
+						device d
+						LEFT JOIN project p ON p.id = d.id_project 
+						LEFT JOIN alert a ON a.id_device = d.id
+						LEFT JOIN error e ON e.id = a.id_error
+						LEFT JOIN error_type et ON et.id = e.id_error_type
+					WHERE
+						p.hash_id = #{hash_id}
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m' ) <![CDATA[>=]]>  DATE_FORMAT( #{start_date}, '%Y-%m' ) 
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m' ) <![CDATA[<=]]>  DATE_FORMAT( #{end_date}, '%Y-%m' ) 
+					GROUP BY
+						et.id 
+					UNION ALL
+					SELECT
+						et.id,
+						COUNT( a.id ) AS total_alarm 
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN project p ON p.id = pm.id_project 
+						LEFT JOIN alert a ON a.id_device = pm.id_device
+						LEFT JOIN error e ON e.id = a.id_error
+						LEFT JOIN error_type et ON et.id = e.id_error_type
+					WHERE
+						p.hash_id = #{hash_id}
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m' ) <![CDATA[>=]]>  DATE_FORMAT( #{start_date}, '%Y-%m' ) 
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m' ) <![CDATA[<=]]>  DATE_FORMAT( #{end_date}, '%Y-%m' ) 
+					GROUP BY
+						et.id 
+						
+				)t ON t.id = et.id
+				WHERE et.`status` = 1
+			GROUP BY
+				et.id;
+
+
+			SELECT
+				FROM_UNIXTIME( a.start_date, '%m/%Y' ) AS time_full,
+				FROM_UNIXTIME( a.start_date, '%b' ) AS categories,
+				COUNT( a.id ) AS total_alarm 
+			FROM
+				alert a 
+			WHERE
+				a.id_device IN (
+				SELECT
+					d.id 
+				FROM
+					device d 
+					LEFT JOIN project p ON p.id = d.id_project
+				WHERE
+					p.hash_id = #{hash_id}
+					UNION ALL
+				SELECT
+					pm.id_device AS id 
+				FROM
+					project_map_device_virtual pm 
+					LEFT JOIN project p ON p.id = pm.id_project
+				WHERE
+					p.hash_id = #{hash_id}
+				) 
+				AND FROM_UNIXTIME( a.start_date, '%Y-%m' ) <![CDATA[>=]]>  DATE_FORMAT( #{start_date}, '%Y-%m' ) 
+				AND FROM_UNIXTIME( a.start_date, '%Y-%m' ) <![CDATA[<=]]>  DATE_FORMAT( #{end_date}, '%Y-%m' ) 
+			GROUP BY FROM_UNIXTIME( a.start_date, '%Y-%m');
+
+
+			SELECT
+				pe.* 
+			FROM
+				project p
+				LEFT JOIN proejct_energy_expectations pe ON pe.id_project = p.id 
+			WHERE
+				p.`status` = 1 
+				AND p.hash_id = #{hash_id} 
+				LIMIT 1;
+
+
+
+	</select>
+
+
+	<select id="dataEnergyYear">
+		SELECT
+			t.time_format,
+			t.time_full,
+			t.category_time_format,
+			t.month,
+			t.year,
+			t.month_str,
+			ROUND(( SUM( t.activePower ) / 1000 ), 1 ) AS activePower,
+			ROUND(( SUM( t.activeEnergy ) / 1000 ),1 ) AS activeEnergy,
+			0 AS estimate_energy,
+			ROUND(( SUM( t.max_activeEnergy ) / 1000 ),1 ) AS max_activeEnergy,
+			ROUND(( SUM( t.min_activeEnergy ) / 1000 ),1 ) AS min_activeEnergy
+			
+		FROM
+			(
+				<foreach collection="groupInverter" item="item" index="index" separator="union all">
+				<![CDATA[
+					SELECT
+						m.time,
+						m.time_format,
+						m.time_full,
+						m.activePower,
+						m.category_time_format,
+						SUM(m.activeEnergy) AS activeEnergy,
+						SUM(m.max_activeEnergy) AS max_activeEnergy,
+						SUM(m.min_activeEnergy) AS min_activeEnergy,
+						m.month,
+						m.year,
+						m.month_str,
+						m.group_day
+						FROM
+						(
+							SELECT
+							dv.time,
+							FROM_UNIXTIME(dv.time, '%Y-%m') AS time_format,
+							FROM_UNIXTIME(dv.time, '%m/%Y') AS time_full,
+							FROM_UNIXTIME(dv.time, '%c') AS month,
+							FROM_UNIXTIME(dv.time, '%Y') AS year,
+							FROM_UNIXTIME(dv.time, '%b') AS month_str,
+							FROM_UNIXTIME( dv.time, '%e. %b' ) AS category_time_format,
+							SUM(dv.activePower) AS activePower,
+							MAX(dv.activeEnergy) AS max_activeEnergy,
+							MIN(dv.activeEnergy) AS min_activeEnergy,
+							ROUND(
+								(
+								MAX(dv.activeEnergy) - MIN(dv.activeEnergy)
+								),
+								1
+							) AS activeEnergy,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+							FROM
+							${item.table_name} dv
+							LEFT JOIN device d ON d.id = dv.id_device
+							LEFT JOIN project p ON p.id = d.id_project
+							WHERE
+							p.hash_id = #{item.hash_id} 
+							AND d.id_device_group = #{item.id_device_group} 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m' ) >=  DATE_FORMAT( #{item.start_date}, '%Y-%m' ) 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m' ) <= DATE_FORMAT( #{item.end_date}, '%Y-%m' ) 
+
+							AND p.`status` = 1
+							AND d.`status` = 1
+							AND d.is_virtual = 1
+							AND dv.activeEnergy > 0
+							GROUP BY
+							time_format, d.id
+						) m
+						GROUP BY
+						m.time_format
+					
+					]]>
+		      </foreach>
+			) t 
+		GROUP BY
+			t.time_format
+	</select>
+
+	<select id="getListProject">
+		SELECT
+				p.id,
+				p.hash_id,
+				p.thumbnail,
+				p.address,
+				p.lat,
+				p.lng,
+				p.installed_power,
+				DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+				DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+				DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+				pd.`name`,
+				pd.site_name,
+				DATE_FORMAT(NOW(), '%d/%m/%Y') AS current_day,
+				DATE_FORMAT( LAST_DAY(DATE_ADD(NOW(),INTERVAL -1 MONTH)) , '%d' ) AS last_day,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%Y' ) AS year,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%c' ) AS month,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%b' ) AS month_string,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%m/%Y' ) AS month_year,
+
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%b' ) AS start_month,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%Y' ) AS start_year,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%b/%Y' ) AS start_string,
+
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%b' ) AS end_month,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%Y' ) AS end_year,
+				DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%b/%Y' ) AS end_string,
+				IFNULL(m.config_revenue,0) AS config_revenue,
+				t.email
+
+			FROM
+				project p
+				LEFT JOIN project_detail pd ON pd.id_project = p.id 
+				AND pd.id_language = 2		
+				LEFT JOIN(
+					SELECT pc.id_project, pc.config_revenue FROM project_config pc WHERE DATE_ADD(NOW(),INTERVAL -1 MONTH) <![CDATA[>=]]> pc.start_date AND DATE_ADD(NOW(),INTERVAL -1 MONTH) <![CDATA[<=]]> pc.end_date AND pc.`status` = 1 GROUP BY pc.id_project
+				)m ON m.id_project = p.id	
+
+				LEFT JOIN (
+					SELECT epm.id_project, GROUP_CONCAT( DISTINCT(e.email) SEPARATOR ', ' ) AS email , CONCAT(e.first_name, ' ', e.last_name) AS full_name FROM emloyee_project_map epm
+					LEFT JOIN employee e ON e.id = epm.id_employee
+					GROUP BY epm.id_project
+				)t ON p.id = t.id_project
+
+			WHERE p.`status` = 1;
+	</select>
+	<select id="getDataGroupInverter">
+		SELECT 
+				d.id,
+				d.id_project,
+				d.id_device_group,
+				dg.table_name
+			FROM
+				device d
+				LEFT JOIN device_group dg ON dg.id = d.id_device_group
+				LEFT JOIN project p ON p.id = d.id_project 
+			WHERE
+				p.hash_id = #{hash_id} 
+				AND d.`status` = 1 
+				AND d.is_virtual = 1
+				AND dg.`status` = 1
+				AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+				GROUP BY dg.id;
+	</select>
+
+
+
+<select id="dataEnergyMonthEmail">
+		SELECT
+			t.time_format,
+			t.time_full,
+			t.category_time_format,
+			t.last_day,
+			t.day,
+			ROUND(( SUM( t.activePower ) / 1000 ), 1 ) AS activePower,
+			ROUND(( SUM( t.activeEnergy ) / 1000 ),1 ) AS activeEnergy, 
+			ROUND(( SUM( t.max_activeEnergy ) / 1000 ),1 ) AS max_activeEnergy,
+			ROUND(( SUM( t.min_activeEnergy ) / 1000 ),1 ) AS min_activeEnergy
+		FROM
+			(
+				<foreach collection="groupInverter" item="item" index="index" separator="union all">
+				<![CDATA[
+					SELECT
+						m.time,
+						m.time_format,
+						m.time_full,
+						m.activePower,
+						m.category_time_format,
+						SUM(m.activeEnergy) AS activeEnergy,
+						SUM(m.max_activeEnergy) AS max_activeEnergy,
+						SUM(m.min_activeEnergy) AS min_activeEnergy,
+						m.last_day,
+						m.day,
+						m.group_day
+						FROM
+						(
+							SELECT
+							dv.time,
+							FROM_UNIXTIME(dv.time, '%Y-%m-%d') AS time_format,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS time_full,
+							FROM_UNIXTIME(dv.time, '%e') AS day,
+							DATE_FORMAT( LAST_DAY(DATE_ADD(NOW(),INTERVAL -1 MONTH)) , '%d' ) AS last_day,
+							FROM_UNIXTIME( dv.time, '%e. %b' ) AS category_time_format,
+							SUM(dv.activePower) AS activePower,
+							ROUND((MAX(dv.activeEnergy) - MIN(dv.activeEnergy)), 1) AS activeEnergy,
+							MAX(dv.activeEnergy) AS max_activeEnergy,
+							MIN(dv.activeEnergy) AS min_activeEnergy,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+							FROM
+							${item.table_name} dv
+							LEFT JOIN device d ON d.id = dv.id_device
+							LEFT JOIN project p ON p.id = d.id_project
+							WHERE
+							p.hash_id = #{item.hash_id} 
+							AND d.id_device_group = #{item.id_device_group} 
+							AND FROM_UNIXTIME( dv.time, '%m' ) = DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%m' ) 
+							AND FROM_UNIXTIME( dv.time, '%Y' ) = DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%Y' )
+							AND p.`status` = 1
+							AND d.`status` = 1
+							AND d.is_virtual = 1
+							AND dv.activeEnergy > 0
+							GROUP BY
+							time_format, d.id
+						) m
+						GROUP BY
+						m.time_format
+					
+					]]>
+		      </foreach>
+			) t 
+		GROUP BY
+			t.time_format
+	</select>
+
+
+	
+	<select id="getDataAlertReportMonth">
+		SELECT
+				a.id,
+				a.id_error,
+				a.id_alert_state,
+				FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+				a.end_date,
+				a.`status`,
+				IF(a.`status` = 1, 'Opened', 'Closed') as status_name,
+				a.note,
+				ed.message,
+				ed.description,
+				ed.solutions,
+				eld.`name` as error_level_name,
+				etd.`name` AS error_type_name,
+				el.thumbnail,
+				e.id_error_level,
+				d.name,
+				e.id_error_type,
+				0 AS is_checked,
+				asd.`name` AS alert_state_name
+			FROM
+				alert a 
+				LEFT JOIN error e ON e.id = a.id_error
+				LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = 2
+				
+				LEFT JOIN error_level el ON el.id = e.id_error_level
+				LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = 2
+				
+				LEFT JOIN error_type et ON et.id = e.id_error_type
+				LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = 2
+				LEFT JOIN device d ON d.id = a.id_device
+				LEFT JOIN project p ON p.id = d.id_project
+				LEFT JOIN alert_state als ON als.id = a.id_alert_state
+				LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id AND asd.id_language = 2
+			WHERE
+				a.`status` IN(0, 1) AND el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1  AND p.`status` = 1
+				AND FROM_UNIXTIME( a.start_date, '%m' ) = DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%m' ) 
+				AND d.is_virtual = 1
+				AND d.id IN (
+					SELECT
+							d.id
+						FROM
+							project_map_device_virtual pm
+							LEFT JOIN device d ON d.id = pm.id_device
+							LEFT JOIN project p ON p.id = pm.id_project 
+						WHERE
+							p.hash_id = #{hash_id}
+							AND p.`status` = 1 
+							AND d.`status` = 1 
+							AND d.is_virtual = 1 
+						GROUP BY
+							d.id
+						UNION ALL
+						SELECT d.id FROM device d 
+						LEFT JOIN project p ON p.id = d.id_project
+						WHERE
+						p.hash_id = #{hash_id}
+							AND p.`status` = 1 
+							AND d.`status` = 1 
+							AND d.is_virtual = 1 
+				);
+	</select>
+
+
+	<select id="getTotalFeetAlarms">
+		SELECT
+				etd.`name`,
+				IFNULL(SUM(t.total_alarm), 0 ) AS total_alarm,
+				et.thumbnail
+			FROM
+				error_type et
+				LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id 
+				AND etd.id_language = 1
+				LEFT JOIN (
+					SELECT
+						et.id,
+						COUNT( a.id ) AS total_alarm 
+					FROM
+						device d
+						LEFT JOIN project p ON p.id = d.id_project 
+						LEFT JOIN alert a ON a.id_device = d.id
+						LEFT JOIN error e ON e.id = a.id_error
+						LEFT JOIN error_type et ON et.id = e.id_error_type
+					WHERE
+						p.hash_id = #{hash_id}
+						AND d.is_virtual = 1
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[>=]]>  DATE_FORMAT( #{start_date}, '%Y-%m-%d' ) 
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[<=]]>  DATE_FORMAT( #{end_date}, '%Y-%m-%d' ) 
+					GROUP BY
+						et.id 
+					UNION ALL
+					SELECT
+						et.id,
+						COUNT( a.id ) AS total_alarm 
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+						LEFT JOIN alert a ON a.id_device = pm.id_device
+						LEFT JOIN error e ON e.id = a.id_error
+						LEFT JOIN error_type et ON et.id = e.id_error_type
+					WHERE
+						p.hash_id = #{hash_id}
+						AND d.is_virtual = 1
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[>=]]>  DATE_FORMAT( #{start_date}, '%Y-%m-%d' ) 
+						AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[<=]]>  DATE_FORMAT( #{end_date}, '%Y-%m-%d' ) 
+					GROUP BY
+						et.id 
+						
+				)t ON t.id = et.id
+				WHERE et.`status` = 1
+			GROUP BY
+				et.id;
+	</select>
+
+
+	<select id="getListProjectYearEmail">
+		SELECT
+				p.id,
+				p.hash_id,
+				p.thumbnail,
+				p.address,
+				p.lat,
+				p.lng,
+				p.installed_power,
+				DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+				DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+				DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+				YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+				pd.`name`,
+				pd.site_name,
+				pgd.`name` AS project_group_name,
+				IFNULL(t.config_revenue,0) AS config_revenue,
+				DATE_FORMAT(NOW(), '%d/%m/%Y') AS current_day,
+				DATE_FORMAT( LAST_DAY(#{end_date}) , '%d' ) AS last_day,
+				DATE_FORMAT( #{end_date} , '%Y' ) AS year,
+				DATE_FORMAT( #{end_date} , '%c' ) AS month,
+				DATE_FORMAT( #{end_date} , '%b' ) AS month_string,
+				DATE_FORMAT( #{end_date} , '%m/%Y' ) AS month_year,
+
+				DATE_FORMAT( #{start_date} , '%b' ) AS start_month,
+				DATE_FORMAT( #{start_date} , '%Y' ) AS start_year,
+				DATE_FORMAT( #{start_date} , '%b/%Y' ) AS start_string,
+
+				DATE_FORMAT( #{end_date} , '%b' ) AS end_month,
+				DATE_FORMAT( #{end_date} , '%Y' ) AS end_year,
+				DATE_FORMAT( #{end_date} , '%b/%Y' ) AS end_string
+
+			FROM
+				project p
+				LEFT JOIN project_detail pd ON pd.id_project = p.id 
+				AND pd.id_language = 2
+				LEFT JOIN project_group pg ON pg.id = p.id_project_group
+				LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id AND pgd.id_language = 2
+			
+
+				LEFT JOIN(
+					SELECT pc.id_project, pc.config_revenue FROM project_config pc WHERE NOW() <![CDATA[>=]]> pc.start_date AND NOW() <![CDATA[<=]]> pc.end_date AND pc.`status` = 1 GROUP BY pc.id_project
+				)t ON t.id_project = p.id	
+			WHERE p.`status` = 1 AND pg.`status` = 1 AND p.id IN(14);
+	</select>
+
+	<select id="getListAlarmYearEmail">
+		SELECT
+				FROM_UNIXTIME( a.start_date, '%m/%Y' ) AS time_full,
+				FROM_UNIXTIME( a.start_date, '%b' ) AS categories,
+				COUNT( a.id ) AS total_alarm 
+			FROM
+				alert a 
+			WHERE
+				a.id_device IN (
+				SELECT
+					d.id 
+				FROM
+					device d 
+					LEFT JOIN project p ON p.id = d.id_project
+				WHERE
+					p.hash_id = #{hash_id}
+					AND d.is_virtual = 1
+					UNION ALL
+				SELECT
+					pm.id_device AS id 
+				FROM
+					project_map_device_virtual pm 
+					LEFT JOIN device d ON d.id = pm.id_device
+					LEFT JOIN project p ON p.id = pm.id_project
+				WHERE
+					p.hash_id = #{hash_id}
+					AND d.is_virtual = 1
+				) 
+				AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[>=]]>  DATE_FORMAT( #{start_date}, '%Y-%m-%d' ) 
+				AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[<=]]>  DATE_FORMAT( #{end_date}, '%Y-%m-%d' ) 
+			GROUP BY FROM_UNIXTIME( a.start_date, '%Y-%m');
+	</select>
+
+
+	<select id="getConfigEstimate">
+		SELECT
+			pe.* 
+		FROM
+			project p
+			LEFT JOIN proejct_energy_expectations pe ON pe.id_project = p.id 
+		WHERE
+			p.`status` = 1 
+			AND p.hash_id = #{hash_id} 
+			LIMIT 1;
+	</select>
+
+
+	<select id="getAlertsDailyReport">
+		SELECT
+			a.id,
+			a.id_error,
+			a.id_alert_state,
+			FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN TIMESTAMPDIFF( DAY, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN TIMESTAMPDIFF( HOUR, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN TIMESTAMPDIFF( MINUTE, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) ) ELSE 0
+			END AS times_ago,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN 'DAY'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN 'HOUR'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN 'MINUTE' ELSE 'NOW'
+			END AS times_ago_unit,
+
+			a.end_date,
+			a.`status`,
+			IF(a.`status` = 1, 'Opened', 'Closed') as status_name,
+			a.note,
+			ed.message,
+			ed.description,
+			ed.solutions,
+			eld.`name` as error_level_name,
+			etd.`name` AS error_type_name,
+			el.thumbnail,
+			e.id_error_level,
+			d.`name`,
+			e.id_error_type,
+			0 AS is_checked,
+			asd.`name` AS alert_state_name,
+			pd.site_name,
+			pd.`name` AS project_name
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = 2
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = 2
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = 2
+			LEFT JOIN device d ON d.id = a.id_device
+			LEFT JOIN project p ON p.id = d.id_project
+			LEFT JOIN project_detail pd ON pd.id_project = p.id AND pd.id_language = 2
+			LEFT JOIN alert_state als ON als.id = a.id_alert_state
+			LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id AND asd.id_language = 2
+		WHERE
+			a.`status` IN(0,1) AND el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1  AND p.`status` = 1 AND el.id IN(1,4)
+			AND FROM_UNIXTIME(a.start_date, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+			AND d.is_virtual = 1
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+					WHERE
+						p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+						<if test="idsProject != null and idsProject != ''">
+							AND  p.id IN 
+								<foreach item="item" index="index" collection="idsProject"
+										open="(" separator="," close=")">
+									#{item}
+								</foreach>
+						</if>
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					WHERE p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+						<if test="idsProject != null and idsProject != ''">
+							AND  p.id IN 
+								<foreach item="item" index="index" collection="idsProject"
+										open="(" separator="," close=")">
+									#{item}
+								</foreach>
+						</if>
+			)
+			ORDER BY p.id
+	</select>
+
+
+
+	<select id="getConfigEstimate">
+		SELECT
+			pe.* 
+		FROM
+			project p
+			LEFT JOIN proejct_energy_expectations pe ON pe.id_project = p.id 
+		WHERE
+			p.`status` = 1 
+			AND p.hash_id = #{hash_id} 
+			LIMIT 1;
+	</select>
+
+
+	<select id="getListUserDailyReport">
+		SELECT
+			em.id,
+			em.email,
+			em.first_name,
+			em.last_name,
+			GROUP_CONCAT(DISTINCT pm.id_project) AS ids_project
+		FROM
+			employee em
+			LEFT JOIN mail_receive_config m ON m.id_employee = em.id 
+			LEFT JOIN emloyee_project_map pm ON pm.id_employee = em.id
+		WHERE
+			em.`status` = 1 
+			AND m.mail_day = 1 
+		GROUP BY
+			em.id
+	</select>
+
+
+
+
+
+
+</mapper>

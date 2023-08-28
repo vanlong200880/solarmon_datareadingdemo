@@ -1,0 +1,153 @@
+# System config
+{
+  server: {
+    domain: [
+      'techedge.vn',
+      'www.techedge.vn',
+      'http://techedge.vn',
+      'http://www.techedge.vn',
+      'https://techedge.vn',
+      'https://www.techedge.vn',
+      'http://solarmon.techedge.vn',
+      'http://www.solarmon.techedge.vn',
+      'http://solarmon.techedge.vn/',
+      'http://www.solarmon.techedge.vn/',
+      'https://solarmon.techedge.vn/',
+      'https://solarmon.techedge.vn',
+      'https://www.solarmon.techedge.vn',
+      'https://www.solarmon.techedge.vn/',
+      'solarmon.techedge.vn',
+      'www.solarmon.techedge.vn',
+      'http://solarmon.techedge.vn',
+      'http://devsolarmon.focustech.vn',
+      'https://devsolarmon.focustech.vn/',
+      'https://devsolarmon.focustech.vn',
+      'devsolarmon.focustech.vn',
+
+      'demo.techedge.vn',
+      'www.demo.techedge.vn',
+      'http://demo.techedge.vn',
+      'https://demo.techedge.vn/',
+      'https://demo.techedge.vn',
+
+
+      'localhost', 
+      '103.110.86.80', 
+      '103.110.86.80:80', 
+      '103.110.86.80:443', 
+      '103.110.86.80:80', 
+      'localhost:3011', 
+      'localhost:3010',
+      'localhost:3012',
+      'http://103.110.86.80:3006',
+      '103.110.86.80:3006', 
+      'localhost:80', 
+      'http://103.110.86.80:80', 
+      '103.110.86.80:3000', 
+      'http://103.110.86.80:3000', 
+      ],
+    context_path: 'api/',
+    use_cluster: false,
+    env : 'production',
+    listenPort: 2001,
+    protocol: 'http://',
+    use_ssl: false,
+    ssl_option: {
+      listenPort: 8002,
+      protocol: 'https://',
+      privateKey: '/www/server/panel/vhost/cert/datareadings.focustech.vn/privkey.pem',
+      certificate: '/www/server/panel/vhost/cert/datareadings.focustech.vn/fullchain.pem'
+    },
+    # put your server key here
+    fcm_key: "AAAAuBr8G-o:APA91bGDy1OsXUO6McamN_AZVtWWQR8InQss2SDb80c7pTPX1oMbrqtXcpXDvkU5jKvV-9jEereaBISt6IeHyBEFYdfpGeH9mQ7wwMPvXdN-YoQ79GYb1K4LUeno93YAYPj7FzYmCspt",
+    secret_token: {
+      secret_key: '3PxPJByozT522IXRje6qolL',
+      # dv phut
+      timeout: 1440
+    },
+    smtpConfig: {
+      host : "smtp.gmail.com",
+      # host: "chv3-24859.azdigihost.com",
+      # host: "email-smtp.us-west-2.amazonaws.com",
+      secureConnection : false,
+      port: 587, #v465
+      auth : {
+          user: 'techedge.solarmon@gmail.com',
+          pass: 'ndwbpsbootfgmoby',
+          # user: 'solarmon@techedge.vn',
+          # pass: '123456ASD!@#$%^',
+          # user: "AKIATUMNKF7MR5OEM3P4",
+          # pass: "BA0mBkaJ+40n4pbHtFi7gisbA53ahtpEpJwk0AfPSA5B"
+        }
+    },
+    fromEmailConfig: "solarmon@techedge.vn",
+    toEmailConfig: [
+      'solarmon@techedge.vn',
+    ],
+    encrypt: {
+      algorithm: 'aes-256-ctr',
+      secret_key: 'tzSZ5wAh18Vq'
+    },
+    token_param: {
+      timeout: 4200,
+      key: 'x-access-token'
+    },
+    # wkhtmltopdf_command: "/usr/bin/wkhtmltox-0.12.4/wkhtmltox/bin/wkhtmltopdf",
+    wkhtmltopdf_command: '/usr/bin/wkhtmltopdf',
+    # wkhtmltopdf_command: "wkhtmltopdf",
+    tmp_dir: "tmp/",
+    report_dir: "views/",
+    report_ext: ".html",
+    public_path: [
+    ]
+  },
+  i18n: {
+    locales: ['en','vi'],
+    defaultLocale: 'vi',
+    directory: '/app/lang',
+    extension: '.json',
+  },
+  mybatis: {
+		dir_mapper: 'resourceMap/'
+    
+  },
+  mysql: {
+
+    host     : '103.110.87.38',
+    port     : 3306,
+    user                : 'solarmon_demo',
+    password     : 'w7bBYNCFT7rYJz5X',
+    database : 'solarmon_demo',
+
+    # The maximum number of connections to create at once. (Default: 10)
+    connectionLimit : 2000000,
+    typeCast : true,
+    multipleStatements: true,
+    # The maximum number of connection requests the pool will queue before returning an error from getConnection. If set to 0, there is no limit to the number of queued connection requests. (Default: 0)
+    queueLimit: 0, 
+    # The milliseconds before a timeout occurs during the connection acquisition. This is slightly different from connectTimeout, because acquiring a pool connection does not always involve making a connection. (Default: 10000)
+    acquireTimeout: 10000, 
+    waitForConnections: true
+  },
+  redis: {
+    host: 'localhost',
+		port: 6379,
+		# socket_keepalive: true,
+		connect_timeout: 3600000,
+		# password: '05a171fae0d',
+    password: '',
+		# db: 1
+  },
+  elasticSearch: {
+    host : [ {
+        # host : '192.168.2.4',
+        host: 'localhost',
+        # auth : 'elastic:flexElas.',
+        # protocol : 'http',
+        port : 9200
+      }
+    ],
+    elasPageSize: 20, 
+    index: 'cloud_solarmon'
+  },
+}

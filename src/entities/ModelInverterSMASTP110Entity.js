@@ -1,0 +1,63 @@
+import BaseEntity from './BaseEntity';
+
+class ModelInverterSMASTP110Entity extends BaseEntity {
+	constructor() {
+		super();
+		this.time = null;
+		this.id_device = null;
+		this.acCurrent = null;
+		this.currentPhaseA = null;
+		this.currentPhaseB = null;
+		this.currentPhaseC = null;
+		this.voltagePhaseA = null;
+		this.voltagePhaseB = null;
+		this.voltagePhaseC = null;
+		this.activePower = null;
+		this.powerFrequency = null;
+		this.apparentPower = null;
+		this.reactivePower = null;
+		this.powerFactor = null;
+		this.activeEnergy = null;
+		this.dcCurrent = null;
+		this.dcVoltage = null;
+		this.dcPower = null;
+		this.cabinetTemperature = null;
+		this.mppt1Current = null;
+		this.mppt1Voltage = null;
+		this.mppt1Power = null;
+		this.mppt2Current = null;
+		this.mppt2Voltage = null;
+		this.mppt2Power = null;
+		this.mppt3Current = null;
+		this.mppt3Voltage = null;
+		this.mppt3Power = null;
+		this.mppt4Current = null;
+		this.mppt4Voltage = null;
+		this.mppt4Power = null;
+		this.mppt5Current = null;
+		this.mppt5Voltage = null;
+		this.mppt5Power = null;
+		this.mppt6Current = null;
+		this.mppt6Voltage = null;
+		this.mppt6Power = null;
+		this.mppt7Current = null;
+		this.mppt7Voltage = null;
+		this.mppt7Power = null;
+		this.mppt8Current = null;
+		this.mppt8Voltage = null;
+		this.mppt8Power = null;
+		this.mppt9Current = null;
+		this.mppt9Voltage = null;
+		this.mppt9Power = null;
+		this.mppt10Current = null;
+		this.mppt10Voltage = null;
+		this.mppt10Power = null;
+		this.mppt11Current = null;
+		this.mppt11Voltage = null;
+		this.mppt11Power = null;
+		this.mppt12Current = null;
+		this.mppt12Voltage = null;
+		this.mppt12Power = null;
+	}
+}
+export default ModelInverterSMASTP110Entity;

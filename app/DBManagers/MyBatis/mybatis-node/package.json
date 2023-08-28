@@ -1,0 +1,44 @@
+{
+  "name": "mybatis-node",
+  "description": "MyBatisNodeJs is a port from the The MyBatis Java data mapper framework for Node.Js.",
+  "version": "1.0.2",
+  "dependencies": {
+    "@types/uuid": "^3.4.3",
+    "@types/xmldom": "^0.1.29",
+    "moment": "*",
+    "string": "*",
+    "tslint": "^5.9.1",
+    "uuid": "^3.2.1",
+    "xmldom": "*"
+  },
+  "main": "src/No.js",
+  "scripts": {
+    "test": "for f in tests/*; do echo \"$f\"; node \"$f\"; done; echo 'passed!'; exit 0",
+    "lint": "tslint --fix src/**/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fsx950223/MyBatisNodeJs.git"
+  },
+  "keywords": [
+    "mybatis",
+    "mybatis-port",
+    "orm",
+    "mysql",
+    "potstresql",
+    "java",
+    "nodejs",
+    "\"object",
+    "relational",
+    "mapper\""
+  ],
+  "author": "fsx950223",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/fsx950223/MyBatisNodeJs/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^9.6.6",
+    "typescript": "^2.8.3"
+  }
+}

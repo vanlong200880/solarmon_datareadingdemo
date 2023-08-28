@@ -1,0 +1,237 @@
+<div class="main" style="width: 100%;">
+  <div class="form-mail" style="margin: 0 auto;">
+
+    <table class="headTable" style="margin-top:0px;border:none;width:100%">
+      <tbody>
+        <tr>
+          <td style="border: 0px; text-align: left;">
+            <a href="https://solarmon.techedge.vn" target="_blank">
+              <img style="width: 120px;" src="#{logo}" />
+            </a>
+          </td>
+
+          <td style="border: 0px; text-align: left;">
+            <h2 style="text-align: right; font-size: 16px; text-transform: uppercase;">#{site_name}</h2>
+            <h3 style="text-align: right; font-size: 14px; text-transform: uppercase;">PROJECT: #{name}</h3>
+            <p style="text-align: right; font-size: 12px; text-transform: uppercase;">ADDRESS: #{address}</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <div class="report-header-info" style="border-top: 2px solid #DDD; margin-top: 15px;">
+     <table class="table" style="width: 100%; margin-top: 15px;">
+        <tbody>
+           <tr>
+              <td style="width: 40%; vertical-align: top;">
+                 <table class="table">
+                    <tbody>
+                       <tr>
+                          <td style="width: 45%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Nguồn dữ liệu ước tính:</p>
+                          </td>
+                          <td style="width: 55%;">
+                             <p class="value" style="padding: 0; margin: 0">PVSYST</p>
+                          </td>
+                       </tr>
+                       <tr>
+                          <td style="width: 45%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Nguồn dữ liệu báo cáo:</p>
+                          </td>
+                          <td style="width: 55%;">
+                             <p class="value" style="border-top: none; padding: 0; margin: 0">Solarmon</p>
+                          </td>
+                       </tr>
+                    </tbody>
+                 </table>
+                 <table class="table">
+                    <tbody>
+                       <tr>
+                          <td style="width: 45%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Báo cáo tháng:</p>
+                          </td>
+                          <td style="width: 55%;">
+                             <p class="value double" style="padding: 0; margin: 0">#{month_string}/#{year}</p>
+                          </td>
+                       </tr>
+
+                       <tr>
+                          <td style="width: 45%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Thời gian lập:</p>
+                          </td>
+                          <td style="width: 55%;">
+                             <p class="value double" style="padding: 0; margin: 0">#{current_day}</p>
+                          </td>
+                       </tr>
+
+                    </tbody>
+                 </table>
+              </td>
+
+              <td style="width: 30%; vertical-align: top;">
+                 <table class="table">
+                    <tbody>
+                       <tr>
+                          <td style="width: 25%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Energy start of month:</p>
+                          </td>
+                          <td style="width: 75%;">
+                             <p class="value double" style="text-align: left; margin: 0;">#{min_activeEnergy} kWh</p>
+                          </td>
+                       </tr>
+                       <tr>
+                          <td style="width: 25%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Energy end of month:</p>
+                          </td>
+                          <td style="width: 75%;">
+                             <p class="value double" style="border-top: none; margin: 0">#{max_activeEnergy} kWh</p>
+                          </td>
+                       </tr>
+                       <tr>
+                        <td style="width: 25%;">
+                           <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Energy yield in month:</p>
+                        </td>
+                        <td style="width: 75%;">
+                           <p class="value double" style="border-top: none; text-align: left; margin: 0">#{energyMonth} kWh</p>
+                        </td>
+                     </tr>
+
+                       <tr>
+                          <td style="width: 25%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Revenue in month:</p>
+                          </td>
+                          <td style="width: 75%;">
+                             <p class="value double" style="border-top: none; text-align: left; margin: 0">#{revenue} VNĐ</p>
+                          </td>
+                       </tr>
+
+
+                       <tr>
+                        <td style="width: 25%;">
+                           <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">PR (sensor):</p>
+                        </td>
+                        <td style="width: 75%;">
+                           <p class="value double" style="border-top: none; text-align: left; margin: 0">NaN</p>
+                        </td>
+                     </tr>
+                       
+                       
+                    </tbody>
+                 </table>
+              </td>
+
+              <td style="width: 30%; vertical-align: top;">
+                 <table class="table">
+                    <tbody>
+                       <tr>
+                          <td style="width: 25%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Installed power:</p>
+                          </td>
+                          <td style="width: 75%;">
+                             <p class="value double" style="text-align: left; margin: 0;">#{installed_date}</p>
+                          </td>
+                       </tr>
+                       <tr>
+                          <td style="width: 25%;">
+                             <p class="text" style="width: 200px; margin: 0; padding: 0; line-height: 30px">Commissioning date:</p>
+                          </td>
+                          <td style="width: 75%;">
+                             <p class="value double" style="border-top: none; margin: 0">#{commisioning_date}</p>
+                          </td>
+                       </tr>
+                       
+                    </tbody>
+                 </table>
+              </td>
+
+
+              
+
+           </tr>
+        </tbody>
+     </table>
+  </div>
+
+
+  <div class="day-energy">
+    <h1 style="text-align:center; text-transform: uppercase; font-size: 16px; font-weight: bold; margin-top: 30px; margin-bottom: 30px;">SẢN LƯỢNG ĐIỆN MẶT TRỜI HÀNG NGÀY</h1>
+
+    <table class="table table-bordered" style="width: 100%; border: 1px solid #DDD; border-collapse: collapse;">
+       <thead class="table-light" style="background-color: #f3f5f7;">
+          <tr>
+             <th colspan="32" style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">
+                <p class="text-center" style="padding: 0; margin: 0">#{month_year}</p>
+             </th>
+          </tr>
+          <tr>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">Day</th>
+             <foreach collection="dataEnergyMonth" item="item" index="index">
+              <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.day}</th>
+            </foreach>
+          </tr>
+       </thead>
+       <tbody>
+          <tr>
+             <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">kWh</td>
+             <foreach collection="dataEnergyMonth" item="item" index="index">
+              <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.activeEnergy}</th>
+            </foreach>
+          </tr>
+       </tbody>
+    </table>
+
+  </div>
+
+
+
+
+  <div class="alarm">
+    <table class="table table-bordered" style="width: 100%; border: 1px solid #DDD; border-collapse: collapse; margin-top: 40px;">
+       <thead class="table-light">
+          <tr style="background-color: #f3f5f7;">
+             <th colspan="7" style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">
+                <p class="text-center" style="padding: 0; margin: 0">ALARMS</p>
+             </th>
+          </tr>
+          <tr>
+            <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">STT</th>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Type</th>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Level</th>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Component</th>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Issues</th>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Opened</th>
+             <th style="border:  1px solid #DDD; padding: 0.5rem 0.5rem; text-align: left;">Status</th>
+          </tr>
+       </thead>
+       <tbody>
+        <foreach collection="alerts" item="item" index="index">
+          <tr>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{index + 1}</td>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.error_type_name}</td>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.error_level_name}</td>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.name}</td>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">
+              <if test="message != ''">
+                #{item.message}
+              </if>
+              <if test="description != ''">
+                #{item.description}
+              </if>
+            </td>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.start_date_format}</td>
+            <td style="border:  1px solid #DDD; padding: 0.5rem 0.5rem;">#{item.status_name}</td>
+         </tr>
+        </foreach>
+
+          
+       </tbody>
+    </table>
+  </div>
+
+
+
+  </div>
+</div>
+
+

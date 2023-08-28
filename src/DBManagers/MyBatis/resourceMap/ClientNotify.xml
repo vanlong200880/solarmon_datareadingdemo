@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientNotify">
+	<select id="getList">
+		SELECT
+			a.id,
+			a.id_error,
+			a.id_alert_state,
+			FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN TIMESTAMPDIFF( DAY, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN TIMESTAMPDIFF( HOUR, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN TIMESTAMPDIFF( MINUTE, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) ) ELSE 0
+			END AS times_ago,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN 'DAY'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN 'HOUR'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN 'MINUTE' ELSE 'NOW'
+			END AS times_ago_unit,
+
+			a.end_date,
+			a.`status`,
+			a.note,
+			ed.message,
+			ed.description,
+			ed.solutions,
+			eld.`name` as error_level_name,
+			etd.`name` AS error_type_name,
+			el.thumbnail,
+			e.id_error_level,
+			d.name,
+			e.id_error_type,
+			0 AS is_checked,
+			asd.`name` AS alert_state_name,
+			pd.`name` AS project_name,
+			p.hash_id
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = #{id_language}
+			LEFT JOIN device d ON d.id = a.id_device
+			LEFT JOIN project p ON p.id = d.id_project
+			LEFT JOIN project_detail pd ON pd.id_project = p.id AND pd.id_language = #{id_language}
+			LEFT JOIN alert_state als ON als.id = a.id_alert_state
+			LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id AND asd.id_language = #{id_language}
+		WHERE
+			el.`status` = 1 
+			AND et.`status` = 1 
+			AND e.`status` = 1  
+			AND p.`status` = 1 
+			
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+						LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+					WHERE
+						ep.id_employee = #{id_employee}
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+					WHERE
+					ep.id_employee = #{id_employee}
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+			)
+
+
+			<if test="errorLevelList != null and errorLevelList != ''">
+				AND  e.id_error_level IN 
+				<foreach item="item" index="index" collection="errorLevelList"
+						open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			
+			<if test="errorTypeList != null and errorTypeList != ''">
+				AND  e.id_error_type IN 
+				<foreach item="item" index="index" collection="errorTypeList"
+						open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			<if test="statusList != null and statusList != ''">
+				AND  a.status IN 
+				<foreach item="item" index="index" collection="statusList"
+						open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			<if test="date_from != null and date_to != null">
+				AND FROM_UNIXTIME(a.start_date, '%Y-%m-%d') BETWEEN CAST(#{date_from} AS DATE) AND CAST(#{date_to} AS DATE)
+			</if>
+
+
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by} , a.id DESC
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+
+	</select>
+
+	<select id="getSize">
+		SELECT
+			count(a.id) totalRow
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = #{id_language}
+			LEFT JOIN device d ON d.id = a.id_device
+			LEFT JOIN project p ON p.id = d.id_project
+		WHERE
+			el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1  AND p.`status` = 1
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+						LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+					WHERE
+						ep.id_employee = #{id_employee} 
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+					WHERE
+					ep.id_employee = #{id_employee} 
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+			)
+			<if test="errorLevelList != null and errorLevelList != ''">
+				AND  e.id_error_level IN 
+				<foreach item="item" index="index" collection="errorLevelList"
+						open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			
+			<if test="errorTypeList != null and errorTypeList != ''">
+				AND  e.id_error_type IN 
+				<foreach item="item" index="index" collection="errorTypeList"
+						open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			<if test="statusList != null and statusList != ''">
+				AND  a.status IN 
+				<foreach item="item" index="index" collection="statusList"
+						open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+
+			<if test="date_from != null and date_to != null">
+				AND FROM_UNIXTIME(a.start_date, '%Y-%m-%d') BETWEEN CAST(#{date_from} AS DATE) AND CAST(#{date_to} AS DATE)
+			</if>
+
+	</select>
+
+	<update id="delete">
+		UPDATE alert
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by},
+			end_date = NOW()
+		WHERE
+			id = #{id}
+	</update>
+
+	<update id="closeAll">
+		<foreach collection="dataArr" item="item" index="index" open="" close="" separator=";">
+			UPDATE alert
+			<set>
+				status=#{item.status},
+				updated_date= NOW(),
+				updated_by = #{item.updated_by},
+				end_date = NOW()
+			</set>
+			where id = #{item.id}
+		</foreach>   
+		
+	</update>
+
+
+	<update id="updateAlert">
+		UPDATE alert
+		SET
+			status = #{status},
+			end_date = #{end_date},
+			note = #{note},
+			id_alert_state = #{id_alert_state},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE id = #{id}
+	</update>
+
+
+	<select id="getNotifySize">
+		SELECT
+			count(a.id) totalRow
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+
+			LEFT JOIN device d ON d.id = a.id_device
+			LEFT JOIN project p ON p.id = d.id_project
+		WHERE
+			a.`status`  = 1 AND p.`status` = 1  AND el.id IN(1,4)
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+						LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+					WHERE
+						ep.id_employee = #{id_employee}
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+					WHERE
+					ep.id_employee = #{id_employee}
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+			)
+	</select>
+
+
+</mapper>
+
+
+

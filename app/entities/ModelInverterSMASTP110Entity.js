@@ -1,0 +1,89 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _BaseEntity2 = require('./BaseEntity');
+
+var _BaseEntity3 = _interopRequireDefault(_BaseEntity2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ModelInverterSMASTP110Entity = function (_BaseEntity) {
+	_inherits(ModelInverterSMASTP110Entity, _BaseEntity);
+
+	function ModelInverterSMASTP110Entity() {
+		_classCallCheck(this, ModelInverterSMASTP110Entity);
+
+		var _this = _possibleConstructorReturn(this, (ModelInverterSMASTP110Entity.__proto__ || Object.getPrototypeOf(ModelInverterSMASTP110Entity)).call(this));
+
+		_this.time = null;
+		_this.id_device = null;
+		_this.acCurrent = null;
+		_this.currentPhaseA = null;
+		_this.currentPhaseB = null;
+		_this.currentPhaseC = null;
+		_this.voltagePhaseA = null;
+		_this.voltagePhaseB = null;
+		_this.voltagePhaseC = null;
+		_this.activePower = null;
+		_this.powerFrequency = null;
+		_this.apparentPower = null;
+		_this.reactivePower = null;
+		_this.powerFactor = null;
+		_this.activeEnergy = null;
+		_this.dcCurrent = null;
+		_this.dcVoltage = null;
+		_this.dcPower = null;
+		_this.cabinetTemperature = null;
+		_this.mppt1Current = null;
+		_this.mppt1Voltage = null;
+		_this.mppt1Power = null;
+		_this.mppt2Current = null;
+		_this.mppt2Voltage = null;
+		_this.mppt2Power = null;
+		_this.mppt3Current = null;
+		_this.mppt3Voltage = null;
+		_this.mppt3Power = null;
+		_this.mppt4Current = null;
+		_this.mppt4Voltage = null;
+		_this.mppt4Power = null;
+		_this.mppt5Current = null;
+		_this.mppt5Voltage = null;
+		_this.mppt5Power = null;
+		_this.mppt6Current = null;
+		_this.mppt6Voltage = null;
+		_this.mppt6Power = null;
+		_this.mppt7Current = null;
+		_this.mppt7Voltage = null;
+		_this.mppt7Power = null;
+		_this.mppt8Current = null;
+		_this.mppt8Voltage = null;
+		_this.mppt8Power = null;
+		_this.mppt9Current = null;
+		_this.mppt9Voltage = null;
+		_this.mppt9Power = null;
+		_this.mppt10Current = null;
+		_this.mppt10Voltage = null;
+		_this.mppt10Power = null;
+		_this.mppt11Current = null;
+		_this.mppt11Voltage = null;
+		_this.mppt11Power = null;
+		_this.mppt12Current = null;
+		_this.mppt12Voltage = null;
+		_this.mppt12Power = null;
+		return _this;
+	}
+
+	return ModelInverterSMASTP110Entity;
+}(_BaseEntity3.default);
+
+exports.default = ModelInverterSMASTP110Entity;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9lbnRpdGllcy9Nb2RlbEludmVydGVyU01BU1RQMTEwRW50aXR5LmpzIl0sIm5hbWVzIjpbIk1vZGVsSW52ZXJ0ZXJTTUFTVFAxMTBFbnRpdHkiLCJ0aW1lIiwiaWRfZGV2aWNlIiwiYWNDdXJyZW50IiwiY3VycmVudFBoYXNlQSIsImN1cnJlbnRQaGFzZUIiLCJjdXJyZW50UGhhc2VDIiwidm9sdGFnZVBoYXNlQSIsInZvbHRhZ2VQaGFzZUIiLCJ2b2x0YWdlUGhhc2VDIiwiYWN0aXZlUG93ZXIiLCJwb3dlckZyZXF1ZW5jeSIsImFwcGFyZW50UG93ZXIiLCJyZWFjdGl2ZVBvd2VyIiwicG93ZXJGYWN0b3IiLCJhY3RpdmVFbmVyZ3kiLCJkY0N1cnJlbnQiLCJkY1ZvbHRhZ2UiLCJkY1Bvd2VyIiwiY2FiaW5ldFRlbXBlcmF0dXJlIiwibXBwdDFDdXJyZW50IiwibXBwdDFWb2x0YWdlIiwibXBwdDFQb3dlciIsIm1wcHQyQ3VycmVudCIsIm1wcHQyVm9sdGFnZSIsIm1wcHQyUG93ZXIiLCJtcHB0M0N1cnJlbnQiLCJtcHB0M1ZvbHRhZ2UiLCJtcHB0M1Bvd2VyIiwibXBwdDRDdXJyZW50IiwibXBwdDRWb2x0YWdlIiwibXBwdDRQb3dlciIsIm1wcHQ1Q3VycmVudCIsIm1wcHQ1Vm9sdGFnZSIsIm1wcHQ1UG93ZXIiLCJtcHB0NkN1cnJlbnQiLCJtcHB0NlZvbHRhZ2UiLCJtcHB0NlBvd2VyIiwibXBwdDdDdXJyZW50IiwibXBwdDdWb2x0YWdlIiwibXBwdDdQb3dlciIsIm1wcHQ4Q3VycmVudCIsIm1wcHQ4Vm9sdGFnZSIsIm1wcHQ4UG93ZXIiLCJtcHB0OUN1cnJlbnQiLCJtcHB0OVZvbHRhZ2UiLCJtcHB0OVBvd2VyIiwibXBwdDEwQ3VycmVudCIsIm1wcHQxMFZvbHRhZ2UiLCJtcHB0MTBQb3dlciIsIm1wcHQxMUN1cnJlbnQiLCJtcHB0MTFWb2x0YWdlIiwibXBwdDExUG93ZXIiLCJtcHB0MTJDdXJyZW50IiwibXBwdDEyVm9sdGFnZSIsIm1wcHQxMlBvd2VyIiwiQmFzZUVudGl0eSJdLCJtYXBwaW5ncyI6Ijs7Ozs7O0FBQUE7Ozs7Ozs7Ozs7OztJQUVNQSw0Qjs7O0FBQ0wseUNBQWM7QUFBQTs7QUFBQTs7QUFFYixRQUFLQyxJQUFMLEdBQVksSUFBWjtBQUNBLFFBQUtDLFNBQUwsR0FBaUIsSUFBakI7QUFDQSxRQUFLQyxTQUFMLEdBQWlCLElBQWpCO0FBQ0EsUUFBS0MsYUFBTCxHQUFxQixJQUFyQjtBQUNBLFFBQUtDLGFBQUwsR0FBcUIsSUFBckI7QUFDQSxRQUFLQyxhQUFMLEdBQXFCLElBQXJCO0FBQ0EsUUFBS0MsYUFBTCxHQUFxQixJQUFyQjtBQUNBLFFBQUtDLGFBQUwsR0FBcUIsSUFBckI7QUFDQSxRQUFLQyxhQUFMLEdBQXFCLElBQXJCO0FBQ0EsUUFBS0MsV0FBTCxHQUFtQixJQUFuQjtBQUNBLFFBQUtDLGNBQUwsR0FBc0IsSUFBdEI7QUFDQSxRQUFLQyxhQUFMLEdBQXFCLElBQXJCO0FBQ0EsUUFBS0MsYUFBTCxHQUFxQixJQUFyQjtBQUNBLFFBQUtDLFdBQUwsR0FBbUIsSUFBbkI7QUFDQSxRQUFLQyxZQUFMLEdBQW9CLElBQXBCO0FBQ0EsUUFBS0MsU0FBTCxHQUFpQixJQUFqQjtBQUNBLFFBQUtDLFNBQUwsR0FBaUIsSUFBakI7QUFDQSxRQUFLQyxPQUFMLEdBQWUsSUFBZjtBQUNBLFFBQUtDLGtCQUFMLEdBQTBCLElBQTFCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsWUFBTCxHQUFvQixJQUFwQjtBQUNBLFFBQUtDLFlBQUwsR0FBb0IsSUFBcEI7QUFDQSxRQUFLQyxVQUFMLEdBQWtCLElBQWxCO0FBQ0EsUUFBS0MsYUFBTCxHQUFxQixJQUFyQjtBQUNBLFFBQUtDLGFBQUwsR0FBcUIsSUFBckI7QUFDQSxRQUFLQyxXQUFMLEdBQW1CLElBQW5CO0FBQ0EsUUFBS0MsYUFBTCxHQUFxQixJQUFyQjtBQUNBLFFBQUtDLGFBQUwsR0FBcUIsSUFBckI7QUFDQSxRQUFLQyxXQUFMLEdBQW1CLElBQW5CO0FBQ0EsUUFBS0MsYUFBTCxHQUFxQixJQUFyQjtBQUNBLFFBQUtDLGFBQUwsR0FBcUIsSUFBckI7QUFDQSxRQUFLQyxXQUFMLEdBQW1CLElBQW5CO0FBeERhO0FBeURiOzs7RUExRHlDQyxvQjs7a0JBNEQ1QnhELDRCIiwiZmlsZSI6Ik1vZGVsSW52ZXJ0ZXJTTUFTVFAxMTBFbnRpdHkuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgQmFzZUVudGl0eSBmcm9tICcuL0Jhc2VFbnRpdHknO1xuXG5jbGFzcyBNb2RlbEludmVydGVyU01BU1RQMTEwRW50aXR5IGV4dGVuZHMgQmFzZUVudGl0eSB7XG5cdGNvbnN0cnVjdG9yKCkge1xuXHRcdHN1cGVyKCk7XG5cdFx0dGhpcy50aW1lID0gbnVsbDtcblx0XHR0aGlzLmlkX2RldmljZSA9IG51bGw7XG5cdFx0dGhpcy5hY0N1cnJlbnQgPSBudWxsO1xuXHRcdHRoaXMuY3VycmVudFBoYXNlQSA9IG51bGw7XG5cdFx0dGhpcy5jdXJyZW50UGhhc2VCID0gbnVsbDtcblx0XHR0aGlzLmN1cnJlbnRQaGFzZUMgPSBudWxsO1xuXHRcdHRoaXMudm9sdGFnZVBoYXNlQSA9IG51bGw7XG5cdFx0dGhpcy52b2x0YWdlUGhhc2VCID0gbnVsbDtcblx0XHR0aGlzLnZvbHRhZ2VQaGFzZUMgPSBudWxsO1xuXHRcdHRoaXMuYWN0aXZlUG93ZXIgPSBudWxsO1xuXHRcdHRoaXMucG93ZXJGcmVxdWVuY3kgPSBudWxsO1xuXHRcdHRoaXMuYXBwYXJlbnRQb3dlciA9IG51bGw7XG5cdFx0dGhpcy5yZWFjdGl2ZVBvd2VyID0gbnVsbDtcblx0XHR0aGlzLnBvd2VyRmFjdG9yID0gbnVsbDtcblx0XHR0aGlzLmFjdGl2ZUVuZXJneSA9IG51bGw7XG5cdFx0dGhpcy5kY0N1cnJlbnQgPSBudWxsO1xuXHRcdHRoaXMuZGNWb2x0YWdlID0gbnVsbDtcblx0XHR0aGlzLmRjUG93ZXIgPSBudWxsO1xuXHRcdHRoaXMuY2FiaW5ldFRlbXBlcmF0dXJlID0gbnVsbDtcblx0XHR0aGlzLm1wcHQxQ3VycmVudCA9IG51bGw7XG5cdFx0dGhpcy5tcHB0MVZvbHRhZ2UgPSBudWxsO1xuXHRcdHRoaXMubXBwdDFQb3dlciA9IG51bGw7XG5cdFx0dGhpcy5tcHB0MkN1cnJlbnQgPSBudWxsO1xuXHRcdHRoaXMubXBwdDJWb2x0YWdlID0gbnVsbDtcblx0XHR0aGlzLm1wcHQyUG93ZXIgPSBudWxsO1xuXHRcdHRoaXMubXBwdDNDdXJyZW50ID0gbnVsbDtcblx0XHR0aGlzLm1wcHQzVm9sdGFnZSA9IG51bGw7XG5cdFx0dGhpcy5tcHB0M1Bvd2VyID0gbnVsbDtcblx0XHR0aGlzLm1wcHQ0Q3VycmVudCA9IG51bGw7XG5cdFx0dGhpcy5tcHB0NFZvbHRhZ2UgPSBudWxsO1xuXHRcdHRoaXMubXBwdDRQb3dlciA9IG51bGw7XG5cdFx0dGhpcy5tcHB0NUN1cnJlbnQgPSBudWxsO1xuXHRcdHRoaXMubXBwdDVWb2x0YWdlID0gbnVsbDtcblx0XHR0aGlzLm1wcHQ1UG93ZXIgPSBudWxsO1xuXHRcdHRoaXMubXBwdDZDdXJyZW50ID0gbnVsbDtcblx0XHR0aGlzLm1wcHQ2Vm9sdGFnZSA9IG51bGw7XG5cdFx0dGhpcy5tcHB0NlBvd2VyID0gbnVsbDtcblx0XHR0aGlzLm1wcHQ3Q3VycmVudCA9IG51bGw7XG5cdFx0dGhpcy5tcHB0N1ZvbHRhZ2UgPSBudWxsO1xuXHRcdHRoaXMubXBwdDdQb3dlciA9IG51bGw7XG5cdFx0dGhpcy5tcHB0OEN1cnJlbnQgPSBudWxsO1xuXHRcdHRoaXMubXBwdDhWb2x0YWdlID0gbnVsbDtcblx0XHR0aGlzLm1wcHQ4UG93ZXIgPSBudWxsO1xuXHRcdHRoaXMubXBwdDlDdXJyZW50ID0gbnVsbDtcblx0XHR0aGlzLm1wcHQ5Vm9sdGFnZSA9IG51bGw7XG5cdFx0dGhpcy5tcHB0OVBvd2VyID0gbnVsbDtcblx0XHR0aGlzLm1wcHQxMEN1cnJlbnQgPSBudWxsO1xuXHRcdHRoaXMubXBwdDEwVm9sdGFnZSA9IG51bGw7XG5cdFx0dGhpcy5tcHB0MTBQb3dlciA9IG51bGw7XG5cdFx0dGhpcy5tcHB0MTFDdXJyZW50ID0gbnVsbDtcblx0XHR0aGlzLm1wcHQxMVZvbHRhZ2UgPSBudWxsO1xuXHRcdHRoaXMubXBwdDExUG93ZXIgPSBudWxsO1xuXHRcdHRoaXMubXBwdDEyQ3VycmVudCA9IG51bGw7XG5cdFx0dGhpcy5tcHB0MTJWb2x0YWdlID0gbnVsbDtcblx0XHR0aGlzLm1wcHQxMlBvd2VyID0gbnVsbDtcblx0fVxufVxuZXhwb3J0IGRlZmF1bHQgTW9kZWxJbnZlcnRlclNNQVNUUDExMEVudGl0eTsiXX0=

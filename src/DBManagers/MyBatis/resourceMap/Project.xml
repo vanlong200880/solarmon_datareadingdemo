@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Project">
+
+	<select id="getList">
+			SELECT
+				p.id,
+				p.hash_id,
+				p.id_project_group,
+				p.address,
+				p.lat,
+				p.lng,
+				p.thumbnail,
+				DATE_FORMAT( p.commisioning_date, '%d/%m/%Y' ) AS commisioning_date, 
+				DATE_FORMAT( p.installed_date, '%d/%m/%Y' ) AS installed_date, 
+				DATE_FORMAT( p.last_updated, '%d/%m/%Y' ) AS last_updated, 
+				p.installed_power,
+				p.`status`,
+				pd.`name`,
+				pd.description,
+				DATE_FORMAT( p.updated_date, '%d/%m/%Y' ) AS updated_date,
+				SUM(IFNULL(t.total_device,0) + IFNULL(v.total_virtual,0) ) AS device_total,
+				pgd.`name` AS project_group_name,
+				p.config_yi,
+				p.config_po,
+				p.total_loss_factor
+			FROM
+				`project` AS p
+				LEFT JOIN project_detail pd ON pd.id_project = p.id
+				LEFT JOIN project_group pg ON pg.id = p.id_project_group
+				LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id 
+				AND pgd.id_language = #{id_language}
+				
+				LEFT JOIN(
+					SELECT COUNT(d.id_project) AS total_device, d.id_project FROM device d GROUP BY d.id_project
+				)t ON t.id_project = p.id
+				
+				LEFT JOIN (
+					SELECT COUNT(pmd.id_project) AS total_virtual, pmd.id_project FROM project_map_device_virtual pmd GROUP BY pmd.id_project
+				)v ON v.id_project = p.id
+				
+			WHERE
+				pd.id_language = #{id_language}
+				AND p.`status` IN ( 0, 1 ) 
+				AND pg.`status` = 1
+			<if test="id_project_group != null">
+				AND  (
+					p.`id_project_group` = #{id_project_group}
+				)
+			</if>
+
+		
+		<if test="keyword != null">
+				AND  (
+					pd.`name` LIKE CONCAT('%',#{keyword},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					p.`id` = #{id}
+				)
+			</if>
+		GROUP BY p.id
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY p.id DESC
+			</otherwise>
+		</choose>
+
+	
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+	</select>
+
+
+	<select id="getSize">
+		SELECT
+			count(p.id) totalRow
+		FROM `project` AS p
+		LEFT JOIN project_detail pd ON p.id = pd.id_project AND pd.id_language = #{id_language}
+		WHERE  p.`status` IN(0,1) 
+		<if test="id_project_group != null">
+			AND  (
+				p.`id_project_group` = #{id_project_group}
+			)
+		</if>
+
+		<if test="keyword != null">
+			AND  (
+				pd.`name` LIKE CONCAT('%',#{keyword},'%')
+			)
+		</if>
+
+		<if test="id != null">
+			AND  (
+				p.`id` = #{id}
+			)
+		</if>
+
+	</select>
+
+	<insert id="insertProject" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `project`(
+			`hash_id`,
+			`id_project_group`,
+			`address`,
+			`lat`,
+			`lng`,
+			`thumbnail`,
+			`installed_power`,
+			`commisioning_date`,
+			`installed_date`,
+			`last_updated`,
+			`status`,
+			`created_date`,
+			`created_by`
+		)VALUES(
+			#{hash_id},
+			#{id_project_group},
+			#{address},
+			#{lat},
+			#{lng},
+			#{thumbnail},
+			#{installed_power},
+			#{commisioning_date},
+			#{installed_date},
+			#{last_updated},
+			#{status},
+			NOW(),
+			#{created_by}
+		);
+	</insert>
+
+
+
+
+	<insert id="insertProjectDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `project_detail` 
+		(
+			`id_project`, 
+			`id_language`, 
+			`name`,
+			`site_name`,
+			`description`
+		)
+		VALUES
+		<foreach collection="dataDetail" item="item" index="index" separator=",">
+				(
+					#{item.id_project}, 
+					#{item.id_language},
+					#{item.name}, 
+					#{item.site_name},
+					#{item.description}
+				)
+		</foreach>
+	</insert>
+
+
+	
+
+	
+	<insert id="insertProjectEmployeeMap" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `emloyee_project_map` 
+		(
+			`id_project`, 
+			`id_employee`
+		)
+		VALUES
+		<foreach collection="dataEmployees" item="item" index="index" separator=",">
+				(
+					#{item.id_project}, 
+					#{item.id_employee}
+				)
+		</foreach>
+	</insert>
+
+	<update id="updateStatus">
+		UPDATE `project` 
+			SET status = #{status}
+			WHERE id = #{id}
+	</update>
+
+	<select id="getDetail">
+		SELECT
+			p.`id`,
+			p.`hash_id`,
+			p.`id_project_group`,
+			p.`status`,
+			p.thumbnail,
+			p.address,
+			p.lat,
+			p.lng,
+			p.installed_power,
+			DATE_FORMAT( p.commisioning_date, '%d/%m/%Y' ) AS commisioning_date, 
+			DATE_FORMAT( p.installed_date, '%d/%m/%Y' ) AS installed_date,
+			DATE_FORMAT( p.last_updated, '%d/%m/%Y' ) AS last_updated
+		FROM `project` p
+		WHERE p.id = #{id};
+
+		SELECT
+			pd.id_project,
+			pd.`id_language`,
+			pd.`name`,
+			pd.`site_name`,
+			pd.`description`,
+			l.iso_code,
+			l.is_default
+		FROM project_detail pd
+		LEFT JOIN `language` l ON l.id = pd.id_language
+		WHERE pd.id_project = #{id} GROUP BY l.id ORDER BY l.is_default DESC;
+
+		SELECT
+			pd.id_project,
+			pd.`id_employee`
+		FROM emloyee_project_map pd
+		WHERE pd.id_project = #{id};
+
+		SELECT
+			pd.id,
+			pd.`id_project`,
+			pd.config_revenue,
+			DATE_FORMAT( pd.start_date, '%d/%m/%Y' ) AS start_date,
+			DATE_FORMAT( pd.end_date, '%d/%m/%Y' ) AS end_date,
+			pd.`status`
+		FROM project_config pd
+		WHERE pd.id_project = #{id};
+
+		SELECT
+			pd.*
+		FROM proejct_energy_expectations pd
+		WHERE pd.id_project = #{id} LIMIT 1;
+
+	</select>
+
+
+	<select id="getDetailConfig">
+		SELECT
+			pd.*,
+			p.config_po,
+			p.config_yi,
+			p.total_loss_factor,
+			p.config_po1,
+			p.config_yi1,
+			p.total_loss_factor1
+		FROM proejct_energy_expectations pd
+		LEFT JOIN project p ON p.id = pd.id_project
+		WHERE pd.id_project = #{id} LIMIT 1;
+
+		SELECT
+			pd.id,
+			pd.`id_project`,
+			pd.config_revenue,
+			DATE_FORMAT( pd.start_date, '%d/%m/%Y' ) AS start_date,
+			DATE_FORMAT( pd.end_date, '%d/%m/%Y' ) AS end_date,
+			pd.`status`
+		FROM project_config pd
+		WHERE pd.id_project = #{id};
+
+		
+	</select>
+
+
+	<delete id="deleteProjectDetail">
+		DELETE FROM `project_detail`
+		WHERE id_project = #{id}
+	</delete>
+
+	
+	<delete id="deleteEmployeeProjectMap">
+		DELETE FROM `emloyee_project_map`
+		WHERE id_project = #{id}
+	</delete>
+
+	<update id="updateProject">
+		UPDATE `project`
+		SET
+			id_project_group = #{id_project_group},
+			thumbnail = #{thumbnail},
+			address = #{address},
+			lat = #{lat},
+			lng = #{lng},
+			status = #{status},
+			installed_power = #{installed_power},
+			commisioning_date = #{commisioning_date},
+			installed_date = #{installed_date},
+			last_updated = #{last_updated},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE id = #{id}
+	</update>
+
+
+	<update id="delete">
+		UPDATE `project`
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+
+	<select id="getDropDownList">
+		SELECT
+			p.id,
+			pd.`name`,
+			pd.`name` AS label,
+			p.id AS `value`
+		FROM
+			`project` AS p
+			LEFT JOIN project_detail pd ON pd.id_project = p.id 
+		WHERE pd.id_language = #{id_language} AND p.`status` = 1
+		<if test="id_project != null">
+				AND  p.id != #{id_project}
+			</if>
+
+		ORDER BY
+			p.`id` ASC
+	</select>
+
+	
+	<select id="getConfigEstimate">
+		SELECT
+			* 
+		FROM
+			proejct_energy_expectations pe 
+		WHERE
+			pe.id_project = #{id_project}
+	</select>
+
+	<insert id="insertConfigEstimate" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `proejct_energy_expectations` 
+		(
+			`id_project`,
+			`year`, 
+			`jan`, 
+			`feb`, 
+			`mar`, 
+			`apr`, 
+			`may`, 
+			`jun`, 
+			`jul`, 
+			`aug`, 
+			`sep`, 
+			`oct`, 
+			`nov`, 
+			`dec`, 
+			`yearly_egrade_default`,
+			`yearly_egrade_two`
+		)
+		VALUES(
+					#{id_project}, 
+					#{year},
+					#{jan},
+					#{feb},
+					#{mar},
+					#{apr},
+					#{may},
+					#{jun},
+					#{jul},
+					#{aug},
+					#{sep},
+					#{oct},
+					#{nov},
+					#{dec},
+					#{yearly_egrade_default},
+					#{yearly_egrade_two}
+				)
+	</insert>
+
+	<update id="updateConfigEstimate">
+		UPDATE `proejct_energy_expectations`
+		SET
+			`year` = #{year}, 
+			`jan` = #{jan}, 
+			`feb` = #{feb}, 
+			`mar` = #{mar}, 
+			`apr` = #{apr}, 
+			`may` = #{may}, 
+			`jun` = #{jun}, 
+			`jul` = #{jul}, 
+			`aug` = #{aug}, 
+			`sep` = #{sep}, 
+			`oct` = #{oct}, 
+			`nov` = #{nov}, 
+			`dec` = #{dec}, 
+			`yearly_egrade_default` = #{yearly_egrade_default},
+			`yearly_egrade_two` = #{yearly_egrade_two}
+		WHERE
+			id_project = #{id_project}
+	</update>
+
+	
+	<update id="saveConfigEstimationSensor">
+		UPDATE `project`
+		SET
+			`config_yi` = #{config_yi}, 
+			`config_po` = #{config_po}, 
+			`total_loss_factor` = #{total_loss_factor},
+			`config_yi1` = #{config_yi1}, 
+			`config_po1` = #{config_po1}, 
+			`total_loss_factor1` = #{total_loss_factor1}
+		WHERE
+			id = #{id_project}
+	</update>
+
+	<insert id="insertConfigRevenue" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `project_config` 
+		(
+			`id_project`, 
+			`config_revenue`, 
+			`start_date`,
+			`end_date`,
+			`status`
+		)
+		VALUES
+		<foreach collection="dataConfigRevenue" item="item" index="index" separator=",">
+				(
+					#{item.id_project}, 
+					#{item.config_revenue},
+					#{item.start_date}, 
+					#{item.end_date},
+					#{item.status}
+				)
+		</foreach>
+	</insert>
+
+	
+	<delete id="deleteConfigRevenue">
+		DELETE FROM `project_config`
+		WHERE id_project = #{id_project}
+	</delete>
+
+</mapper>

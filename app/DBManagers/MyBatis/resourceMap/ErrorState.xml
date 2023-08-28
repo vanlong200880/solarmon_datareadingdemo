@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ErrorState">
+
+	<select id="getList">
+			SELECT
+				el.id,
+				el.`status`,
+				eld.`name`,
+				eld.description 
+			FROM
+				error_state el
+				LEFT JOIN error_state_detail eld ON eld.id_error_state = el.id 
+				AND eld.id_language = #{id_language}
+			WHERE
+				el.`status` IN (0,1)
+		
+			<if test="name != null">
+				AND  (
+					eld.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					el.`id` = #{id}
+				)
+			</if>
+		GROUP BY el.id
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY el.id DESC
+			</otherwise>
+		</choose>
+
+	
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+	</select>
+
+
+	<select id="getSize">
+		SELECT
+			count(el.id) totalRow
+		FROM `error_state` AS el
+		LEFT JOIN error_state_detail eld ON el.id = eld.id_error_state AND eld.id_language = #{id_language}
+		WHERE  el.`status` IN(0,1) 
+		<if test="name != null">
+				AND  (
+					eld.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					el.`id` = #{id}
+				)
+			</if>
+	</select>
+
+	<insert id="insertErrorState" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `error_state`(
+			`status`,
+			`created_date`,
+			`created_by`
+		)VALUES(
+			#{status},
+			NOW(),
+			#{created_by}
+		);
+	</insert>
+
+
+
+
+	<insert id="insertErrorStateDetail" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `error_state_detail` 
+		(
+			`id_error_state`, 
+			`id_language`, 
+			`name`,
+			`description`
+		)
+		VALUES
+		<foreach collection="dataDetail" item="item" index="index" separator=",">
+				(
+					#{item.id_error_state}, 
+					#{item.id_language},
+					#{item.name}, 
+					#{item.description}
+				)
+		</foreach>
+	</insert>
+
+	
+
+	<update id="updateStatus">
+		UPDATE `error_state` 
+			SET status = #{status}
+			WHERE id = #{id}
+	</update>
+
+	<select id="getDetail">
+		SELECT
+			p.`id`,
+			p.`status`
+		FROM `error_state` p
+		WHERE p.id = #{id};
+
+		SELECT
+			pd.id_error_state,
+			pd.`id_language`,
+			pd.`name`,
+			pd.`description`,
+			l.iso_code,
+			l.is_default
+		FROM error_state_detail pd
+		LEFT JOIN `language` l ON l.id = pd.id_language
+		WHERE pd.id_error_state = #{id} GROUP BY l.id ORDER BY l.is_default DESC;
+	</select>
+
+
+	<delete id="deleteErrorStateDetail">
+		DELETE FROM `error_state_detail`
+		WHERE id_error_state = #{id}
+	</delete>
+
+	
+
+	<update id="updateErrorState">
+		UPDATE `error_state`
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE id = #{id}
+	</update>
+
+
+	<update id="delete">
+		UPDATE `error_state`
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+
+	<select id="getDropDownList">
+		SELECT
+			p.id,
+			pd.`name`,
+			pd.`name` AS label,
+			p.id AS `value`
+		FROM
+			`error_state` AS p
+			LEFT JOIN error_state_detail pd ON pd.id_error_state = p.id 
+		WHERE pd.id_language = #{id_language} AND p.`status` = 1
+		ORDER BY
+			p.`id` ASC
+	</select>
+
+</mapper>

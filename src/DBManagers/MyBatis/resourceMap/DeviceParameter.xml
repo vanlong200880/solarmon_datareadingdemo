@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DeviceParameter">
+
+	<select id="getList">
+			SELECT
+				e.id,
+				e.id_device_group,
+				e.`status`,
+				e.`name`,
+				e.slug,
+				e.unit,
+				dg.`name` AS device_group_name
+			FROM
+				device_parameter e
+				LEFT JOIN device_group dg ON dg.id = e.id_device_group
+			WHERE
+				e.`status` IN (0,1)
+		
+			<if test="name != null">
+				AND  (
+					e.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id != null">
+				AND  (
+					e.`id` = #{id}
+				)
+			</if>
+		GROUP BY e.id
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY e.id DESC
+			</otherwise>
+		</choose>
+
+	
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+	</select>
+
+
+	<select id="getSize">
+		SELECT
+			count(e.id) totalRow
+		FROM `device_parameter` AS e
+		WHERE  e.`status` IN(0,1) 
+		<if test="name != null">
+			AND  (
+				e.`name` LIKE CONCAT('%',#{name},'%')
+			)
+		</if>
+
+		<if test="id != null">
+			AND  (
+				e.`id` = #{id}
+			)
+		</if>
+	</select>
+
+	<insert id="insertDeviceParameter" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `device_parameter`(
+			`id_device_group`,
+			`name`,
+			`slug`,
+			`unit`,
+			`status`,
+			`created_date`,
+			`created_by`
+		)VALUES(
+			#{id_device_group},
+			#{name},
+			#{slug},
+			#{unit},
+			#{status},
+			NOW(),
+			#{created_by}
+		);
+	</insert>
+
+
+	<update id="updateStatus">
+		UPDATE `device_parameter` 
+			SET status = #{status}
+			WHERE id = #{id}
+	</update>
+
+	<select id="getDetail">
+		SELECT
+			p.`id`,
+			p.name,
+			p.slug,
+			p.id_device_group,
+			p.unit,
+			p.`status`
+		FROM `device_parameter` p
+		WHERE p.id = #{id};
+	</select>
+	
+
+	<update id="updateDeviceParameter">
+		UPDATE `device_parameter`
+		SET
+			id_device_group = #{id_device_group},
+			`name` = #{name},
+			slug = #{slug},
+			unit = #{unit},
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE id = #{id}
+	</update>
+
+
+	<update id="delete">
+		UPDATE `device_parameter`
+		SET
+			status = #{status},
+			updated_date = NOW(),
+			updated_by = #{updated_by}
+		WHERE
+			id = #{id}
+	</update>
+
+</mapper>

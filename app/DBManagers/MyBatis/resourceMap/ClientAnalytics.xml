@@ -1,0 +1,909 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientAnalytics">
+
+	<select id="getDetail">
+		SELECT
+				p.id,
+				p.hash_id,
+				p.thumbnail,
+				p.address,
+				p.lat,
+				p.lng,
+				p.installed_power,
+				DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+				DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+				DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+				YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+				pd.`name`,
+				pd.site_name,
+				pgd.`name` AS project_group_name,
+				IFNULL(t.config_revenue,0) AS config_revenue,
+				DATE_FORMAT(NOW(), '%d/%m/%Y %H:%i:%s') AS current_day
+			FROM
+				project p
+				LEFT JOIN project_detail pd ON pd.id_project = p.id 
+				AND pd.id_language = #{id_language}
+				LEFT JOIN project_group pg ON pg.id = p.id_project_group
+				LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id AND pgd.id_language = #{id_language}
+				
+				LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id 
+
+				LEFT JOIN(
+					SELECT pc.id_project, pc.config_revenue FROM project_config pc WHERE NOW() <![CDATA[>=]]> pc.start_date AND NOW() <![CDATA[<=]]> pc.end_date AND pc.`status` = 1 GROUP BY pc.id_project
+				)t ON t.id_project = p.id
+				
+			WHERE p.`status` = 1 AND pg.`status` = 1 AND epm.id_employee = #{id_employee} AND p.hash_id = #{hash_id} LIMIT 1
+	</select>
+
+	<select id="getListDeviceInverter">
+		SELECT 
+			d.id,
+			d.id_project,
+			d.id_device_group,
+			dg.table_name
+		FROM
+			device d
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+			LEFT JOIN project p ON p.id = d.id_project 
+		WHERE
+			p.hash_id = #{hash_id} 
+			AND d.`status` = 1 
+			AND d.is_virtual = 1
+			AND dg.`status` = 1
+			AND d.id_device_group IN(18, 19, 20, 21, 22)
+			GROUP BY d.id
+	</select>
+
+
+	<select id="getGroupDeviceInverter">
+		SELECT 
+			d.id,
+			d.id_project,
+			d.id_device_group,
+			dg.table_name
+		FROM
+			device d
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+			LEFT JOIN project p ON p.id = d.id_project 
+		WHERE
+			p.hash_id = #{hash_id} 
+			AND d.`status` = 1 
+			AND d.is_virtual = 1
+			AND dg.`status` = 1
+			AND d.id_device_group IN(18, 19, 20, 21, 22)
+			GROUP BY dg.id
+	</select>
+
+	<select id="dataEnergyByDevice">
+		SELECT
+			FROM_UNIXTIME( (UNIX_TIMESTAMP(FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300)*300, '%Y-%m-%d %H:%i' ) AS time_format,
+			FROM_UNIXTIME( (UNIX_TIMESTAMP(FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300)*300, '%d/%m/%Y %H:%i' ) AS time_full,
+			SUM( dv.activePower ) / 1000 AS activePower,
+			MAX( dv.activeEnergy ) AS today_activeEnergy,
+			FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) AS group_day 
+		FROM
+			${table_name} dv
+			LEFT JOIN device d ON d.id = dv.id_device
+		WHERE
+			
+			FROM_UNIXTIME( dv.time, '%d' ) = DAY ( NOW() ) 
+			AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( NOW(), '%Y-%m-%d' ), ' 05:00' ) 
+			AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( NOW(), '%Y-%m-%d' ), ' 19:00' ) 
+			AND d.`status` = 1 
+			AND d.is_virtual = 1 
+			AND d.id = #{id}
+		GROUP BY time_format
+	</select>
+
+
+	<select id="getDataEnergy12Month">
+		SELECT
+			t.time,
+			t.time_format,
+			t.time_full,
+			t.category_time_format,
+			ROUND(( SUM( t.activePower ) / 1000 ), 1 ) AS activePower,
+			ROUND(( SUM( t.activeEnergy ) / 1000 ),1 ) AS activeEnergy 
+		FROM
+			(
+				<foreach collection="groupInverter" item="item" index="index" separator="union all">
+				<![CDATA[
+
+					SELECT
+						m.time,
+						m.time_format,
+						m.time_full,
+						m.activePower,
+						m.category_time_format,
+						SUM(m.activeEnergy) AS activeEnergy,
+						m.group_day
+						FROM
+						(
+							SELECT
+							dv.time,
+							FROM_UNIXTIME(dv.time, '%Y-%m') AS time_format,
+							FROM_UNIXTIME(dv.time, '%m/%Y') AS time_full,
+							FROM_UNIXTIME( dv.time, '%b' ) AS category_time_format,
+							SUM(dv.activePower) AS activePower,
+							ROUND(
+								(
+								MAX(dv.activeEnergy) - MIN(dv.activeEnergy)
+								),
+								1
+							) AS activeEnergy,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+							FROM
+							${item.table_name} dv
+							LEFT JOIN device d ON d.id = dv.id_device
+							LEFT JOIN project p ON p.id = d.id_project
+							WHERE
+							p.hash_id = #{item.hash_id} 
+							AND d.id_device_group = #{item.id_device_group} 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) >= DATE_FORMAT( DATE_ADD(NOW(), INTERVAL -12 MONTH), '%Y-%m-%d' ) 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) <= DATE_FORMAT( NOW(), '%Y-%m-%d' )
+							AND p.`status` = 1
+							AND d.`status` = 1
+							AND d.is_virtual = 1
+							AND dv.activeEnergy > 0
+							GROUP BY
+							time_format, d.id
+						) m
+						GROUP BY
+						m.time_format
+
+					
+					]]>
+		      </foreach>
+			) t 
+		GROUP BY
+			t.time_format
+	</select>
+
+
+	<select id="getDataEnergy30Days">
+		SELECT
+			t.time,
+			t.time_format,
+			t.time_full,
+			t.category_time_format,
+			ROUND(( SUM( t.activePower ) / 1000 ), 1 ) AS activePower,
+			ROUND(( SUM( t.activeEnergy ) / 1000 ),1 ) AS activeEnergy 
+		FROM
+			(
+				<foreach collection="groupInverter" item="item" index="index" separator="union all">
+				<![CDATA[
+					SELECT
+						m.time,
+						m.time_format,
+						m.time_full,
+						m.activePower,
+						m.category_time_format,
+						SUM(m.activeEnergy) AS activeEnergy,
+
+						m.group_day
+						FROM
+						(
+							SELECT
+							dv.time,
+							FROM_UNIXTIME(dv.time, '%Y-%m-%d') AS time_format,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS time_full,
+							FROM_UNIXTIME( dv.time, '%e. %b' ) AS category_time_format,
+							SUM(dv.activePower) AS activePower,
+							ROUND(
+								(
+								MAX(dv.activeEnergy) - MIN(dv.activeEnergy)
+								),
+								1
+							) AS activeEnergy,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+							FROM
+							${item.table_name} dv
+							LEFT JOIN device d ON d.id = dv.id_device
+							LEFT JOIN project p ON p.id = d.id_project
+							WHERE
+							p.hash_id = #{item.hash_id} 
+							AND d.id_device_group = #{item.id_device_group} 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) >= DATE_FORMAT( DATE_ADD(NOW(), INTERVAL -30 DAY), '%Y-%m-%d' ) 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) <= DATE_FORMAT( NOW(), '%Y-%m-%d' )
+							AND p.`status` = 1
+							AND d.`status` = 1
+							AND d.is_virtual = 1
+							AND dv.activeEnergy > 0
+							GROUP BY
+							time_format, d.id
+						) m
+						GROUP BY
+						m.time_format
+					
+					]]>
+		      </foreach>
+			) t 
+		GROUP BY
+			t.time_format
+	</select>
+
+
+	<select id="getDataMaxPower12Months">
+		SELECT
+			t.time,
+			t.time_format,
+			t.time_full,
+			t.category_time_format,
+			ROUND(( SUM( t.activePower ) / 1000 ), 1 ) AS activePower,
+			t.day,
+			t.month,
+			t.year
+		FROM
+			(
+				<foreach collection="groupInverter" item="item" index="index" separator="union all">
+				<![CDATA[
+					SELECT
+						m.time,
+						m.time_format,
+						m.time_full,
+						m.activePower,
+						m.category_time_format,
+						m.group_day,
+						m.day,
+						m.month,
+						m.year
+						FROM
+						(
+							SELECT
+							dv.time,
+							FROM_UNIXTIME(dv.time, '%Y-%m-%d') AS time_format,
+
+							FROM_UNIXTIME(dv.time, '%d') AS day,
+							FROM_UNIXTIME(dv.time, '%m') AS month,
+							FROM_UNIXTIME(dv.time, '%Y') AS year,
+
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS time_full,
+							FROM_UNIXTIME( dv.time, '%e. %b' ) AS category_time_format,
+							MAX(dv.activePower) AS activePower,
+							FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+							FROM
+							${item.table_name} dv
+							LEFT JOIN device d ON d.id = dv.id_device
+							LEFT JOIN project p ON p.id = d.id_project
+							WHERE
+							p.hash_id = #{item.hash_id} 
+							AND d.id_device_group = #{item.id_device_group} 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) >= DATE_FORMAT( DATE_ADD(NOW(), INTERVAL -12 MONTH), '%Y-%m-%d' ) 
+							AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) <= DATE_FORMAT( NOW(), '%Y-%m-%d' )
+							AND p.`status` = 1
+							AND d.`status` = 1
+							AND d.is_virtual = 1
+							AND dv.activeEnergy > 0
+							GROUP BY
+							time_format, d.id
+						) m
+						GROUP BY
+						m.time_format
+					
+					]]>
+		      </foreach>
+			) t 
+		GROUP BY
+			t.time_format
+	</select>
+
+
+	
+	<select id="getListDeviceByProject">
+		SELECT
+			d.id,
+			d.`name`,
+			d.id_project,
+			d.id_device_group,
+			0 AS is_checked,
+			dg.`name` AS device_group_name,
+			dg.table_name,
+			d.`name` AS device_name
+		FROM
+			device d
+			LEFT JOIN project p ON p.id = d.id_project 
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE
+			p.hash_id = #{hash_id}
+			AND d.`status` = 1 
+			AND p.`status` = 1 
+			AND d.is_virtual = 1
+		UNION ALL
+		SELECT
+			d.id,
+			d.`name`,
+			d.id_project,
+			d.id_device_group,
+			0 AS is_checked,
+			dg.`name` AS device_group_name,
+			dg.table_name,
+			d.`name` AS device_name
+		FROM
+			project_map_device_virtual pm
+			LEFT JOIN device d ON d.id = pm.id_device
+			LEFT JOIN project p ON p.id = pm.id_project
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE
+			p.hash_id = #{hash_id}
+			AND d.`status` = 1 
+			AND p.`status` = 1
+			AND d.is_virtual = 1
+	</select>
+
+	<select id="getParameterByDevice">
+		SELECT
+			d.id AS id_device,
+			dp.id,
+			dp.`name`,
+			dp.slug,
+			dp.unit,
+			dp.id_device_group,
+			d.`name` AS device_name
+			FROM
+				device d
+				LEFT JOIN device_group dg ON dg.id = d.id_device_group
+				LEFT JOIN device_parameter dp ON dp.id_device_group = dg.id
+			WHERE d.id = #{id}
+			AND d.`status` = 1 
+			AND dg.`status` = 1 
+			AND dp.`status` = 1 
+	</select>
+
+
+	
+	<select id="getDataChartParameter">
+		SELECT
+			dv.time,
+			dv.id_device,
+			<if test="table_name == 'model_emeter_Vinasino_VSE3T5'">
+				ROUND(AVG(activeEnergy), 1) AS activeEnergy,
+				ROUND(AVG(activeEnergyRate1), 1) AS activeEnergyRate1,
+				ROUND(AVG(activeEnergyRate2), 1) AS activeEnergyRate2,
+				ROUND(AVG(activeEnergyRate3), 1) AS activeEnergyRate3,
+				ROUND(AVG(reactiveEnergyInductive), 1) AS reactiveEnergyInductive,
+				ROUND(AVG(reactiveEnergyInductiveRate1), 1) AS reactiveEnergyInductiveRate1,
+				ROUND(AVG(reactiveEnergyInductiveRate2), 1) AS reactiveEnergyInductiveRate2,
+				ROUND(AVG(reactiveEnergyInductiveRate3), 1) AS reactiveEnergyInductiveRate3,
+				ROUND(AVG(reactiveEnergyCapacitive), 1) AS reactiveEnergyCapacitive,
+				ROUND(AVG(reactiveEnergyCapacitiveRate1), 1) AS reactiveEnergyCapacitiveRate1,
+				ROUND(AVG(reactiveEnergyCapacitiveRate2), 1) AS reactiveEnergyCapacitiveRate2,
+				ROUND(AVG(reactiveEnergyCapacitiveRate3), 1) AS reactiveEnergyCapacitiveRate3,
+				ROUND(AVG(currentPhaseA), 1) AS currentPhaseA,
+				ROUND(AVG(currentPhaseB), 1) AS currentPhaseB,
+				ROUND(AVG(currentPhaseC), 1) AS currentPhaseC,
+				ROUND(AVG(voltagePhaseA), 1) AS voltagePhaseA,
+				ROUND(AVG(voltagePhaseB), 1) AS voltagePhaseB,
+				ROUND(AVG(voltagePhaseC), 1) AS voltagePhaseC,
+				ROUND(AVG(powerFrequency), 1) AS powerFrequency,
+				ROUND(AVG(activePower), 1) AS activePower,
+				ROUND(AVG(reactivePower), 1) AS reactivePower,
+				ROUND(AVG(powerFactor), 1) AS powerFactor,
+				ROUND(AVG(activePowerPhaseA), 1) AS activePowerPhaseA,
+				ROUND(AVG(activePowerPhaseB), 1) AS activePowerPhaseB,
+				ROUND(AVG(activePowerPhaseC), 1) AS activePowerPhaseC,
+				ROUND(AVG(reactivePowerPhaseA), 1) AS reactivePowerPhaseA,
+				ROUND(AVG(reactivePowerPhaseB), 1) AS reactivePowerPhaseB,
+				ROUND(AVG(reactivePowerPhaseC), 1) AS reactivePowerPhaseC,
+				ROUND(AVG(activePowerMaxDemand), 1) AS activePowerMaxDemand,
+				ROUND(AVG(activePowerMaxDemandRate1), 1) AS activePowerMaxDemandRate1,
+				ROUND(AVG(activePowerMaxDemandRate2), 1) AS activePowerMaxDemandRate2,
+				ROUND(AVG(activePowerMaxDemandRate3), 1) AS activePowerMaxDemandRate3,
+				ROUND(AVG(powerFactorPhaseA), 1) AS powerFactorPhaseA,
+				ROUND(AVG(powerFactorPhaseB), 1) AS powerFactorPhaseB,
+				ROUND(AVG(powerFactorPhaseC), 1) AS powerFactorPhaseC,
+				ROUND(AVG(CTratioPrimary), 1) AS CTratioPrimary,
+				ROUND(AVG(CTratioSecondary), 1) AS CTratioSecondary,
+				ROUND(AVG(PTratioPrimary), 1) AS PTratioPrimary,
+				ROUND(AVG(PTratioSecondary), 1) AS PTratioSecondary,
+			</if>
+
+
+			<if test="table_name == 'model_inverter_SMA_STP110'">
+				ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+				ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+				ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+				ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+				ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+				ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+				ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+				ROUND(AVG(dv.activePower), 1) AS activePower,
+				ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+				ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+				ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+				ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+				ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+				ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+				ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+				ROUND(AVG(dv.dcPower), 1) AS dcPower,
+				ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+				ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+				ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+				ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+				ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+				ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+				ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+				ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+				ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+				ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+				ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+				ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+				ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+				ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+				ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+				ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+				ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+				ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+				ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+				ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+				ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+				ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+				ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+				ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+				ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+				ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+				ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+				ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+				ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+				ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+				ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+				ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+				ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+				ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+				ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+				ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+				ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+			</if>
+
+			<if test="table_name == 'model_inverter_SMA_SHP75'">
+				ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+				ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+				ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+				ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+				ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+				ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+				ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+				ROUND(AVG(dv.activePower), 1) AS activePower,
+				ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+				ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+				ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+				ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+				ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+				ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+				ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+				ROUND(AVG(dv.dcPower), 1) AS dcPower,
+				ROUND(AVG(dv.internalTemperature), 1) AS internalTemperature,
+				ROUND(AVG(dv.heatSinkTemperature), 1) AS heatSinkTemperature,
+				ROUND(AVG(dv.transformerTemperature), 1) AS transformerTemperature,
+			</if>
+
+			<if test="table_name == 'model_emeter_Janitza_UMG96S2'">
+				
+			</if>
+
+			<if test="table_name == 'model_inverter_ABB_PVS100'">
+				ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+				ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+				ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+				ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+				ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+				ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+				ROUND(AVG(dv.activePower), 1) AS activePower,
+				ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+				ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+				ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+				ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+				ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+				ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+				ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+				ROUND(AVG(dv.dcPower), 1) AS dcPower,
+				ROUND(AVG(dv.internalTemperature), 1) AS internalTemperature,
+				ROUND(AVG(dv.heatSinkTemperature), 1) AS heatSinkTemperature,
+				ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+				ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+				ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+				ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+				ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+				ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+				ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+				ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+				ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+				ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+				ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+				ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+				ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+				ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+				ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+				ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+				ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+				ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+			</if>
+
+			<if test="table_name == 'model_inverter_Growatt_GW80KTL3'">
+				
+			</if>
+
+			<if test="table_name == 'model_inverter_SMA_STP50'">
+				ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+				ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+				ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+				ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+				ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+				ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+				ROUND(AVG(dv.activePower), 1) AS activePower,
+				ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+				ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+				ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+				ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+				ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+				ROUND(AVG(dv.dailyEnergy), 1) AS dailyEnergy,
+				ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+				ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+				ROUND(AVG(dv.dcPower), 1) AS dcPower,
+				ROUND(AVG(dv.internalTemperature), 1) AS internalTemperature,
+				ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+				ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+				ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+				ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+				ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+				ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+				ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+				ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+				ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+				ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+				ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+				ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+				ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+				ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+				ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+				ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+				ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+				ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+			</if>
+
+			<if test="table_name == 'model_inverter_Sungrow_SG110CX'">
+				ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+				ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+				ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+				ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+				ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+				ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+				ROUND(AVG(dv.activePower), 1) AS activePower,
+				ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+				ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+				ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+				ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+				ROUND(AVG(dv.dailyEnergy), 1) AS dailyEnergy,
+				ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+				ROUND(AVG(dv.dcPower), 1) AS dcPower,
+				ROUND(AVG(dv.internalTemperature), 1) AS internalTemperature,
+				ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+				ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+				ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+				ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+				ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+				ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+				ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+				ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+				ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+				ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+				ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+				ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+				ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+				ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+				ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+				ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+				ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+				ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+			</if>
+
+			<if test="table_name == 'model_logger_SMA_IM20'">
+				
+			</if>
+
+			<if test="table_name == 'model_sensor_IMT_SiRS485'">
+				ROUND(AVG(dv.irradiancePoA), 1) AS irradiancePoA,
+				ROUND(AVG(dv.cellTemp), 1) AS cellTemp,
+				ROUND(AVG(dv.panelTemp), 1) AS panelTemp,
+			</if>
+
+			<if test="table_name == 'model_sensor_IMT_TaRS485'">
+				ROUND(AVG(dv.ambientTemp), 1) AS ambientTemp,
+			</if>
+
+			<if test="table_name == 'model_sensor_RT1'">
+				ROUND(AVG(dv.deviceType), 1) AS deviceType,
+				ROUND(AVG(dv.dataModel), 1) AS dataModel,
+				ROUND(AVG(dv.softwareVersion), 1) AS softwareVersion,
+				ROUND(AVG(dv.hardwareVersion), 1) AS hardwareVersion,
+				ROUND(AVG(dv.batchNumber), 1) AS batchNumber,
+				ROUND(AVG(dv.serialNumber), 1) AS serialNumber,
+				ROUND(AVG(dv.modbusUnitID), 1) AS modbusUnitID,
+				ROUND(AVG(dv.sensor1Data), 1) AS sensor1Data,
+				ROUND(AVG(dv.internalTemperature), 1) AS internalTemperature,
+				ROUND(AVG(dv.externalVoltage), 1) AS externalVoltage,
+			</if>
+
+			<if test="table_name == 'model_techedge'">
+				ROUND(AVG(dv.memPercent), 1) AS memPercent,
+				ROUND(AVG(dv.memTotal), 1) AS memTotal,
+				ROUND(AVG(dv.memUsed), 1) AS memUsed,
+				ROUND(AVG(dv.memAvail), 1) AS memAvail,
+				ROUND(AVG(dv.memFree), 1) AS memFree,
+				ROUND(AVG(dv.diskPercent), 1) AS diskPercent,
+				ROUND(AVG(dv.diskTotal), 1) AS diskTotal,
+				ROUND(AVG(dv.diskUsed), 1) AS diskUsed,
+				ROUND(AVG(dv.diskFree), 1) AS diskFree,
+				ROUND(AVG(dv.cpuTemp), 1) AS cpuTemp,
+				ROUND(AVG(dv.upTime), 1) AS upTime,
+			</if>
+			
+			<if test="(filterBy == 'today') and data_send_time == 1">
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300 )* 300, '%d/%m/%Y %H:%i' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300 )* 300, '%H:%i' ) AS categories_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300 )* 300, '%d/%m/%Y %H:%i' ) AS time_group_by
+			</if>
+
+			<if test="(filterBy == 'today') and data_send_time == 2">
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%d/%m/%Y %H:%i' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%H:%i' ) AS categories_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%d/%m/%Y %H:%i' ) AS time_group_by
+			</if>
+
+			<if test="(filterBy == 'today') and data_send_time == 3">
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y %H:00' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%H:%i' ) AS categories_time,
+				FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:00' ) AS time_group_by
+			</if>
+
+
+			<if test="(filterBy == '3_day') and data_send_time == 1">
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300 )* 300, '%d/%m/%Y %H:%i' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%e. %b') AS categories_first_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300 )* 300, '%e. %b' ) AS categories_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 300 )* 300, '%d/%m/%Y %H:%i' ) AS time_group_by
+			</if>
+
+			<if test="(filterBy == '3_day') and data_send_time == 2">
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%d/%m/%Y %H:%i' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%e. %b') AS categories_first_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%e. %b' ) AS categories_time,
+				FROM_UNIXTIME(( UNIX_TIMESTAMP( FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) ) DIV 900 )* 900, '%d/%m/%Y %H:%i' ) AS time_group_by
+			</if>
+
+
+			<if test="(filterBy == '3_day') and data_send_time == 3">
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y %H:00' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%e. %b') AS categories_first_time,
+				FROM_UNIXTIME( dv.time, '%e. %b' ) AS categories_time,
+				FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:00' ) AS time_group_by
+			</if>
+
+			<if test="filterBy == 'this_month' OR filterBy == 'last_month'">
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%e. %b') AS categories_first_time,
+				FROM_UNIXTIME( dv.time, '%e. %b' ) AS categories_time,
+				FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) AS time_group_by
+			</if>
+
+			<if test="filterBy == '12_month'">
+				FROM_UNIXTIME( dv.time, '%m/%Y' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%b') AS categories_first_time,
+				FROM_UNIXTIME( dv.time, '%b' ) AS categories_time,
+				FROM_UNIXTIME( dv.time, '%Y-%m' ) AS time_group_by
+			</if>
+
+			<if test="filterBy == 'lifetime'">
+				FROM_UNIXTIME( dv.time, '%Y' ) AS time_full,
+				FROM_UNIXTIME(dv.time, '%Y') AS categories_first_time,
+				FROM_UNIXTIME( dv.time, '%Y' ) AS categories_time,
+				FROM_UNIXTIME( dv.time, '%Y' ) AS time_group_by
+			</if>
+
+		
+		FROM
+			${table_name} dv 
+		WHERE
+			dv.id_device = #{id}
+			<if test="(filterBy == 'today') and data_send_time == 1">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) = DATE_FORMAT( #{end_date}, '%Y-%m-%d' )
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 05:00' ) 
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 19:00' )
+			</if>
+
+			<if test="(filterBy == 'today') and data_send_time == 2">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) = DATE_FORMAT( #{end_date}, '%Y-%m-%d' )
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 05:00' ) 
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 19:00' )
+			</if>
+
+			<if test="(filterBy == 'today') and data_send_time == 3">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) = DATE_FORMAT( #{end_date}, '%Y-%m-%d' )
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 05:00' ) 
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 19:00' )
+			</if>
+
+			<if test="filterBy == '3_day' and data_send_time == 1">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( #{start_date}, '%Y-%m-%d' ), ' 05:00' ) 
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 19:00' )
+			</if>
+
+
+			<if test="filterBy == '3_day' and data_send_time == 2">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( #{start_date}, '%Y-%m-%d' ), ' 05:00' ) 
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 19:00' )
+			</if>
+
+			<if test="filterBy == '3_day' and data_send_time == 3">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[>=]]> CONCAT( DATE_FORMAT( #{start_date}, '%Y-%m-%d' ), ' 05:00' ) 
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d %H:%i' ) <![CDATA[<=]]> CONCAT( DATE_FORMAT( #{end_date}, '%Y-%m-%d' ), ' 19:00' )
+			</if>
+
+			<if test="filterBy == 'this_month' || filterBy == 'last_month'">
+				AND FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT( #{end_date}, '%m/%Y' )
+			</if>
+
+			<if test="filterBy == '12_month'">
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) <![CDATA[>=]]> DATE_FORMAT( #{start_date}, '%Y-%m-%d' )
+				AND FROM_UNIXTIME( dv.time, '%Y-%m-%d' ) <![CDATA[<=]]> DATE_FORMAT( #{end_date}, '%Y-%m-%d' )
+			</if>
+		GROUP BY time_group_by
+	</select>
+
+
+	
+
+	<select id="totalFleetAlarm">
+		SELECT
+			etd.`name`,
+			IFNULL(SUM(t.total_alarm), 0 ) AS total_alarm,
+			et.thumbnail
+		FROM
+			error_type et
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id 
+			AND etd.id_language = 1
+			LEFT JOIN (
+				SELECT
+					et.id,
+					COUNT( a.id ) AS total_alarm 
+				FROM
+					device d
+					LEFT JOIN alert a ON a.id_device = d.id
+					LEFT JOIN error e ON e.id = a.id_error
+					LEFT JOIN error_type et ON et.id = e.id_error_type
+				WHERE
+					d.id_project = #{id_project}
+				GROUP BY
+					et.id 
+				UNION ALL
+				SELECT
+					et.id,
+					COUNT( a.id ) AS total_alarm 
+				FROM
+					project_map_device_virtual pm
+					LEFT JOIN alert a ON a.id_device = pm.id_device
+					LEFT JOIN error e ON e.id = a.id_error
+					LEFT JOIN error_type et ON et.id = e.id_error_type
+				WHERE
+					pm.id_project = #{id_project}
+				GROUP BY
+					et.id 
+					
+			)t ON t.id = et.id
+			WHERE et.`status` = 1
+		GROUP BY
+			et.id
+	</select>
+
+
+	<select id="alarmLast12Month">
+		SELECT
+			FROM_UNIXTIME( a.start_date, '%m/%Y' ) AS time_full,
+			FROM_UNIXTIME( a.start_date, '%b' ) AS categories,
+			COUNT( a.id ) AS total_alarm 
+		FROM
+			alert a 
+		WHERE
+			a.id_device IN (
+			SELECT
+				d.id 
+			FROM
+				device d 
+			WHERE
+				d.id_project = #{id_project} 
+				UNION ALL
+			SELECT
+				pm.id_device AS id 
+			FROM
+				project_map_device_virtual pm 
+			WHERE
+				pm.id_project = #{id_project}
+			) 
+			AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[>=]]>  DATE_FORMAT( DATE_ADD( NOW(), INTERVAL - 12 MONTH ), '%Y-%m-%d' ) 
+			AND FROM_UNIXTIME( a.start_date, '%Y-%m-%d' ) <![CDATA[<=]]>  DATE_FORMAT( NOW(), '%Y-%m-%d' ) 
+		GROUP BY
+			FROM_UNIXTIME(
+			a.start_date,
+			'%Y-%m')
+	</select>
+
+
+	<select id="alarmOPened">
+		SELECT
+			a.id,
+			a.id_error,
+			a.id_alert_state,
+			FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN TIMESTAMPDIFF( DAY, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN TIMESTAMPDIFF( HOUR, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN TIMESTAMPDIFF( MINUTE, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) ) ELSE 0
+			END AS times_ago,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN 'DAY'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN 'HOUR'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN 'MINUTE' ELSE 'NOW'
+			END AS times_ago_unit,
+
+			a.end_date,
+			a.`status`,
+			a.note,
+			ed.message,
+			ed.description,
+			ed.solutions,
+			eld.`name` as error_level_name,
+			etd.`name` AS error_type_name,
+			el.thumbnail,
+			e.id_error_level,
+			d.name,
+			e.id_error_type,
+			0 AS is_checked,
+			asd.`name` AS alert_state_name
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = #{id_language}
+			LEFT JOIN device d ON d.id = a.id_device
+			LEFT JOIN project p ON p.id = d.id_project
+			LEFT JOIN alert_state als ON als.id = a.id_alert_state
+			LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id AND asd.id_language = #{id_language}
+		WHERE
+			a.`status` IN(1) AND el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1  AND p.`status` = 1 AND d.is_virtual = 1
+			
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+					WHERE
+						p.id = #{id_project}
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					WHERE
+					p.id = #{id_project}
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+			)
+	</select>
+
+</mapper>

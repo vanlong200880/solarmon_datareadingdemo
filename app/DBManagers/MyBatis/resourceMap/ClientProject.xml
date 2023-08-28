@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientProject">
+
+	<select id="getAllScope">
+		SELECT
+			p.id,
+			pd.`name`,
+			pd.id_language,
+			1 AS show_child
+		FROM
+			project_group p
+			LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group 
+			AND pd.id_language = #{id_language}
+		WHERE
+			p.`status` = 1
+	</select>
+
+	<select id="getAllProjectByEmployeeId">
+		SELECT
+			p.id,
+			p.hash_id,
+			pd.`name`,
+			pd.site_name,
+			p.id AS `value`,
+			'/project' AS module_path,
+			'/private' AS main_module_path,
+			epm.id_employee
+		FROM
+			`project` AS p
+			LEFT JOIN project_detail pd ON pd.id_project = p.id 
+			LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+		WHERE pd.id_language = #{id_language} AND p.`status` = 1 AND p.id_project_group = #{id} AND epm.id_employee = #{id_employee}
+		ORDER BY p.`id` ASC
+	</select>
+
+
+
+
+
+	<select id="getListProjectByEmployee">
+		SELECT
+			p.id,
+			p.hash_id,
+			p.thumbnail,
+			p.address,
+			p.lat,
+			p.lng,
+			p.installed_power,
+			DATE_FORMAT( p.commisioning_date, '%d/%m/%Y' ) AS commisioning_date,
+			DATE_FORMAT( p.last_updated, '%d/%m/%Y' ) AS last_updated,
+			DATE_FORMAT( p.installed_date, '%d/%m/%Y' ) AS installed_date,
+			pd.`name`,
+			pd.site_name,
+			pgd.`name` AS project_group_name,
+			IFNULL( t.config_revenue, 0 ) AS config_revenue,
+			CASE
+			WHEN k.total_alert > 0 THEN 
+					CONCAT(
+					'[',
+					GROUP_CONCAT(
+						JSON_OBJECT(
+							'id',
+							k.id,
+							'thumbnail',
+							k.thumbnail,
+							'name',
+							k.`name`,
+							'total_alert',
+							k.total_alert 
+						)),
+					']' 
+				)
+			ELSE NULL
+			END AS alarms,
+			v.last_updated,
+			y.last_month,
+			y.power_now,
+			y.lifetime,
+			y.energy_today
+		FROM
+			project p
+			LEFT JOIN project_detail pd ON pd.id_project = p.id 
+			AND pd.id_language = #{id_language}
+			LEFT JOIN project_group pg ON pg.id = p.id_project_group
+			LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id 
+			AND pgd.id_language = #{id_language}
+			LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+			LEFT JOIN (
+				SELECT
+					pc.id_project,
+					pc.config_revenue 
+				FROM
+					project_config pc 
+				WHERE
+					NOW() <![CDATA[>=]]> pc.start_date 
+					AND NOW() <![CDATA[<=]]> pc.end_date 
+					AND pc.`status` = 1 
+				GROUP BY
+					pc.id_project 
+			) t ON t.id_project = p.id 
+			
+			LEFT JOIN(
+					SELECT 
+						k.id,
+						k.`name`,
+						k.thumbnail,
+						SUM(k.total_alert) AS total_alert,
+						k.id_project
+					FROM(
+						SELECT
+								el.id,
+								COUNT( el.id ) AS total_alert,
+								el.thumbnail,
+								eld.`name`,
+								d.id_project
+							FROM
+								alert a
+								LEFT JOIN error e ON e.id = a.id_error
+								LEFT JOIN error_level el ON e.id_error_level = el.id
+								LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id  AND eld.id_language = #{id_language}
+								LEFT JOIN device d ON d.id = a.id_device 
+								WHERE el.id IN (1,6)
+								AND a.`status` = 1 
+								AND e.`status` = 1
+								AND el.`status` = 1
+								GROUP BY el.id, d.id_project
+						UNION ALL			
+							SELECT 
+								el.id,
+								COUNT( el.id ) AS total_alert,
+								el.thumbnail,
+								eld.`name`,
+								pm.id_project
+							FROM project_map_device_virtual pm 
+								LEFT JOIN alert a ON a.id_device = pm.id_device
+								LEFT JOIN error e ON e.id = a.id_error
+								LEFT JOIN error_level el ON e.id_error_level = el.id
+								LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id  AND eld.id_language = #{id_language}
+								WHERE el.id IN (1,6)
+										AND a.`status` = 1 
+										AND e.`status` = 1
+										AND el.`status` = 1
+										GROUP BY el.id, pm.id_project
+					)k
+					GROUP BY k.id, k.id_project
+			)k ON k.id_project = p.id
+
+			LEFT JOIN(
+				SELECT
+					d.id_project,
+					IF(SUM(d.power_now) IS NULL OR DATE_FORMAT(NOW(),'%k') <![CDATA[>=]]> 19 OR DATE_FORMAT(NOW(),'%k') <![CDATA[<=]]> 5, 0, (SUM(d.power_now) / 1000)) AS power_now,
+					IF(SUM(d.energy_today) IS NULL, 0, (SUM(d.energy_today) / 1000)) AS energy_today,
+					IF(SUM(d.last_month) IS NULL, 0, (SUM(d.last_month) / 1000)) AS last_month,
+					SUM(d.lifetime) AS lifetime
+				FROM
+					device d 
+				WHERE d.`status` = 1 AND d.is_virtual = 1
+				GROUP BY
+					d.id_project
+			)y ON y.id_project = p.id
+
+			
+			LEFT JOIN (
+				SELECT
+					d.id_project,
+					MAX( dv.time ) AS time, 
+					FROM_UNIXTIME( MAX( dv.time ), '%d/%m/%Y %H:%i') AS last_updated
+				FROM
+					device d
+					LEFT JOIN model_techedge dv ON dv.id_device = d.id 
+				WHERE
+					d.id_device_group = 27 AND dv.time IS NOT NULL
+				GROUP BY
+					d.id
+					
+					UNION ALL
+					
+				SELECT
+					d.id_project,
+					MAX( dv.time ) AS time, 
+					FROM_UNIXTIME( MAX( dv.time ), '%d/%m/%Y %H:%i') AS last_updated
+				FROM
+					project_map_device_virtual pm
+					LEFT JOIN device d ON d.id = pm.id_device
+					LEFT JOIN model_techedge dv ON dv.id_device = d.id_device
+				WHERE
+					d.id_device_group = 27 AND dv.time IS NOT NULL
+				GROUP BY
+					pm.id_device
+			)v ON v.id_project = p.id
+
+			
+		WHERE
+			epm.id_employee = #{id_employee}
+			AND p.`status` = 1 
+			AND pg.`status` = 1
+
+			
+			<if test="id != null">
+				AND  (
+					p.`id_project_group` = #{id_project_group}
+				)
+			</if>
+
+			<if test="name != null">
+				AND  (
+					pd.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+		GROUP BY p.id
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY p.id DESC
+			</otherwise>
+		</choose>
+
+	
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+	</select>
+
+
+	<select id="getListProjectByEmployeeSize">
+		SELECT
+			count(p.id) totalRow
+		FROM `project` AS p
+		LEFT JOIN project_detail pd ON p.id = pd.id_project AND pd.id_language = #{id_language}
+		LEFT JOIN project_group pg ON pg.id = p.id_project_group
+		LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id 
+		WHERE p.`status` = 1 AND pg.`status` = 1 AND epm.id_employee = #{id_employee}
+		<if test="id != null">
+				AND  (
+					p.`id_project_group` = #{id_project_group}
+				)
+			</if>
+
+			<if test="name != null">
+				AND  (
+					pd.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+	</select>
+
+
+
+	
+	<select id="getGroupDeviceByProjectId">
+		SELECT
+			d.id,
+			d.id_device,
+			d.`name`,
+			d.id_device_group,
+			dg.table_name,
+			d.id_project
+		FROM
+			device d 
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE
+			d.id_project = #{id} 
+			AND d.`status` IN ( 0, 1 ) 
+			AND d.id_device_group IN (18,19,20,21,22,28) 
+			GROUP BY d.id_device_group
+	</select>
+
+	
+
+	<select id="getDataDeviceEnergy">
+
+		SELECT
+			t.id_project,
+			IFNULL(ROUND(( SUM( t.today_activeEnergy ) / 1000 ),1 ), 0) AS today_activeEnergy,
+			IFNULL(ROUND(( SUM( t.last_month_activeEnergy ) / 1000 ),1 ), 0) AS last_month_activeEnergy,
+			IFNULL(SUM(t.activePower), 0) AS activePower,
+			SUM( t.lifetime ) AS lifetime
+		FROM
+			(
+				<foreach collection="deviceGroupInverter" item="item" index="index" separator="union all">
+					<![CDATA[
+						SELECT
+							d.id_project,
+							SUM(t.today_activeEnergy) AS today_activeEnergy,
+							SUM(l.last_month_activeEnergy) AS last_month_activeEnergy,
+							SUM(n.activePower) AS activePower,
+							SUM(h.lifetime) AS lifetime
+						FROM
+							device d 
+							LEFT JOIN (
+								SELECT
+									dv.time,
+									dv.id_device,
+									(MAX( dv.activeEnergy ) ) - (MIN( dv.activeEnergy )) AS today_activeEnergy,
+									MAX(dv.activeEnergy) AS lifetime
+								FROM
+									${item.table_name} dv 
+									LEFT JOIN device d ON d.id = dv.id_device
+									WHERE dv.activeEnergy > 0 
+									AND FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) =  DATE_FORMAT( NOW(), '%d/%m/%Y')
+									AND d.id_project = #{item.id_project}
+									GROUP BY dv.id_device
+							)t ON d.id = t.id_device
+
+							LEFT JOIN (
+								SELECT
+									MAX(dv.time) as time,
+									dv.id_device,
+									MAX(dv.activeEnergy) AS lifetime
+								FROM
+									${item.table_name} dv 
+									LEFT JOIN device d ON d.id = dv.id_device
+									WHERE dv.activeEnergy > 0 
+									AND d.id_project = #{item.id_project}
+									GROUP BY dv.id_device
+							)h ON d.id = h.id_device
+
+							LEFT JOIN(
+								SELECT
+									dv.id_device,
+									SUM(dv.activePower) AS activePower
+								FROM
+									${item.table_name} dv
+									INNER JOIN (
+									SELECT
+										dv.id_device,
+										MAX( dv.time ) AS max_time 
+									FROM
+										${item.table_name} dv 
+									GROUP BY
+										dv.id_device 
+									) t2 ON t2.id_device = dv.id_device 
+									AND dv.time = t2.max_time
+									LEFT JOIN device d ON d.id = dv.id_device 
+								WHERE d.`status` = 1
+									AND d.id_project = #{item.id_project}
+							)n ON n.id_device = d.id
+
+
+							LEFT JOIN (
+								SELECT
+									dv.time,
+									dv.id_device,
+									(MAX( dv.activeEnergy ) ) - (MIN( dv.activeEnergy )) AS last_month_activeEnergy,
+									MAX(dv.activeEnergy) AS lifetime
+								FROM
+									${item.table_name} dv 
+									LEFT JOIN device d ON d.id = dv.id_device
+									WHERE dv.activeEnergy > 0 
+									AND FROM_UNIXTIME( dv.time, '%m/%Y' ) =  DATE_FORMAT( DATE_ADD(NOW(),INTERVAL -1 MONTH), '%m/%Y')
+									AND d.id_project = #{item.id_project}
+									GROUP BY dv.id_device
+							)l ON d.id = l.id_device
+
+
+						WHERE d.id_project = #{item.id_project}
+					]]>
+			</foreach>
+			) t 
+		GROUP BY
+			t.id_project
+	</select>
+
+
+	<select id="getIrradianceByProjectId">
+
+		SELECT
+			dv.id_device,
+			IFNULL( dv.cellTemp, 0 ) AS cellTemp,
+			IFNULL( dv.irradiancePoA, 0 ) AS irradiancePoA,
+			IFNULL( dv.panelTemp, 0 ) AS panelTemp 
+		FROM
+			model_sensor_IMT_SiRS485 dv
+			INNER JOIN (
+			SELECT
+				dv.id_device,
+				MAX( dv.time ) AS max_time 
+			FROM
+				model_sensor_IMT_SiRS485 dv 
+			GROUP BY
+				dv.id_device 
+			) t2 ON t2.id_device = dv.id_device 
+			AND dv.time = t2.max_time
+			LEFT JOIN device d ON d.id = dv.id_device 
+		WHERE d.`status` = 1
+			AND d.id_project = #{id}
+			
+			UNION ALL
+		SELECT
+			dv.id_device,
+			IFNULL( dv.cellTemp, 0 ) AS cellTemp,
+			IFNULL( dv.irradiancePoA, 0 ) AS irradiancePoA,
+			IFNULL( dv.panelTemp, 0 ) AS panelTemp 
+		FROM
+			model_sensor_IMT_SiRS485 dv
+			INNER JOIN (
+			SELECT
+				dv.id_device,
+				MAX( dv.time ) AS max_time 
+			FROM
+				model_sensor_IMT_SiRS485 dv 
+			GROUP BY
+				dv.id_device 
+			) t2 ON t2.id_device = dv.id_device 
+			AND dv.time = t2.max_time
+			LEFT JOIN project_map_device_virtual pm ON pm.id_device = dv.id_device 
+			LEFT JOIN device d ON d.id = pm.id_device
+		WHERE d.`status` = 1
+			AND pm.id_project = #{id}
+	</select>
+	<!-- <select id="getDataDeviceIrradiance">
+		SELECT
+			d.id,
+			d.`name`,
+			IFNULL( t.irradiancePoA, 0 ) AS irradiancePoA 
+		FROM
+			device d
+			LEFT JOIN (
+			SELECT
+				dv.time,
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y %H:%i' ) AS format_time,
+				dv.id_device,
+				dv.irradiancePoA 
+			FROM
+				model_sensor_IMT_SiRS485 dv 
+			WHERE
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) =  DATE_FORMAT( NOW(), '%d/%m/%Y')
+			ORDER BY
+				dv.time DESC 
+				LIMIT 1 
+			) t ON t.id_device = d.id 
+		WHERE
+			d.id_project = #{id_project} 
+			AND d.id_device_group = #{id_device_group}
+			AND d.is_virtual = 1
+			AND d.`status` = 1
+
+		GROUP BY
+			d.id UNION ALL
+		SELECT
+			d.id,
+			d.`name`,
+			IFNULL( t.irradiancePoA, 0 ) AS irradiancePoA 
+		FROM
+			project_map_device_virtual pm
+			LEFT JOIN device d ON pm.id_device = d.id
+			LEFT JOIN (
+			SELECT
+				dv.time,
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y %H:%i' ) AS format_time,
+				dv.id_device,
+				dv.irradiancePoA 
+			FROM
+				model_sensor_IMT_SiRS485 dv 
+			WHERE
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) =  DATE_FORMAT( NOW(), '%d/%m/%Y') 
+			ORDER BY
+				dv.time DESC 
+				LIMIT 1 
+			) t ON t.id_device = d.id 
+		WHERE
+			pm.id_project = #{id_project} 
+			AND d.id_device_group = #{id_device_group}
+			AND d.is_virtual = 1
+			AND d.`status` = 1
+		GROUP BY
+			d.id
+	</select> -->
+
+
+	<select id="getAlertBySite">
+		SELECT
+				el.id,
+				COUNT(el.id) AS total_alert,
+				el.thumbnail,
+				eld.`name`
+		FROM
+			alert a
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_level el ON e.id_error_level = el.id
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			LEFT JOIN device d ON d.id = a.id_device
+		WHERE a.id_device IN (
+			SELECT
+					pm.id_device
+				FROM
+					project_map_device_virtual pm
+					LEFT JOIN device d ON d.id = pm.id_device 
+				WHERE
+					pm.id_project = #{id_project}
+				AND pm.is_virtual = 1 
+				UNION ALL
+				SELECT d.id AS id_device FROM device d 
+				LEFT JOIN project p ON p.id = d.id_project
+				WHERE d.id_project = #{id_project} AND d.is_virtual = 1 AND d.`status` = 1 AND p.`status` = 1 AND el.id IN (1,6)
+				GROUP BY d.id
+		)
+		AND e.`status` = 1 AND el.`status` = 1 AND d.`status` = 1 AND a.`status` = 1
+		GROUP BY el.id
+	</select>
+
+	
+	<select id="getListGroupProject">
+		SELECT
+			pg.id,
+			pgd.`name`,
+			IFNULL(ROUND((SUM(t.energy_today) / 1000),1), 0) AS energy_today,
+			SUM(t.lifetime) AS lifetime,
+			SUM(t.last_month) AS last_month,
+			SUM(t.lifetime_revenue) AS lifetime_revenue,
+			IFNULL(ROUND((SUM(t.today_revenue)), 0), 0) AS today_revenue
+		FROM
+			project_group pg
+			LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id AND pgd.id_language = 2
+			
+			LEFT JOIN (
+				SELECT 
+					p.id_project_group,
+					SUM(d.lifetime) AS lifetime,
+					(SUM(d.lifetime) / 1000) * c.config_revenue AS lifetime_revenue,
+					SUM(d.energy_today) AS energy_today,
+					(SUM(d.energy_today) / 1000) * c.config_revenue  AS today_revenue,
+					SUM(d.last_month) AS last_month
+					
+				FROM project p 
+				LEFT JOIN device d ON d.id_project = p.id
+				
+				LEFT JOIN (
+						SELECT
+							pc.id_project,
+							pc.config_revenue 
+						FROM
+							project_config pc 
+						WHERE
+							NOW() <![CDATA[>=]]> pc.start_date 
+							AND NOW() <![CDATA[<=]]> pc.end_date 
+							AND pc.`status` = 1 
+						GROUP BY
+							pc.id_project 
+					)c ON c.id_project = p.id
+					
+				WHERE p.`status` = 1
+				AND d.`status` = 1
+				GROUP BY p.id
+			)t ON t.id_project_group = pg.id
+		WHERE
+			pg.`status` = 1
+			GROUP BY pg.id
+		
+	</select>
+
+	<!-- <select id="getListDeviceTypeByGroupProject">
+		SELECT
+			dg.id,
+			dg.table_name,
+			GROUP_CONCAT(DISTINCT d.id) AS ids_device
+		FROM
+			project p
+			LEFT JOIN device d ON d.id_project = p.id 
+			AND d.id_device_type = 1
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+		WHERE
+			dg.`status` = 1 
+			AND p.id_project_group = #{id}
+		GROUP BY
+			dg.id
+	</select> -->
+
+	<!-- <select id="getDataEnergySummary">
+
+		SELECT
+			t.id_device_group,
+			IFNULL(ROUND(( SUM( t.today_activeEnergy ) / 1000 ),1 ), 0) AS today_activeEnergy,
+			SUM( t.lifetime ) AS lifetime
+		FROM
+			(
+				<foreach collection="deviceGroupInverter" item="item" index="index" separator="union all">
+					<![CDATA[
+						SELECT
+							d.id_device_group,
+							SUM( t.today_activeEnergy ) AS today_activeEnergy,
+							SUM( h.lifetime ) AS lifetime 
+						FROM
+							device d
+							LEFT JOIN (
+							SELECT
+								dv.time,
+								dv.id_device,
+								( MAX( dv.activeEnergy ) ) - (
+								MIN( dv.activeEnergy )) AS today_activeEnergy,
+								MAX( dv.activeEnergy ) AS lifetime 
+							FROM
+								${item.table_name} dv
+								LEFT JOIN device d ON d.id = dv.id_device 
+							WHERE
+								dv.activeEnergy > 0 
+								AND FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) = DATE_FORMAT( NOW(), '%d/%m/%Y' ) 
+								AND d.id IN (${item.ids_device}) 
+							GROUP BY
+								dv.id_device 
+							) t ON d.id = t.id_device
+							LEFT JOIN (
+							SELECT
+								MAX( dv.time ) AS time,
+								dv.id_device,
+								MAX( dv.activeEnergy ) AS lifetime 
+							FROM
+								${item.table_name} dv
+								LEFT JOIN device d ON d.id = dv.id_device 
+							WHERE
+								dv.activeEnergy > 0 
+								AND d.id IN (${item.ids_device})  
+							GROUP BY
+								dv.id_device 
+							) h ON d.id = h.id_device
+					]]>
+			</foreach>
+			) t 
+	</select> -->
+
+</mapper>

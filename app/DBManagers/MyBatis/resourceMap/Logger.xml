@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Logger">
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO m_logger(
+			headquarter_id,
+			table_name,
+			type,
+			user_id,
+			content,
+			created_by,
+			created_date
+		)VALUES(
+			#{headquarter_id},
+			#{table_name},
+			#{type},
+			#{user_id},
+			#{content},
+			#{created_by},
+			NOW()
+		) 
+	</insert>
+</mapper>

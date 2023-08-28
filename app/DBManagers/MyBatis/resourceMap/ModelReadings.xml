@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ModelReadings">
+
+	<insert id="insertModelEmeterGelexEmicME41" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_emeter_GelexEmic_ME41`(
+			`time`,
+			`id_device`,
+			`activeEnergy`,
+			`activeEnergyExport`,
+			`activeEnergyExportRate1`,
+			`activeEnergyExportRate2`,
+			`activeEnergyExportRate3`,
+			`activeEnergyImport`,
+			`activeEnergyImportRate1`,
+			`activeEnergyImportRate2`,
+			`activeEnergyImportRate3`,
+			`reactiveEnergyExport`,
+			`reactiveEnergyImport`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`powerFactor`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{activeEnergy},
+			#{activeEnergyExport},
+			#{activeEnergyExportRate1},
+			#{activeEnergyExportRate2},
+			#{activeEnergyExportRate3},
+			#{activeEnergyImport},
+			#{activeEnergyImportRate1},
+			#{activeEnergyImportRate2},
+			#{activeEnergyImportRate3},
+			#{reactiveEnergyExport},
+			#{reactiveEnergyImport},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{powerFactor}
+			
+		);
+	</insert>
+
+	
+	<insert id="insertModelEmeterVinasinoVSE3T5" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_emeter_Vinasino_VSE3T5`(
+			`time`,
+			`id_device`,
+			`activeEnergy`,
+			`activeEnergyRate1`,
+			`activeEnergyRate2`,
+			`activeEnergyRate3`,
+			`reactiveEnergyInductive`,
+			`reactiveEnergyInductiveRate1`,
+			`reactiveEnergyInductiveRate2`,
+			`reactiveEnergyInductiveRate3`,
+			`reactiveEnergyCapacitive`,
+			`reactiveEnergyCapacitiveRate1`,
+			`reactiveEnergyCapacitiveRate2`,
+			`reactiveEnergyCapacitiveRate3`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`powerFrequency`,
+			`activePower`,
+			`reactivePower`,
+			`powerFactor`,
+			`activePowerPhaseA`,
+			`activePowerPhaseB`,
+			`activePowerPhaseC`,
+			`reactivePowerPhaseA`,
+			`reactivePowerPhaseB`,
+			`reactivePowerPhaseC`,
+			`activePowerMaxDemand`,
+			`activePowerMaxDemandRate1`,
+			`activePowerMaxDemandRate2`,
+			`activePowerMaxDemandRate3`,
+			`powerFactorPhaseA`,
+			`powerFactorPhaseB`,
+			`powerFactorPhaseC`,
+			`CTratioPrimary`,
+			`CTratioSecondary`,
+			`PTratioPrimary`,
+			`PTratioSecondary`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{activeEnergy},
+			#{activeEnergyRate1},
+			#{activeEnergyRate2},
+			#{activeEnergyRate3},
+			#{reactiveEnergyInductive},
+			#{reactiveEnergyInductiveRate1},
+			#{reactiveEnergyInductiveRate2},
+			#{reactiveEnergyInductiveRate3},
+			#{reactiveEnergyCapacitive},
+			#{reactiveEnergyCapacitiveRate1},
+			#{reactiveEnergyCapacitiveRate2},
+			#{reactiveEnergyCapacitiveRate3},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{powerFrequency},
+			#{activePower},
+			#{reactivePower},
+			#{powerFactor},
+			#{activePowerPhaseA},
+			#{activePowerPhaseB},
+			#{activePowerPhaseC},
+			#{reactivePowerPhaseA},
+			#{reactivePowerPhaseB},
+			#{reactivePowerPhaseC},
+			#{activePowerMaxDemand},
+			#{activePowerMaxDemandRate1},
+			#{activePowerMaxDemandRate2},
+			#{activePowerMaxDemandRate3},
+			#{powerFactorPhaseA},
+			#{powerFactorPhaseB},
+			#{powerFactorPhaseC},
+			#{CTratioPrimary},
+			#{CTratioSecondary},
+			#{PTratioPrimary},
+			#{PTratioSecondary}
+		);
+	</insert>
+
+
+	<insert id="insertModelSensorRT1" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_sensor_RT1`(
+			`time`,
+			`id_device`,
+			`deviceType`,
+			`dataModel`,
+			`softwareVersion`,
+			`hardwareVersion`,
+			`batchNumber`,
+			`serialNumber`,
+			`modbusUnitID`,
+			`sensor1Data`,
+			`internalTemperature`,
+			`externalVoltage`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{deviceType},
+			#{dataModel},
+			#{softwareVersion},
+			#{hardwareVersion},
+			#{batchNumber},
+			#{serialNumber},
+			#{modbusUnitID},
+			#{sensor1Data},
+			#{internalTemperature},
+			#{externalVoltage}
+		);
+	</insert>
+
+	<insert id="insertModelSensorIMTTaRS485" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_sensor_IMT_TaRS485`(
+			`time`,
+			`id_device`,
+			`ambientTemp`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{ambientTemp}
+		);
+	</insert>
+
+	<insert id="insertModelSensorIMTSiRS485" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_sensor_IMT_SiRS485`(
+			`time`,
+			`id_device`,
+			`irradiancePoA`,
+			`cellTemp`,
+			`panelTemp`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{irradiancePoA},
+			#{cellTemp},
+			#{panelTemp}
+		);
+	</insert>
+
+	<insert id="insertModelLoggerSMAIM20" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_logger_SMA_IM20`(
+			`time`,
+			`id_device`,
+			`manufacturer`,
+			`model`,
+			`serialNumber`,
+			`modbusUnitId`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{manufacturer},
+			#{model},
+			#{serialNumber},
+			#{modbusUnitId}
+		);
+	</insert>
+
+
+	<insert id="insertModelInverterSMASTP50" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_inverter_SMA_STP50`(
+			`time`,
+			`id_device`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`activePower`,
+			`powerFrequency`,
+			`apparentPower`,
+			`reactivePower`,
+			`powerFactor`,
+			`activeEnergy`,
+			`dailyEnergy`,
+			`dcCurrent`,
+			`dcVoltage`,
+			`dcPower`,
+			`internalTemperature`,
+			`mppt1Current`,
+			`mppt1Voltage`,
+			`mppt1Power`,
+			`mppt2Current`,
+			`mppt2Voltage`,
+			`mppt2Power`,
+			`mppt3Current`,
+			`mppt3Voltage`,
+			`mppt3Power`,
+			`mppt4Current`,
+			`mppt4Voltage`,
+			`mppt4Power`,
+			`mppt5Current`,
+			`mppt5Voltage`,
+			`mppt5Power`,
+			`mppt6Current`,
+			`mppt6Voltage`,
+			`mppt6Power`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{activePower},
+			#{powerFrequency},
+			#{apparentPower},
+			#{reactivePower},
+			#{powerFactor},
+			#{activeEnergy},
+			#{dailyEnergy},
+			#{dcCurrent},
+			#{dcVoltage},
+			#{dcPower},
+			#{internalTemperature},
+			#{mppt1Current},
+			#{mppt1Voltage},
+			#{mppt1Power},
+			#{mppt2Current},
+			#{mppt2Voltage},
+			#{mppt2Power},
+			#{mppt3Current},
+			#{mppt3Voltage},
+			#{mppt3Power},
+			#{mppt4Current},
+			#{mppt4Voltage},
+			#{mppt4Power},
+			#{mppt5Current},
+			#{mppt5Voltage},
+			#{mppt5Power},
+			#{mppt6Current},
+			#{mppt6Voltage},
+			#{mppt6Power}
+		);
+	</insert>
+
+	<insert id="insertModelInverterSMASHP75" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_inverter_SMA_SHP75`(
+			`time`,
+			`id_device`,
+			`acCurrent`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`activePower`,
+			`powerFrequency`,
+			`apparentPower`,
+			`reactivePower`,
+			`powerFactor`,
+			`activeEnergy`,
+			`dcCurrent`,
+			`dcVoltage`,
+			`dcPower`,
+			`internalTemperature`,
+			`heatSinkTemperature`,
+			`transformerTemperature`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{acCurrent},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{activePower},
+			#{powerFrequency},
+			#{apparentPower},
+			#{reactivePower},
+			#{powerFactor},
+			#{activeEnergy},
+			#{dcCurrent},
+			#{dcVoltage},
+			#{dcPower},
+			#{internalTemperature},
+			#{heatSinkTemperature},
+			#{transformerTemperature}
+		);
+	</insert>
+
+
+	<insert id="insertModelTechedge" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_techedge`(
+			`time`,
+			`id_device`,
+			`memPercent`,
+			`memTotal`,
+			`memUsed`,
+			`memAvail`,
+			`memFree`,
+			`diskPercent`,
+			`diskTotal`,
+			`diskUsed`,
+			`diskFree`,
+			`cpuTemp`,
+			`upTime`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{memPercent},
+			#{memTotal},
+			#{memUsed},
+			#{memAvail},
+			#{memFree},
+			#{diskPercent},
+			#{diskTotal},
+			#{diskUsed},
+			#{diskFree},
+			#{cpuTemp},
+			#{upTime}
+		);
+	</insert>
+
+
+	<insert id="insertModelInverterABBPVS100" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_inverter_ABB_PVS100`(
+			`time`,
+			`id_device`,
+			`acCurrent`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`activePower`,
+			`powerFrequency`,
+			`apparentPower`,
+			`reactivePower`,
+			`powerFactor`,
+			`activeEnergy`,
+			`dcCurrent`,
+			`dcVoltage`,
+			`dcPower`,
+			`internalTemperature`,
+			`heatSinkTemperature`,
+			`mppt1Current`,
+			`mppt1Voltage`,
+			`mppt1Power`,
+			`mppt2Current`,
+			`mppt2Voltage`,
+			`mppt2Power`,
+			`mppt3Current`,
+			`mppt3Voltage`,
+			`mppt3Power`,
+			`mppt4Current`,
+			`mppt4Voltage`,
+			`mppt4Power`,
+			`mppt5Current`,
+			`mppt5Voltage`,
+			`mppt5Power`,
+			`mppt6Current`,
+			`mppt6Voltage`,
+			`mppt6Power`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{acCurrent},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{activePower},
+			#{powerFrequency},
+			#{apparentPower},
+			#{reactivePower},
+			#{powerFactor},
+			#{activeEnergy},
+			#{dcCurrent},
+			#{dcVoltage},
+			#{dcPower},
+			#{internalTemperature},
+			#{heatSinkTemperature},
+			#{mppt1Current},
+			#{mppt1Voltage},
+			#{mppt1Power},
+			#{mppt2Current},
+			#{mppt2Voltage},
+			#{mppt2Power},
+			#{mppt3Current},
+			#{mppt3Voltage},
+			#{mppt3Power},
+			#{mppt4Current},
+			#{mppt4Voltage},
+			#{mppt4Power},
+			#{mppt5Current},
+			#{mppt5Voltage},
+			#{mppt5Power},
+			#{mppt6Current},
+			#{mppt6Voltage},
+			#{mppt6Power}
+		);
+	</insert>
+
+	<insert id="insertModelEmeterJanitzaUMG96S2" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_emeter_Janitza_UMG96S2`(
+			`time`,
+			`id_device`,
+			`activeEnergyImport`,
+			`activeEnergyExport`,
+			`powerFrequency`,
+			`powerFactor`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`voltageUab`,
+			`voltageUbc`,
+			`voltageUac`,
+			`activePower`,
+			`reactivePower`,
+			`apparentPower`,
+			`rolationField`,
+			`activeEnergy`,
+			`reactiveEnergy`,
+			`apparentEnergy`,
+			`activeEnergyPhaseA`,
+			`activeEnergyPhaseB`,
+			`activeEnergyPhaseC`,
+			`reactiveEnergyPhaseA`,
+			`reactiveEnergyPhaseB`,
+			`reactiveEnergyPhaseC`,
+			`reactiveEnergyInductivePhaseA`,
+			`reactiveEnergyInductivePhaseB`,
+			`reactiveEnergyInductivePhaseC`,
+			`reactiveEnergyInductive`,
+			`reactiveEnergyCapacitivePhaseA`,
+			`reactiveEnergyCapacitivePhaseB`,
+			`reactiveEnergyCapacitivePhaseC`,
+			`reactiveEnergyCapacitive`,
+			`apparentEnergyPhaseA`,
+			`apparentEnergyPhaseB`,
+			`apparentEnergyPhaseC`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{activeEnergyImport},
+			#{activeEnergyExport},
+			#{powerFrequency},
+			#{powerFactor},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{voltageUab},
+			#{voltageUbc},
+			#{voltageUac},
+			#{activePower},
+			#{reactivePower},
+			#{apparentPower},
+			#{rolationField},
+			#{activeEnergy},
+			#{reactiveEnergy},
+			#{apparentEnergy},
+			#{activeEnergyPhaseA},
+			#{activeEnergyPhaseB},
+			#{activeEnergyPhaseC},
+			#{reactiveEnergyPhaseA},
+			#{reactiveEnergyPhaseB},
+			#{reactiveEnergyPhaseC},
+			#{reactiveEnergyInductivePhaseA},
+			#{reactiveEnergyInductivePhaseB},
+			#{reactiveEnergyInductivePhaseC},
+			#{reactiveEnergyInductive},
+			#{reactiveEnergyCapacitivePhaseA},
+			#{reactiveEnergyCapacitivePhaseB},
+			#{reactiveEnergyCapacitivePhaseC},
+			#{reactiveEnergyCapacitive},
+			#{apparentEnergyPhaseA},
+			#{apparentEnergyPhaseB},
+			#{apparentEnergyPhaseC}
+		);
+	</insert>
+	
+
+	<insert id="insertModelInverterSMASTP110" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_inverter_SMA_STP110`(
+			`time`,
+			`id_device`,
+			`acCurrent`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`activePower`,
+			`powerFrequency`,
+			`apparentPower`,
+			`reactivePower`,
+			`powerFactor`,
+			`activeEnergy`,
+			`dcCurrent`,
+			`dcVoltage`,
+			`dcPower`,
+			`cabinetTemperature`,
+			`mppt1Current`,
+			`mppt1Voltage`,
+			`mppt1Power`,
+			`mppt2Current`,
+			`mppt2Voltage`,
+			`mppt2Power`,
+			`mppt3Current`,
+			`mppt3Voltage`,
+			`mppt3Power`,
+			`mppt4Current`,
+			`mppt4Voltage`,
+			`mppt4Power`,
+			`mppt5Current`,
+			`mppt5Voltage`,
+			`mppt5Power`,
+			`mppt6Current`,
+			`mppt6Voltage`,
+			`mppt6Power`,
+			`mppt7Current`,
+			`mppt7Voltage`,
+			`mppt7Power`,
+			`mppt8Current`,
+			`mppt8Voltage`,
+			`mppt8Power`,
+			`mppt9Current`,
+			`mppt9Voltage`,
+			`mppt9Power`,
+			`mppt10Current`,
+			`mppt10Voltage`,
+			`mppt10Power`,
+			`mppt11Current`,
+			`mppt11Voltage`,
+			`mppt11Power`,
+			`mppt12Current`,
+			`mppt12Voltage`,
+			`mppt12Power`
+			
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{acCurrent},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{activePower},
+			#{powerFrequency},
+			#{apparentPower},
+			#{reactivePower},
+			#{powerFactor},
+			#{activeEnergy},
+			#{dcCurrent},
+			#{dcVoltage},
+			#{dcPower},
+			#{cabinetTemperature},
+			#{mppt1Current},
+			#{mppt1Voltage},
+			#{mppt1Power},
+			#{mppt2Current},
+			#{mppt2Voltage},
+			#{mppt2Power},
+			#{mppt3Current},
+			#{mppt3Voltage},
+			#{mppt3Power},
+			#{mppt4Current},
+			#{mppt4Voltage},
+			#{mppt4Power},
+			#{mppt5Current},
+			#{mppt5Voltage},
+			#{mppt5Power},
+			#{mppt6Current},
+			#{mppt6Voltage},
+			#{mppt6Power},
+			#{mppt7Current},
+			#{mppt7Voltage},
+			#{mppt7Power},
+			#{mppt8Current},
+			#{mppt8Voltage},
+			#{mppt8Power},
+			#{mppt9Current},
+			#{mppt9Voltage},
+			#{mppt9Power},
+			#{mppt10Current},
+			#{mppt10Voltage},
+			#{mppt10Power},
+			#{mppt11Current},
+			#{mppt11Voltage},
+			#{mppt11Power},
+			#{mppt12Current},
+			#{mppt12Voltage},
+			#{mppt12Power}
+			
+		);
+	</insert>
+
+
+	<select id="getDeviceInfo">
+		SELECT
+			d.id,
+			d.id_device,
+			d.id_device_group,
+			d.id_project,
+			d.`name`,
+			d.serial_number,
+			d.model,
+			d.manufacturer,
+			d.`status`,
+			dg.table_name,
+			dg.view_table,
+			pd.`name` AS project_name,
+			t.email,
+			t.full_name
+		FROM
+			device d 
+			LEFT JOIN project p ON p.id = d.id_project 
+			LEFT JOIN project_detail pd ON p.id = pd.id_project AND pd.id_language = 2
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+			LEFT JOIN (
+				SELECT epm.id_project, GROUP_CONCAT( DISTINCT(e.email) SEPARATOR ', ' ) AS email , CONCAT(e.first_name, ' ', e.last_name) AS full_name FROM emloyee_project_map epm
+				LEFT JOIN employee e ON e.id = epm.id_employee
+				WHERE e.`status` = 1
+				GROUP BY epm.id_project
+			)t ON p.id = t.id_project
+		WHERE
+			d.id_device = #{deviceID}  AND d.`status` = 1 AND dg.`status` = 1
+			LIMIT 1;
+	</select>
+
+	
+	<select id="getErrorInfo">
+		SELECT
+			e.id,
+			e.id_error_level,
+			e.error_code,
+			e.id_error_state,
+			es.state_key,
+			ed.description,
+			ed.message,
+			ed.solutions,
+			etd.`name` AS error_type_name,
+			elt.`name` AS error_level_name
+		FROM
+			error e 
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = 2
+			LEFT JOIN error_state es ON es.id = e.id_error_state
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = 2
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail elt ON elt.id_error_level = el.id AND elt.id_language = 2
+		WHERE
+			e.error_code = #{error_code} AND es.state_key = #{state_key} LIMIT 1
+	</select>
+
+	
+	<select id="getListError">
+		SELECT
+			e.id,
+			e.id_error_level,
+			e.error_code,
+			e.id_error_state,
+			es.state_key,
+			ed.description,
+			ed.message,
+			ed.solutions,
+			etd.`name` AS error_type_name,
+			elt.`name` AS error_level_name
+		FROM
+			error e 
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = 2
+			LEFT JOIN error_state es ON es.id = e.id_error_state
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = 2
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail elt ON elt.id_error_level = el.id AND elt.id_language = 2
+		WHERE
+			es.state_key = #{state_key}
+			AND e.id_device_group = #{id_device_group}
+			AND e.error_code IN 
+
+					<foreach collection="arrErrorCode" index="index" item="item" open="(" separator="," close=")">  
+						#{item.error_code}  
+					</foreach>
+
+	</select>
+
+	
+	<select id="checkExistAlerm">
+		SELECT
+			* 
+		FROM
+			alert a 
+		WHERE
+			a.id_device = #{id_device}
+			AND a.id_error = #{id_error} OR a.id_alert_state = 1
+			AND a.`status` = 1 LIMIT 1;
+	</select>
+
+	<insert id="insertAlert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `alert`(
+			`id_device`,
+			`id_error`,
+			`start_date`,
+			`status`,
+			`created_date`
+		)VALUES(
+			#{id_device},
+			#{id_error},
+			#{start_date},
+			#{status},
+			NOW()
+		);
+	</insert>
+
+
+	
+	<select id="getLastRowData">
+		SELECT
+			dv.* 
+		FROM
+			device d
+			LEFT JOIN ${table_name} dv ON dv.id_device = d.id 
+		WHERE
+			id = #{id_device} 
+			AND dv.activeEnergy > 0 
+			AND d.`status` 
+		ORDER BY
+			dv.time DESC 
+			LIMIT 1
+	</select>
+
+
+	<select id="getDataUpdateDevice">
+		SELECT
+			dv.*,
+			t.energy_today,
+			l.energy_last_month
+		FROM
+			device d
+			LEFT JOIN ${table_name} dv ON dv.id_device = d.id
+			LEFT JOIN ( 
+				SELECT 
+				dv.id_device,
+				MAX(dv.activeEnergy) - MIN(dv.activeEnergy) AS energy_today
+				FROM ${table_name} dv 
+				WHERE dv.id_device = #{id_device} 
+				AND FROM_UNIXTIME(dv.time,'%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y') 
+				AND dv.activeEnergy > 0 GROUP BY dv.id_device
+			)t ON t.id_device = d.id
+			
+			LEFT JOIN ( 
+				SELECT 
+				dv.id_device,
+				MAX(dv.activeEnergy) - MIN(dv.activeEnergy) AS energy_last_month
+				FROM ${table_name} dv 
+				WHERE dv.id_device = #{id_device} 
+				AND FROM_UNIXTIME( dv.time, '%m/%Y' ) = DATE_FORMAT( DATE_ADD(NOW(), INTERVAL -1 MONTH) , '%m/%Y') 
+				AND dv.activeEnergy > 0 GROUP BY dv.id_device
+			)l ON l.id_device = d.id
+			
+		WHERE
+			id = #{id_device} 
+			AND dv.activeEnergy > 0 
+			AND d.`status` 
+		ORDER BY
+			dv.time DESC 
+			LIMIT 1
+	</select>
+
+
+	
+	<delete id="closeAlarmDisconnected">
+		DELETE FROM `alert`
+		WHERE id = #{id} AND id_device = #{id_device}
+	</delete>
+
+
+	<update id="updatedDevicePlant">
+		UPDATE device
+			SET
+				`power_now` = #{power_now},
+				`energy_today` = #{energy_today},
+				`last_month` = #{last_month},
+				`lifetime` = #{lifetime},
+				`last_updated` = #{last_updated}
+			WHERE
+				id = #{id}
+	</update>
+
+	<insert id="insertModelEmeterVinasinoVSE3T52023" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO `model_emeter_Vinasino_VSE3T52023`(
+			`time`,
+			`id_device`,
+			`activeEnergy`,
+			`activeEnergyRate1`,
+			`activeEnergyRate2`,
+			`activeEnergyRate3`,
+			`reverseActiveEnergy`,
+			`reverseActiveEnergyRate1`,
+			`reverseActiveEnergyRate2`,
+			`reverseActiveEnergyRate3`,
+			`reactiveEnergyInductive`,
+			`reactiveEnergyInductiveRate1`,
+			`reactiveEnergyInductiveRate2`,
+			`reactiveEnergyInductiveRate3`,
+			`reactiveEnergyCapacitive`,
+			`reactiveEnergyCapacitiveRate1`,
+			`reactiveEnergyCapacitiveRate2`,
+			`reactiveEnergyCapacitiveRate3`,
+			`currentPhaseA`,
+			`currentPhaseB`,
+			`currentPhaseC`,
+			`voltagePhaseA`,
+			`voltagePhaseB`,
+			`voltagePhaseC`,
+			`powerFrequency`,
+			`activePower`,
+			`reverseActivePower`,
+			`reactivePower`,
+			`reverseReactivePower`,
+			`powerFactor`,
+			`activePowerPhaseA`,
+			`activePowerPhaseB`,
+			`activePowerPhaseC`,
+			`reverseActivePowerPhaseA`,
+			`reverseActivePowerPhaseB`,
+			`reverseActivePowerPhaseC`,
+			`reactivePowerPhaseA`,
+			`reactivePowerPhaseB`,
+			`reactivePowerPhaseC`,
+			`reverseReactivePowerPhaseA`,
+			`reverseReactivePowerPhaseB`,
+			`reverseReactivePowerPhaseC`,
+			`powerFactorPhaseA`,
+			`powerFactorPhaseB`,
+			`powerFactorPhaseC`,
+			`CTratioPrimary`,
+			`CTratioSecondary`,
+			`PTratioPrimary`,
+			`PTratioSecondary`
+		)VALUES(
+			#{time},
+			#{id_device},
+			#{activeEnergy},
+			#{activeEnergyRate1},
+			#{activeEnergyRate2},
+			#{activeEnergyRate3},
+			#{reverseActiveEnergy},
+			#{reverseActiveEnergyRate1},
+			#{reverseActiveEnergyRate2},
+			#{reverseActiveEnergyRate3},
+			#{reactiveEnergyInductive},
+			#{reactiveEnergyInductiveRate1},
+			#{reactiveEnergyInductiveRate2},
+			#{reactiveEnergyInductiveRate3},
+			#{reactiveEnergyCapacitive},
+			#{reactiveEnergyCapacitiveRate1},
+			#{reactiveEnergyCapacitiveRate2},
+			#{reactiveEnergyCapacitiveRate3},
+			#{currentPhaseA},
+			#{currentPhaseB},
+			#{currentPhaseC},
+			#{voltagePhaseA},
+			#{voltagePhaseB},
+			#{voltagePhaseC},
+			#{powerFrequency},
+			#{activePower},
+			#{reverseActivePower},
+			#{reactivePower},
+			#{reverseReactivePower},
+			#{powerFactor},
+			#{activePowerPhaseA},
+			#{activePowerPhaseB},
+			#{activePowerPhaseC},
+			#{reverseActivePowerPhaseA},
+			#{reverseActivePowerPhaseB},
+			#{reverseActivePowerPhaseC},
+			#{reactivePowerPhaseA},
+			#{reactivePowerPhaseB},
+			#{reactivePowerPhaseC},
+			#{reverseReactivePowerPhaseA},
+			#{reverseReactivePowerPhaseB},
+			#{reverseReactivePowerPhaseC},
+			#{powerFactorPhaseA},
+			#{powerFactorPhaseB},
+			#{powerFactorPhaseC},
+			#{CTratioPrimary},
+			#{CTratioSecondary},
+			#{PTratioPrimary},
+			#{PTratioSecondary}
+		);
+	</insert>
+	
+
+	
+
+</mapper>

@@ -1,0 +1,11 @@
+'use strict';
+
+/**
+ * http://usejsdoc.org/
+ */
+global.kafkaHost = {
+		kafkaHost: '127.0.0.1:9092'
+};
+global.kafkaProducerConfig = {};
+global.kafkaConsumerConfig = {};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uLy4uLy4uL3NyYy9EQk1hbmFnZXJzL0thZmthL0thZmthQ29uZmlnLmpzIl0sIm5hbWVzIjpbImdsb2JhbCIsImthZmthSG9zdCIsImthZmthUHJvZHVjZXJDb25maWciLCJrYWZrYUNvbnN1bWVyQ29uZmlnIl0sIm1hcHBpbmdzIjoiOztBQUFBOzs7QUFHQUEsT0FBT0MsU0FBUCxHQUFpQjtBQUNmQSxhQUFVO0FBREssQ0FBakI7QUFHQUQsT0FBT0UsbUJBQVAsR0FBMkIsRUFBM0I7QUFHQUYsT0FBT0csbUJBQVAsR0FBMkIsRUFBM0IiLCJmaWxlIjoiS2Fma2FDb25maWcuanMiLCJzb3VyY2VzQ29udGVudCI6WyIvKipcbiAqIGh0dHA6Ly91c2Vqc2RvYy5vcmcvXG4gKi9cbmdsb2JhbC5rYWZrYUhvc3Q9e1xuXHRcdGthZmthSG9zdDonMTI3LjAuMC4xOjkwOTInXG59O1xuZ2xvYmFsLmthZmthUHJvZHVjZXJDb25maWc9e1xuXHRcdFxufTtcbmdsb2JhbC5rYWZrYUNvbnN1bWVyQ29uZmlnPXtcblx0XHRcbn0iXX0=

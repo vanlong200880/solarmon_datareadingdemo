@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ClientDevice">
+	<select id="getList">
+		SELECT
+			d.id,
+			d.id_device,
+			d.id_project,
+			d.id_device_type,
+			d.`name`,
+			d.model,
+			d.serial_number,
+			d.manufacturer,
+			DATE_FORMAT(d.installed_at,'%d/%m/%Y') AS installed_at,
+			d.`status`,
+			dtd.`name` AS device_type_name,
+			dg.`name` AS device_group_name,
+			dg.table_name,
+			d.id_device_group,
+			p.hash_id,
+			IF(d.power_now IS NULL OR DATE_FORMAT(NOW(),'%k') <![CDATA[>=]]> 19 OR DATE_FORMAT(NOW(),'%k') <![CDATA[<=]]> 5, NULL, (d.power_now / 1000)) AS power_now,
+			IF(d.energy_today IS NULL, NULL, (d.energy_today / 1000)) AS energy_today,
+			IF(d.last_month IS NULL, NULL, (d.last_month / 1000)) AS last_month,
+			d.lifetime,
+			FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+		FROM
+			device d
+			LEFT JOIN device_type dt ON dt.id = d.id_device_type
+			LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id AND dtd.id_language = #{id_language}
+			
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+			LEFT JOIN project p ON p.id = d.id_project 
+			LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+
+		WHERE
+			p.`status` = 1 
+			AND d.`status` IN ( 1, 0) 
+			AND epm.id_employee = #{id_employee}
+			AND d.is_virtual = 1
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+					WHERE
+						p.hash_id = #{hash_id} 
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					WHERE
+					p.hash_id = #{hash_id}  
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+			)
+			
+
+			<if test="name != null">
+				AND  (
+					d.`name` LIKE CONCAT('%',#{name},'%')
+				)
+			</if>
+
+			<if test="id_device != null">
+				AND  (
+					d.`id_device` LIKE CONCAT('%',#{id_device},'%')
+				)
+			</if>
+
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY d.id DESC
+			</otherwise>
+		</choose>
+
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+
+	</select>
+
+	<select id="getSize">
+		SELECT
+			count(d.id) totalRow
+		FROM
+			device d
+			LEFT JOIN device_type dt ON dt.id = d.id_device_type
+			LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id AND dtd.id_language = #{id_language}
+			
+			LEFT JOIN device_group dg ON dg.id = d.id_device_group
+			LEFT JOIN project p ON p.id = d.id_project 
+			LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+
+		WHERE
+			p.`status` = 1 
+			AND d.`status` IN ( 1, 0 ) 
+			AND epm.id_employee = 1
+			AND d.is_virtual = 1
+			AND d.id IN (
+				SELECT
+						d.id
+					FROM
+						project_map_device_virtual pm
+						LEFT JOIN device d ON d.id = pm.id_device
+						LEFT JOIN project p ON p.id = pm.id_project 
+					WHERE
+						p.hash_id = #{hash_id} 
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+					GROUP BY
+						d.id
+					UNION ALL
+					SELECT d.id FROM device d 
+					LEFT JOIN project p ON p.id = d.id_project
+					WHERE
+					p.hash_id = #{hash_id}  
+						AND p.`status` = 1 
+						AND d.`status` = 1 
+						AND d.is_virtual = 1 
+			)
+			
+		
+		<if test="name != null">
+			AND  (
+				d.`name` LIKE CONCAT('%',#{name},'%')
+			)
+		</if>
+
+		<if test="id_device != null">
+			AND  (
+				d.`id_device` LIKE CONCAT('%',#{id_device},'%')
+			)
+		</if>
+	</select>
+
+
+	<select id="getAlertByDevice">
+		SELECT
+			el.id,
+			COUNT(el.id) AS total_alert,
+			el.thumbnail,
+			eld.`name`
+		FROM
+			alert a
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_level el ON e.id_error_level = el.id
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			LEFT JOIN device d ON d.id = a.id_device
+			WHERE a.id_device = #{id_device} AND e.`status` = 1 AND el.`status` = 1 AND d.`status` = 1 AND a.`status` = 1 AND el.id IN (1,6)
+			GROUP BY el.id ORDER BY el.id ASC
+	</select>
+
+
+	<select id="getDataDeviceEnergy">
+		SELECT
+				dv.id_device,
+				IF(dv.activePower IS NULL OR DATE_FORMAT(NOW(),'%k') <![CDATA[>=]]> 19 OR DATE_FORMAT(NOW(),'%k') <![CDATA[<=]]> 5, NULL, dv.activePower) AS power_now,
+				dv.activeEnergy AS lifetime,
+				IFNULL(t.today_activeEnergy,0) AS today_activeEnergy,
+				IFNULL(m.this_month,0) AS this_month
+				
+
+			FROM ${table_name} dv
+				LEFT JOIN (
+					SELECT
+						dv.time,
+						dv.id_device,
+						(MAX( dv.activeEnergy ) ) - (MIN( dv.activeEnergy )) AS today_activeEnergy,
+						MAX(dv.activeEnergy) AS lifetime
+					FROM
+						${table_name} dv 
+						WHERE FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) =  DATE_FORMAT( #{current_date}, '%d/%m/%Y')
+						AND
+								dv.id_device = #{id_device}
+						GROUP BY dv.id_device
+				)t ON dv.id_device = t.id_device
+
+				LEFT JOIN (
+					SELECT
+						dv.time,
+						dv.id_device,
+						(MAX( dv.activeEnergy ) ) - (MIN( dv.activeEnergy )) AS this_month
+					FROM
+						${table_name} dv 
+						WHERE FROM_UNIXTIME( dv.time, '%m/%Y' ) =  DATE_FORMAT( #{current_date}, '%m/%Y')
+						AND dv.id_device = #{id_device} AND dv.activeEnergy > 0
+						GROUP BY dv.id_device
+				)m ON dv.id_device = m.id_device
+
+
+			WHERE
+				dv.id_device = #{id_device} 
+				<!-- AND FROM_UNIXTIME( dv.time, '%d/%m/%Y' ) =  DATE_FORMAT( #{current_date}, '%d/%m/%Y') -->
+			ORDER BY dv.time DESC 
+				LIMIT 1;
+	</select>
+
+
+	
+	<select id="getLastUpdated">
+		SELECT
+				dv.id_device,
+				FROM_UNIXTIME( dv.time, '%d/%m/%Y %H:%i' ) AS last_updated
+			FROM ${table_name} dv
+			WHERE
+				dv.id_device = #{id_device}
+			ORDER BY dv.time DESC 
+				LIMIT 1;
+	</select>
+
+
+
+	
+	<select id="getListParameterByDevice">
+		SELECT
+			d.id,
+			dp.`name`,
+			dp.slug,
+			dp.unit
+		FROM
+			device_parameter dp 
+			LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+			LEFT JOIN device d ON dg.id = d.id_device_group
+		WHERE
+			d.id = #{id}
+		
+	</select>
+
+	<select id="getLastRowDataDevice">
+		SELECT
+			dv.*,
+			FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+		FROM
+			${table_name} dv
+			LEFT JOIN device d ON dv.id_device = d.id
+		WHERE
+			dv.id_device = #{id_device}
+		ORDER BY
+			dv.`time` DESC 
+			LIMIT 1;
+	</select>
+
+
+	
+	<select id="getListAlertByDevice">
+		SELECT
+			a.id,
+			a.id_error,
+			a.id_alert_state,
+			FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i:%s') AS start_date_format,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN TIMESTAMPDIFF( DAY, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN TIMESTAMPDIFF( HOUR, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) )
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN TIMESTAMPDIFF( MINUTE, FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'), NOW( ) ) ELSE 0
+			END AS times_ago,
+			CASE
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 DAY ) THEN 'DAY'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 HOUR ) THEN 'HOUR'
+				WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') <![CDATA[<]]> DATE_ADD( NOW( ), INTERVAL - 1 MINUTE ) THEN 'MINUTE' ELSE 'NOW'
+			END AS times_ago_unit,
+
+			a.end_date,
+			a.`status`,
+			a.note,
+			ed.message,
+			ed.description,
+			ed.solutions,
+			eld.`name` as error_level_name,
+			etd.`name` AS error_type_name,
+			el.thumbnail,
+			e.id_error_level
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = #{id_language}
+		WHERE
+			a.id_device = #{id} AND a.`status` IN(0,1) AND el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1
+
+			<if test="id_error_level != null">
+				AND  (
+					e.`id_error_level` = #{id_error_level}
+				)
+			</if>
+
+			<if test="id_error_type != null">
+				AND  (
+					e.`id_error_type` = #{id_error_type}
+				)
+			</if>
+
+			<if test="date_from != null and date_to != null">
+				AND FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') BETWEEN CAST(#{date_from} AS DATE) AND CAST(#{date_to} AS DATE)
+			</if>
+
+		<choose>
+			<when test="sort_column != null and order_by != null">
+				ORDER BY ${sort_column} ${order_by}
+			</when>
+			<otherwise>
+				ORDER BY a.id DESC
+			</otherwise>
+		</choose>
+
+		<if test="is_paging == 1">
+			LIMIT ${offset}, ${limit}
+		</if>
+
+	</select>
+
+	<select id="getListAlertByDeviceSize">
+		SELECT
+			count(a.id) totalRow
+		FROM
+			alert a 
+			LEFT JOIN error e ON e.id = a.id_error
+			LEFT JOIN error_detail ed ON ed.id_error = e.id AND ed.id_language = #{id_language}
+			
+			LEFT JOIN error_level el ON el.id = e.id_error_level
+			LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id AND eld.id_language = #{id_language}
+			
+			LEFT JOIN error_type et ON et.id = e.id_error_type
+			LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id AND etd.id_language = #{id_language}
+		WHERE
+			a.id_device = #{id} AND a.`status` IN(0,1) AND el.`status` = 1 AND et.`status` = 1 AND e.`status` = 1
+		<if test="id_error_level != null">
+				AND  (
+					e.`id_error_level` = #{id_error_level}
+				)
+			</if>
+
+			<if test="id_error_type != null">
+				AND  (
+					e.`id_error_type` = #{id_error_type}
+				)
+			</if>
+			<if test="date_from != null and date_to != null">
+				AND FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') BETWEEN CAST(#{date_from} AS DATE) AND CAST(#{date_to} AS DATE)
+			</if>
+	</select>
+	
+</mapper>
+
+
+

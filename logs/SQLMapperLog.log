@@ -1,0 +1,6991 @@
+[2021-11-24T22:15:40.852] [INFO] SQLMapperLog - [sqlId:MainPlant.getGroupDeviceInverter] SELECT
+  d.id,
+  d.id_project,
+  d.id_device_group,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+GROUP BY
+  dg.id
+[2021-11-24T22:15:40.854] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_employee: 1,
+  id_language: 2,
+  filterBy: 'today',
+  data_send_time: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getChartData',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:15:40.875] [INFO] SQLMapperLog - [sqlId:MainPlant.getListDeviceInverter] SELECT
+  d.id,
+  d.id_project,
+  d.id_device_group,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+GROUP BY
+  d.id
+[2021-11-24T22:15:40.879] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_employee: 1,
+  id_language: 2,
+  filterBy: 'today',
+  data_send_time: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getChartData',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:15:40.964] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataEnergyFifteenMinutes] SELECT
+  t.time,
+  t.time_format,
+  t.time_full,
+  ROUND((SUM(t.activeEnergy) / 1000), 1) AS today_activeEnergy,
+  t.group_day,
+  ROUND((SUM(t.activePower) / 1000), 1) AS activePower
+FROM
+  (
+    SELECT
+      m.time,
+      m.time_format,
+      m.time_full,
+      ROUND(SUM(m.activePower), 1) AS activePower,
+      SUM(m.activeEnergy) AS activeEnergy,
+      m.group_day
+    FROM
+      (
+        SELECT
+          dv.time,
+          FROM_UNIXTIME(
+            (
+              UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+            ) * 900,
+            '%Y-%m-%d %H:%i'
+          ) AS time_format,
+          FLOOR(
+            UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) / (15 * 60)
+          ) AS time_key,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i') AS time_full,
+          AVG(dv.activePower) AS activePower,
+          MAX(dv.activeEnergy) AS activeEnergy,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+        FROM
+          model_inverter_ABB_PVS100 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+          LEFT JOIN project p ON p.id = d.id_project
+        WHERE
+          p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+          AND d.id_device_group = 18
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 19:00:00', '%d/%m/%Y')
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 05:00'
+          )
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 19:00'
+          )
+          AND p.`status` = 1
+          AND d.`status` = 1
+        GROUP BY
+          d.id,
+          time_key
+      ) m
+    GROUP BY
+      m.time_format
+    union all
+    SELECT
+      m.time,
+      m.time_format,
+      m.time_full,
+      ROUND(SUM(m.activePower), 1) AS activePower,
+      SUM(m.activeEnergy) AS activeEnergy,
+      m.group_day
+    FROM
+      (
+        SELECT
+          dv.time,
+          FROM_UNIXTIME(
+            (
+              UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+            ) * 900,
+            '%Y-%m-%d %H:%i'
+          ) AS time_format,
+          FLOOR(
+            UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) / (15 * 60)
+          ) AS time_key,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i') AS time_full,
+          AVG(dv.activePower) AS activePower,
+          MAX(dv.activeEnergy) AS activeEnergy,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+        FROM
+          model_inverter_SMA_SHP75 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+          LEFT JOIN project p ON p.id = d.id_project
+        WHERE
+          p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+          AND d.id_device_group = 20
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 19:00:00', '%d/%m/%Y')
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 05:00'
+          )
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 19:00'
+          )
+          AND p.`status` = 1
+          AND d.`status` = 1
+        GROUP BY
+          d.id,
+          time_key
+      ) m
+    GROUP BY
+      m.time_format
+    union all
+    SELECT
+      m.time,
+      m.time_format,
+      m.time_full,
+      ROUND(SUM(m.activePower), 1) AS activePower,
+      SUM(m.activeEnergy) AS activeEnergy,
+      m.group_day
+    FROM
+      (
+        SELECT
+          dv.time,
+          FROM_UNIXTIME(
+            (
+              UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+            ) * 900,
+            '%Y-%m-%d %H:%i'
+          ) AS time_format,
+          FLOOR(
+            UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) / (15 * 60)
+          ) AS time_key,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i') AS time_full,
+          AVG(dv.activePower) AS activePower,
+          MAX(dv.activeEnergy) AS activeEnergy,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+        FROM
+          model_inverter_SMA_STP110 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+          LEFT JOIN project p ON p.id = d.id_project
+        WHERE
+          p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+          AND d.id_device_group = 28
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 19:00:00', '%d/%m/%Y')
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 05:00'
+          )
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 19:00'
+          )
+          AND p.`status` = 1
+          AND d.`status` = 1
+        GROUP BY
+          d.id,
+          time_key
+      ) m
+    GROUP BY
+      m.time_format
+  ) t
+GROUP BY
+  t.time_format
+[2021-11-24T22:15:40.964] [INFO] SQLMapperLog - param: {
+  groupInverter: [
+    {
+      hash_id: '615a2d053d9636ca8cec57251df40d89',
+      id_device_group: 18,
+      start_date: ' 00:00:00',
+      end_date: '2021-11-24 19:00:00',
+      table_name: 'model_inverter_ABB_PVS100'
+    },
+    {
+      hash_id: '615a2d053d9636ca8cec57251df40d89',
+      id_device_group: 20,
+      start_date: ' 00:00:00',
+      end_date: '2021-11-24 19:00:00',
+      table_name: 'model_inverter_SMA_SHP75'
+    },
+    {
+      hash_id: '615a2d053d9636ca8cec57251df40d89',
+      id_device_group: 28,
+      start_date: ' 00:00:00',
+      end_date: '2021-11-24 19:00:00',
+      table_name: 'model_inverter_SMA_STP110'
+    }
+  ],
+  item: {
+    hash_id: '615a2d053d9636ca8cec57251df40d89',
+    id_device_group: 28,
+    start_date: ' 00:00:00',
+    end_date: '2021-11-24 19:00:00',
+    table_name: 'model_inverter_SMA_STP110'
+  }
+}
+[2021-11-24T22:15:40.969] [INFO] SQLMapperLog - [sqlId:MainPlant.getDetail] SELECT
+  p.id,
+  p.hash_id,
+  p.thumbnail,
+  p.address,
+  p.lat,
+  p.lng,
+  p.installed_power,
+  DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+  DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+  DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+  YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+  pd.`name`,
+  pd.site_name,
+  pgd.`name` AS project_group_name,
+  IFNULL(t.config_revenue, 0) AS config_revenue
+FROM
+  project p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  AND pd.id_language = 2
+  LEFT JOIN project_group pg ON pg.id = p.id_project_group
+  LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id
+  AND pgd.id_language = 2
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+  LEFT JOIN(
+    SELECT
+      pc.id_project,
+      pc.config_revenue
+    FROM
+      project_config pc
+    WHERE
+      NOW() >= pc.start_date
+      AND NOW() <= pc.end_date
+      AND pc.`status` = 1
+    GROUP BY
+      pc.id_project
+  ) t ON t.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND pg.`status` = 1
+  AND epm.id_employee = 1
+  AND p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+LIMIT
+  1;
+[2021-11-24T22:15:40.970] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDetail',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T22:15:40.985] [INFO] SQLMapperLog - [sqlId:MainPlant.getTotalInverter] SELECT
+  COUNT(d.id) AS totalInverter
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+  AND d.`status` = 1
+  AND p.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+[2021-11-24T22:15:40.986] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDetail',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T22:15:40.998] [INFO] SQLMapperLog - [sqlId:MainPlant.getGroupDeviceByProjectId] SELECT
+  dg.id,
+  dg.`name`,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+WHERE
+  d.id_project = 40
+  AND d.`status` = 1
+  AND dg.`status` = 1
+GROUP BY
+  dg.id
+UNION ALL
+SELECT
+  dg.id,
+  dg.`name`,
+  dg.table_name
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON d.id = pm.id_device
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+WHERE
+  pm.id_project = 40
+  AND d.`status` = 1
+  AND dg.`status` = 1
+GROUP BY
+  dg.id
+[2021-11-24T22:15:40.998] [INFO] SQLMapperLog - param: { id_project: 40 }
+[2021-11-24T22:15:41.018] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceEnergy] SELECT
+  d.id_project,
+  SUM(t.today_activeEnergy) AS today_activeEnergy,
+  SUM(t.lifetime) AS lifetime,
+  SUM(g.power_now) AS power_now,
+  SUM(g.dc_power) AS dc_power,
+  IFNULL(SUM(g.deviceOn), 0) AS totalInverterOn
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_ABB_PVS100 dv
+      LEFT JOIN device d ON d.id = dv.id_device
+    WHERE
+      dv.activeEnergy > 0
+      AND d.id_project = 40
+      AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON d.id = t.id_device
+  LEFT JOIN (
+    SELECT
+      m.id_device,
+      m.activePower AS power_now,
+      m.dcPower AS dc_power,
+      IF(
+        m.activePower > 0
+        AND m.activePower IS NOT NULL,
+        1,
+        0
+      ) AS deviceOn
+    FROM
+      model_inverter_ABB_PVS100 m
+      LEFT JOIN device d ON d.id = m.id_device
+      INNER JOIN (
+        SELECT
+          dv.id_device,
+          MAX(dv.time) AS time
+        FROM
+          model_inverter_ABB_PVS100 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+        WHERE
+          d.id_project = 40
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+        GROUP BY
+          dv.id_device
+      ) b ON b.time = m.time
+    GROUP BY
+      m.id_device
+  ) g ON d.id = g.id_device
+WHERE
+  d.id_project = 40
+  AND d.id_device_group = 18
+LIMIT
+  1;
+[2021-11-24T22:15:41.019] [INFO] SQLMapperLog - param: {
+  id_project: 40,
+  id_device_group: 18,
+  table_name: 'model_inverter_ABB_PVS100'
+}
+[2021-11-24T22:15:41.057] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceEnergy] SELECT
+  d.id_project,
+  SUM(t.today_activeEnergy) AS today_activeEnergy,
+  SUM(t.lifetime) AS lifetime,
+  SUM(g.power_now) AS power_now,
+  SUM(g.dc_power) AS dc_power,
+  IFNULL(SUM(g.deviceOn), 0) AS totalInverterOn
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+      LEFT JOIN device d ON d.id = dv.id_device
+    WHERE
+      dv.activeEnergy > 0
+      AND d.id_project = 40
+      AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON d.id = t.id_device
+  LEFT JOIN (
+    SELECT
+      m.id_device,
+      m.activePower AS power_now,
+      m.dcPower AS dc_power,
+      IF(
+        m.activePower > 0
+        AND m.activePower IS NOT NULL,
+        1,
+        0
+      ) AS deviceOn
+    FROM
+      model_inverter_SMA_SHP75 m
+      LEFT JOIN device d ON d.id = m.id_device
+      INNER JOIN (
+        SELECT
+          dv.id_device,
+          MAX(dv.time) AS time
+        FROM
+          model_inverter_SMA_SHP75 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+        WHERE
+          d.id_project = 40
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+        GROUP BY
+          dv.id_device
+      ) b ON b.time = m.time
+    GROUP BY
+      m.id_device
+  ) g ON d.id = g.id_device
+WHERE
+  d.id_project = 40
+  AND d.id_device_group = 20
+LIMIT
+  1;
+[2021-11-24T22:15:41.057] [INFO] SQLMapperLog - param: {
+  id_project: 40,
+  id_device_group: 20,
+  table_name: 'model_inverter_SMA_SHP75'
+}
+[2021-11-24T22:15:41.142] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceEnergy] SELECT
+  d.id_project,
+  SUM(t.today_activeEnergy) AS today_activeEnergy,
+  SUM(t.lifetime) AS lifetime,
+  SUM(g.power_now) AS power_now,
+  SUM(g.dc_power) AS dc_power,
+  IFNULL(SUM(g.deviceOn), 0) AS totalInverterOn
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_STP110 dv
+      LEFT JOIN device d ON d.id = dv.id_device
+    WHERE
+      dv.activeEnergy > 0
+      AND d.id_project = 40
+      AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON d.id = t.id_device
+  LEFT JOIN (
+    SELECT
+      m.id_device,
+      m.activePower AS power_now,
+      m.dcPower AS dc_power,
+      IF(
+        m.activePower > 0
+        AND m.activePower IS NOT NULL,
+        1,
+        0
+      ) AS deviceOn
+    FROM
+      model_inverter_SMA_STP110 m
+      LEFT JOIN device d ON d.id = m.id_device
+      INNER JOIN (
+        SELECT
+          dv.id_device,
+          MAX(dv.time) AS time
+        FROM
+          model_inverter_SMA_STP110 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+        WHERE
+          d.id_project = 40
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+        GROUP BY
+          dv.id_device
+      ) b ON b.time = m.time
+    GROUP BY
+      m.id_device
+  ) g ON d.id = g.id_device
+WHERE
+  d.id_project = 40
+  AND d.id_device_group = 28
+LIMIT
+  1;
+[2021-11-24T22:15:41.143] [INFO] SQLMapperLog - param: {
+  id_project: 40,
+  id_device_group: 28,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:15:41.234] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceIrradiance] SELECT
+  dv.id_device,
+  d.id_project,
+  dv.time,
+  IFNULL(dv.cellTemp, 0) AS cellTemp,
+  IFNULL(dv.irradiancePoA, 0) AS irradiancePoA,
+  IFNULL(dv.panelTemp, 0) AS panelTemp
+FROM
+  device d
+  LEFT JOIN model_sensor_IMT_SiRS485 dv ON d.id = dv.id_device
+  LEFT JOIN (
+    SELECT
+      dv.id_device,
+      MAX(dv.time) AS max_time
+    FROM
+      model_sensor_IMT_SiRS485 dv
+    GROUP BY
+      dv.id_device
+  ) t ON dv.time = t.max_time
+  AND dv.id_device = t.id_device
+WHERE
+  d.id_project = 40
+  AND d.id_device_group = 25
+  AND d.`status` = 1
+GROUP BY
+  d.id
+UNION ALL
+SELECT
+  dv.id_device,
+  pm.id_project,
+  dv.time,
+  IFNULL(dv.cellTemp, 0) AS cellTemp,
+  IFNULL(dv.irradiancePoA, 0) AS irradiancePoA,
+  IFNULL(dv.panelTemp, 0) AS panelTemp
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON d.id = pm.id_device
+  LEFT JOIN model_sensor_IMT_SiRS485 dv ON dv.id_device = pm.id_device
+  LEFT JOIN (
+    SELECT
+      dv.id_device,
+      MAX(dv.time) AS max_time
+    FROM
+      model_sensor_IMT_SiRS485 dv
+    GROUP BY
+      dv.id_device
+  ) t ON dv.time = t.max_time
+  AND dv.id_device = t.id_device
+WHERE
+  pm.id_project = 40
+  AND d.id_device_group = 25
+  AND d.`status` = 1
+GROUP BY
+  d.id
+[2021-11-24T22:15:41.235] [INFO] SQLMapperLog - param: {
+  id_project: 40,
+  id_device_group: 25,
+  table_name: 'model_sensor_IMT_SiRS485'
+}
+[2021-11-24T22:15:41.404] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceAmbientEmperature] SELECT
+  d.id,
+  d.`name`,
+  IFNULL(t.ambientTemp, 0) AS ambientTemp
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      MAX(FROM_UNIXTIME(dv.time)) AS max_time,
+      dv.id_device,
+      dv.ambientTemp
+    FROM
+      model_sensor_IMT_TaRS485 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON t.id_device = d.id
+WHERE
+  d.id_project = 40
+  AND d.id_device_group = 26
+GROUP BY
+  d.id
+UNION ALL
+SELECT
+  d.id,
+  d.`name`,
+  IFNULL(t.ambientTemp, 0) AS ambientTemp
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON pm.id_device = d.id
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      MAX(FROM_UNIXTIME(dv.time)) AS max_time,
+      dv.id_device AS id_device,
+      dv.ambientTemp
+    FROM
+      model_sensor_IMT_TaRS485 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON t.id_device = d.id
+WHERE
+  pm.id_project = 40
+  AND d.id_device_group = 26
+  AND d.`status` = 1
+GROUP BY
+  d.id
+[2021-11-24T22:15:41.404] [INFO] SQLMapperLog - param: {
+  id_project: 40,
+  id_device_group: 26,
+  table_name: 'model_sensor_IMT_TaRS485'
+}
+[2021-11-24T22:15:43.402] [INFO] SQLMapperLog - [sqlId:MainDevice.getList] SELECT
+  d.id,
+  d.id_device,
+  d.id_project,
+  d.id_device_type,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  d.manufacturer,
+  DATE_FORMAT(d.installed_at, '%d/%m/%Y') AS installed_at,
+  d.`status`,
+  dtd.`name` AS device_type_name,
+  dg.`name` AS device_group_name,
+  dg.table_name,
+  d.id_device_group,
+  p.hash_id,
+  IF(
+    d.power_now IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    (d.power_now / 1000)
+  ) AS power_now,
+  IF(
+    d.energy_today IS NULL,
+    NULL,
+    (d.energy_today / 1000)
+  ) AS energy_today,
+  IF(
+    d.last_month IS NULL,
+    NULL,
+    (d.last_month / 1000)
+  ) AS last_month,
+  d.lifetime,
+  FROM_UNIXTIME(d.last_updated, '%d/%m/%Y %H:%i') AS last_updated
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  d.id DESC
+LIMIT
+  0, 30
+[2021-11-24T22:15:43.404] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/11/2021',
+  current_date: '2021-11-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:15:43.485] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 284
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.486] [INFO] SQLMapperLog - param: { id_device: 284, id_language: 2 }
+[2021-11-24T22:15:43.500] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_STP110 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 284
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_STP110 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 284
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:43.501] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:43.664] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 270
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.664] [INFO] SQLMapperLog - param: { id_device: 270, id_language: 2 }
+[2021-11-24T22:15:43.678] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 269
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.678] [INFO] SQLMapperLog - param: { id_device: 269, id_language: 2 }
+[2021-11-24T22:15:43.687] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 268
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.688] [INFO] SQLMapperLog - param: { id_device: 268, id_language: 2 }
+[2021-11-24T22:15:43.701] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 219
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.702] [INFO] SQLMapperLog - param: { id_device: 219, id_language: 2 }
+[2021-11-24T22:15:43.713] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 218
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.713] [INFO] SQLMapperLog - param: { id_device: 218, id_language: 2 }
+[2021-11-24T22:15:43.719] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 189
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:43.720] [INFO] SQLMapperLog - param: { id_device: 189, id_language: 2 }
+[2021-11-24T22:15:43.729] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_ABB_PVS100 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_ABB_PVS100 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 189
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_ABB_PVS100 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 189
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 189
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:43.729] [INFO] SQLMapperLog - param: {
+  id_device: 189,
+  id_language: 2,
+  table_name: 'model_inverter_ABB_PVS100',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:44.868] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 188
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:44.868] [INFO] SQLMapperLog - param: { id_device: 188, id_language: 2 }
+[2021-11-24T22:15:44.886] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_SHP75 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 188
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 188
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 188
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:44.887] [INFO] SQLMapperLog - param: {
+  id_device: 188,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_SHP75',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:46.954] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 187
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:46.954] [INFO] SQLMapperLog - param: { id_device: 187, id_language: 2 }
+[2021-11-24T22:15:46.961] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_SHP75 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 187
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 187
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 187
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:46.961] [INFO] SQLMapperLog - param: {
+  id_device: 187,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_SHP75',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:47.839] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 186
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:47.840] [INFO] SQLMapperLog - param: { id_device: 186, id_language: 2 }
+[2021-11-24T22:15:47.855] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_SHP75 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 186
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 186
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 186
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:47.855] [INFO] SQLMapperLog - param: {
+  id_device: 186,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_SHP75',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:48.171] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 184
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:48.172] [INFO] SQLMapperLog - param: { id_device: 184, id_language: 2 }
+[2021-11-24T22:15:48.181] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_SHP75 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 184
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 184
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 184
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:48.182] [INFO] SQLMapperLog - param: {
+  id_device: 184,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_SHP75',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:48.560] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 183
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:48.560] [INFO] SQLMapperLog - param: { id_device: 183, id_language: 2 }
+[2021-11-24T22:15:48.569] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_SHP75 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 183
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 183
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 183
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:48.569] [INFO] SQLMapperLog - param: {
+  id_device: 183,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_SHP75',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:48.921] [INFO] SQLMapperLog - [sqlId:MainDevice.getAlertByDevice] SELECT
+  el.id,
+  COUNT(el.id) AS total_alert,
+  el.thumbnail,
+  eld.`name`
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_level el ON e.id_error_level = el.id
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+WHERE
+  a.id_device = 182
+  AND e.`status` = 1
+  AND el.`status` = 1
+  AND d.`status` = 1
+  AND a.`status` = 1
+  AND el.id IN (1, 6)
+GROUP BY
+  el.id
+ORDER BY
+  el.id ASC
+[2021-11-24T22:15:48.921] [INFO] SQLMapperLog - param: { id_device: 182, id_language: 2 }
+[2021-11-24T22:15:48.928] [INFO] SQLMapperLog - [sqlId:MainDevice.getDataDeviceEnergy] SELECT
+  dv.id_device,
+  IF(
+    dv.activePower IS NULL
+    OR DATE_FORMAT(NOW(), '%k') >= 19
+    OR DATE_FORMAT(NOW(), '%k') <= 5,
+    NULL,
+    dv.activePower
+  ) AS power_now,
+  dv.activeEnergy AS lifetime,
+  IFNULL(t.today_activeEnergy, 0) AS today_activeEnergy,
+  IFNULL(m.this_month, 0) AS this_month
+FROM
+  model_inverter_SMA_SHP75 dv
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%d/%m/%Y')
+      AND dv.id_device = 182
+    GROUP BY
+      dv.id_device
+  ) t ON dv.id_device = t.id_device
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS this_month
+    FROM
+      model_inverter_SMA_SHP75 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%m/%Y') = DATE_FORMAT('2021-11-24 00:00', '%m/%Y')
+      AND dv.id_device = 182
+      AND dv.activeEnergy > 0
+    GROUP BY
+      dv.id_device
+  ) m ON dv.id_device = m.id_device
+WHERE
+  dv.id_device = 182
+ORDER BY
+  dv.time DESC
+LIMIT
+  1;
+[2021-11-24T22:15:48.929] [INFO] SQLMapperLog - param: {
+  id_device: 182,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_SHP75',
+  current_date: '2021-11-24 00:00'
+}
+[2021-11-24T22:15:48.984] [INFO] SQLMapperLog - [sqlId:MainDevice.getSize] SELECT
+  count(d.id) totalRow
+FROM
+  device d
+  LEFT JOIN device_type dt ON dt.id = d.id_device_type
+  LEFT JOIN device_type_detail dtd ON dtd.id_device_type = dt.id
+  AND dtd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND d.`status` IN (1, 0)
+  AND epm.id_employee = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2021-11-24T22:15:48.985] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  max_date: '24/11/2021',
+  current_date: '2021-11-24 00:00',
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:20.108] [INFO] SQLMapperLog - [sqlId:MainDevice.getListAlertByDevice] SELECT
+  a.id,
+  a.id_error,
+  a.id_alert_state,
+  FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i:%s') AS start_date_format,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN TIMESTAMPDIFF(
+      DAY,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN TIMESTAMPDIFF(
+      HOUR,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN TIMESTAMPDIFF(
+      MINUTE,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    ELSE 0
+  END AS times_ago,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN 'DAY'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN 'HOUR'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN 'MINUTE'
+    ELSE 'NOW'
+  END AS times_ago_unit,
+  a.end_date,
+  a.`status`,
+  a.note,
+  ed.message,
+  ed.description,
+  ed.solutions,
+  eld.`name` as error_level_name,
+  etd.`name` AS error_type_name,
+  el.thumbnail,
+  e.id_error_level
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+WHERE
+  a.id_device = 284
+  AND a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+ORDER BY
+  a.id DESC
+LIMIT
+  0, 30
+[2021-11-24T22:16:20.109] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListAlertByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:20.158] [INFO] SQLMapperLog - [sqlId:ErrorType.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_type` AS p
+  LEFT JOIN error_type_detail pd ON pd.id_error_type = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T22:16:20.159] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T22:16:20.178] [INFO] SQLMapperLog - [sqlId:MainDevice.getListAlertByDeviceSize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+WHERE
+  a.id_device = 284
+  AND a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+[2021-11-24T22:16:20.179] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListAlertByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:20.192] [INFO] SQLMapperLog - [sqlId:ErrorLevel.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_level` AS p
+  LEFT JOIN error_level_detail pd ON pd.id_error_level = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T22:16:20.193] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T22:16:20.236] [INFO] SQLMapperLog - [sqlId:ClientDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:16:20.237] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  screen_mode: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T22:16:20.269] [INFO] SQLMapperLog - [sqlId:ClientDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:16:20.269] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:16:22.237] [INFO] SQLMapperLog - [sqlId:MainDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:16:22.238] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  screen_mode: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  last_communication: '24/11/2021 18:55:42',
+  last_attempt: '24/11/2021 22:16:20',
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:22.258] [INFO] SQLMapperLog - [sqlId:MainDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:16:22.258] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:16:23.948] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:16:23.949] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:16:43.515] [INFO] SQLMapperLog - [sqlId:ClientDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:16:43.516] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  screen_mode: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:43.523] [INFO] SQLMapperLog - [sqlId:ClientDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:16:43.524] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:16:47.599] [INFO] SQLMapperLog - [sqlId:ClientDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:16:47.600] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  screen_mode: 1,
+  last_communication: '24/11/2021 18:55:42',
+  last_attempt: '24/11/2021 22:16:43',
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:47.615] [INFO] SQLMapperLog - [sqlId:ClientDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:16:47.616] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:16:52.943] [INFO] SQLMapperLog - [sqlId:MainDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:16:52.944] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  screen_mode: 1,
+  last_communication: '24/11/2021 18:55:42',
+  last_attempt: '24/11/2021 22:16:47',
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:16:52.984] [INFO] SQLMapperLog - [sqlId:MainDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:16:52.985] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:16:55.019] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:16:55.021] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:17:03.285] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-23 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-23 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-23 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:17:03.286] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: '2021-11-23 00:00:00',
+  end_date: '2021-11-23 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:17:08.004] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-22 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-22 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-22 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:17:08.006] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: '2021-11-22 00:00:00',
+  end_date: '2021-11-22 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:17:10.073] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-21 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-21 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-21 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:17:10.074] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: '2021-11-21 00:00:00',
+  end_date: '2021-11-21 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:17:12.450] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-19 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-19 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-19 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:17:12.451] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: '2021-11-19 00:00:00',
+  end_date: '2021-11-19 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:17:15.966] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-10 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-10 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-10 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:17:15.967] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: '2021-11-10 00:00:00',
+  end_date: '2021-11-10 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:34:48.217] [INFO] SQLMapperLog - [sqlId:ClientDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:34:48.219] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  screen_mode: 1,
+  last_communication: '24/11/2021 18:55:42',
+  last_attempt: '24/11/2021 22:16:47',
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:34:48.283] [INFO] SQLMapperLog - [sqlId:ClientDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:34:48.284] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:34:49.564] [INFO] SQLMapperLog - [sqlId:MainDevice.getListParameterByDevice] SELECT
+  d.id,
+  dp.`name`,
+  dp.slug,
+  dp.unit
+FROM
+  device_parameter dp
+  LEFT JOIN device_group dg ON dp.id_device_group = dg.id
+  LEFT JOIN device d ON dg.id = d.id_device_group
+WHERE
+  d.id = 284
+[2021-11-24T22:34:49.565] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 284,
+  id_device: 'SMA-A2010141515',
+  id_project: 40,
+  id_device_type: 1,
+  name: 'E7-8-SMA110-01',
+  model: 'STP110',
+  serial_number: 'A2010141515',
+  manufacturer: 'SMA',
+  installed_at: '14/10/2021',
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  device_type_name: 'Inverter',
+  device_group_name: 'inverter-SMA-STP110',
+  table_name: 'model_inverter_SMA_STP110',
+  id_device_group: 28,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  power_now: 0,
+  energy_today: 111.4,
+  last_month: 6593.6,
+  lifetime: 60572800,
+  last_updated: '24/11/2021 18:55',
+  alerts: [
+    {
+      id: 6,
+      total_alert: 1,
+      thumbnail: '2021/10/disconnected-1634088013000.png',
+      name: 'Connection'
+    }
+  ],
+  today_energy: 111.4,
+  this_month: 5277.5,
+  screen_mode: 1,
+  last_communication: '24/11/2021 18:55:42',
+  last_attempt: '24/11/2021 22:34:48',
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListParameterByDevice',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T22:34:49.572] [INFO] SQLMapperLog - [sqlId:MainDevice.getLastRowDataDevice] SELECT
+  dv.*,
+  FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i:%s') AS last_communication
+FROM
+  model_inverter_SMA_STP110 dv
+  LEFT JOIN device d ON dv.id_device = d.id
+WHERE
+  dv.id_device = 284
+ORDER BY
+  dv.`time` DESC
+LIMIT
+  1;
+[2021-11-24T22:34:49.572] [INFO] SQLMapperLog - param: {
+  id_device: 284,
+  id_language: 2,
+  table_name: 'model_inverter_SMA_STP110'
+}
+[2021-11-24T22:34:51.464] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 300
+    ) * 300,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:34:51.465] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  data_send_time: 1,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T22:49:02.732] [INFO] SQLMapperLog - [sqlId:ClientAnalytics.getDataChartParameter] SELECT
+  dv.time,
+  dv.id_device,
+  ROUND(AVG(dv.acCurrent), 1) AS acCurrent,
+  ROUND(AVG(dv.currentPhaseA), 1) AS currentPhaseA,
+  ROUND(AVG(dv.currentPhaseB), 1) AS currentPhaseB,
+  ROUND(AVG(dv.currentPhaseC), 1) AS currentPhaseC,
+  ROUND(AVG(dv.voltagePhaseA), 1) AS voltagePhaseA,
+  ROUND(AVG(dv.voltagePhaseB), 1) AS voltagePhaseB,
+  ROUND(AVG(dv.voltagePhaseC), 1) AS voltagePhaseC,
+  ROUND(AVG(dv.activePower), 1) AS activePower,
+  ROUND(AVG(dv.powerFrequency), 1) AS powerFrequency,
+  ROUND(AVG(dv.apparentPower), 1) AS apparentPower,
+  ROUND(AVG(dv.reactivePower), 1) AS reactivePower,
+  ROUND(AVG(dv.powerFactor), 1) AS powerFactor,
+  ROUND(AVG(dv.activeEnergy), 1) AS activeEnergy,
+  ROUND(AVG(dv.dcCurrent), 1) AS dcCurrent,
+  ROUND(AVG(dv.dcVoltage), 1) AS dcVoltage,
+  ROUND(AVG(dv.dcPower), 1) AS dcPower,
+  ROUND(AVG(dv.cabinetTemperature), 1) AS cabinetTemperature,
+  ROUND(AVG(dv.mppt1Current), 1) AS mppt1Current,
+  ROUND(AVG(dv.mppt1Voltage), 1) AS mppt1Voltage,
+  ROUND(AVG(dv.mppt1Power), 1) AS mppt1Power,
+  ROUND(AVG(dv.mppt2Current), 1) AS mppt2Current,
+  ROUND(AVG(dv.mppt2Voltage), 1) AS mppt2Voltage,
+  ROUND(AVG(dv.mppt2Power), 1) AS mppt2Power,
+  ROUND(AVG(dv.mppt3Current), 1) AS mppt3Current,
+  ROUND(AVG(dv.mppt3Voltage), 1) AS mppt3Voltage,
+  ROUND(AVG(dv.mppt3Power), 1) AS mppt3Power,
+  ROUND(AVG(dv.mppt4Current), 1) AS mppt4Current,
+  ROUND(AVG(dv.mppt4Voltage), 1) AS mppt4Voltage,
+  ROUND(AVG(dv.mppt4Power), 1) AS mppt4Power,
+  ROUND(AVG(dv.mppt5Current), 1) AS mppt5Current,
+  ROUND(AVG(dv.mppt5Voltage), 1) AS mppt5Voltage,
+  ROUND(AVG(dv.mppt5Power), 1) AS mppt5Power,
+  ROUND(AVG(dv.mppt6Current), 1) AS mppt6Current,
+  ROUND(AVG(dv.mppt6Voltage), 1) AS mppt6Voltage,
+  ROUND(AVG(dv.mppt6Power), 1) AS mppt6Power,
+  ROUND(AVG(dv.mppt7Current), 1) AS mppt7Current,
+  ROUND(AVG(dv.mppt7Voltage), 1) AS mppt7Voltage,
+  ROUND(AVG(dv.mppt7Power), 1) AS mppt7Power,
+  ROUND(AVG(dv.mppt8Current), 1) AS mppt8Current,
+  ROUND(AVG(dv.mppt8Voltage), 1) AS mppt8Voltage,
+  ROUND(AVG(dv.mppt8Power), 1) AS mppt8Power,
+  ROUND(AVG(dv.mppt9Current), 1) AS mppt9Current,
+  ROUND(AVG(dv.mppt9Voltage), 1) AS mppt9Voltage,
+  ROUND(AVG(dv.mppt9Power), 1) AS mppt9Power,
+  ROUND(AVG(dv.mppt10Current), 1) AS mppt10Current,
+  ROUND(AVG(dv.mppt10Voltage), 1) AS mppt10Voltage,
+  ROUND(AVG(dv.mppt10Power), 1) AS mppt10Power,
+  ROUND(AVG(dv.mppt11Current), 1) AS mppt11Current,
+  ROUND(AVG(dv.mppt11Voltage), 1) AS mppt11Voltage,
+  ROUND(AVG(dv.mppt11Power), 1) AS mppt11Power,
+  ROUND(AVG(dv.mppt12Current), 1) AS mppt12Current,
+  ROUND(AVG(dv.mppt12Voltage), 1) AS mppt12Voltage,
+  ROUND(AVG(dv.mppt12Power), 1) AS mppt12Power,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+    ) * 900,
+    '%d/%m/%Y %H:%i'
+  ) AS time_full,
+  FROM_UNIXTIME(dv.time, '%d. %b') AS categories_first_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+    ) * 900,
+    '%H:%i'
+  ) AS categories_time,
+  FROM_UNIXTIME(
+    (
+      UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+    ) * 900,
+    '%d/%m/%Y %H:%i'
+  ) AS time_group_by
+FROM
+  model_inverter_SMA_STP110 dv
+WHERE
+  dv.id_device = 284
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d') = DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d')
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 05:00'
+  )
+  AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+    DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+    ' 19:00'
+  )
+GROUP BY
+  time_group_by
+[2021-11-24T22:49:02.733] [INFO] SQLMapperLog - param: {
+  filterBy: 'today',
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  data_send_time: 2,
+  table_name: 'model_inverter_SMA_STP110',
+  id: 284
+}
+[2021-11-24T23:14:01.482] [INFO] SQLMapperLog - [sqlId:ModelReadings.getDeviceInfo] SELECT
+  d.id,
+  d.id_device,
+  d.id_device_group,
+  d.id_project,
+  d.`name`,
+  d.serial_number,
+  d.model,
+  d.manufacturer,
+  d.`status`,
+  dg.table_name,
+  pd.`name` AS project_name,
+  t.email,
+  t.full_name
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN project_detail pd ON p.id = pd.id_project
+  AND pd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN (
+    SELECT
+      epm.id_project,
+      GROUP_CONCAT(DISTINCT(e.email) SEPARATOR ', ') AS email,
+      CONCAT(e.first_name, ' ', e.last_name) AS full_name
+    FROM
+      emloyee_project_map epm
+      LEFT JOIN employee e ON e.id = epm.id_employee
+    GROUP BY
+      epm.id_project
+  ) t ON p.id = t.id_project
+WHERE
+  d.id_device = 'SMA-139F5006736701N100'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+LIMIT
+  1;
+[2021-11-24T23:14:01.484] [INFO] SQLMapperLog - param: {
+  status: 'OK',
+  deviceID: 'SMA-139F5006736701N100',
+  timestamp: 1632407737,
+  timestamp_format: '2021-09-23 14:35:37',
+  deviceInfo: {
+    manufacturer: null,
+    model: null,
+    serialNumber: null,
+    modbusUnitID: null
+  },
+  payload: {
+    activeEnergy: 100,
+    activeEnergyRate1: 100,
+    activeEnergyRate2: 100,
+    activeEnergyRate3: 100,
+    reactiveEnergyInductive: 100,
+    reactiveEnergyInductiveRate1: 100,
+    reactiveEnergyInductiveRate2: 100,
+    reactiveEnergyInductiveRate3: 100,
+    reactiveEnergyCapacitive: 100,
+    reactiveEnergyCapacitiveRate1: 100,
+    reactiveEnergyCapacitiveRate2: 100,
+    reactiveEnergyCapacitiveRate3: 100,
+    currentPhaseA: 100,
+    currentPhaseB: 100,
+    currentPhaseC: 100,
+    voltagePhaseA: 100,
+    voltagePhaseB: 100,
+    voltagePhaseC: 100,
+    powerFrequency: 100,
+    activePower: 100,
+    reactivePower: 100,
+    powerFactor: 100,
+    activePowerPhaseA: 100,
+    activePowerPhaseB: 100,
+    activePowerPhaseC: 100,
+    reactivePowerPhaseA: 100,
+    reactivePowerPhaseB: 100,
+    reactivePowerPhaseC: 100,
+    activePowerMaxDemand: 100,
+    activePowerMaxDemandRate1: 100,
+    activePowerMaxDemandRate2: 100,
+    activePowerMaxDemandRate3: 100,
+    powerFactorPhaseA: 100,
+    powerFactorPhaseB: 100,
+    powerFactorPhaseC: 100,
+    CTratioPrimary: 100,
+    CTratioSecondary: 100,
+    PTratioPrimary: 100,
+    PTratioSecondary: 100
+  },
+  action: 'getDataRaw',
+  lang: 'vi',
+  lang_default: 'vi'
+}
+[2021-11-24T23:14:01.500] [INFO] SQLMapperLog - [sqlId:ModelReadings.checkExistAlerm] SELECT
+  *
+FROM
+  alert a
+WHERE
+  a.id_device = 39
+  AND a.id_error = 429
+  OR a.id_alert_state = 1
+  AND a.`status` = 1
+LIMIT
+  1;
+[2021-11-24T23:14:01.500] [INFO] SQLMapperLog - param: { id_device: 39, id_error: 429 }
+[2021-11-24T23:14:01.517] [INFO] SQLMapperLog - [sqlId:ModelReadings.insertModelInverterSMASHP75] INSERT INTO
+  `model_inverter_SMA_SHP75`(
+    `time`,
+    `id_device`,
+    `acCurrent`,
+    `currentPhaseA`,
+    `currentPhaseB`,
+    `currentPhaseC`,
+    `voltagePhaseA`,
+    `voltagePhaseB`,
+    `voltagePhaseC`,
+    `activePower`,
+    `powerFrequency`,
+    `apparentPower`,
+    `reactivePower`,
+    `powerFactor`,
+    `activeEnergy`,
+    `dcCurrent`,
+    `dcVoltage`,
+    `dcPower`,
+    `internalTemperature`,
+    `heatSinkTemperature`,
+    `transformerTemperature`
+  )
+VALUES(
+    1632407737,
+    39,
+    NULL,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    NULL,
+    100,
+    100,
+    100,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+  );
+[2021-11-24T23:14:01.518] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: '',
+  created_date: '',
+  updated_by: '',
+  updated_date: '',
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  time: 1632407737,
+  id_device: 39,
+  acCurrent: null,
+  currentPhaseA: 100,
+  currentPhaseB: 100,
+  currentPhaseC: 100,
+  voltagePhaseA: 100,
+  voltagePhaseB: 100,
+  voltagePhaseC: 100,
+  activePower: 100,
+  powerFrequency: 100,
+  apparentPower: null,
+  reactivePower: 100,
+  powerFactor: 100,
+  activeEnergy: 100,
+  dcCurrent: null,
+  dcVoltage: null,
+  dcPower: null,
+  internalTemperature: null,
+  heatSinkTemperature: null,
+  transformerTemperature: null,
+  activeEnergyRate1: 100,
+  activeEnergyRate2: 100,
+  activeEnergyRate3: 100,
+  reactiveEnergyInductive: 100,
+  reactiveEnergyInductiveRate1: 100,
+  reactiveEnergyInductiveRate2: 100,
+  reactiveEnergyInductiveRate3: 100,
+  reactiveEnergyCapacitive: 100,
+  reactiveEnergyCapacitiveRate1: 100,
+  reactiveEnergyCapacitiveRate2: 100,
+  reactiveEnergyCapacitiveRate3: 100,
+  activePowerPhaseA: 100,
+  activePowerPhaseB: 100,
+  activePowerPhaseC: 100,
+  reactivePowerPhaseA: 100,
+  reactivePowerPhaseB: 100,
+  reactivePowerPhaseC: 100,
+  activePowerMaxDemand: 100,
+  activePowerMaxDemandRate1: 100,
+  activePowerMaxDemandRate2: 100,
+  activePowerMaxDemandRate3: 100,
+  powerFactorPhaseA: 100,
+  powerFactorPhaseB: 100,
+  powerFactorPhaseC: 100,
+  CTratioPrimary: 100,
+  CTratioSecondary: 100,
+  PTratioPrimary: 100,
+  PTratioSecondary: 100
+}
+[2021-11-24T23:17:54.034] [INFO] SQLMapperLog - [sqlId:ModelReadings.getDeviceInfo] SELECT
+  d.id,
+  d.id_device,
+  d.id_device_group,
+  d.id_project,
+  d.`name`,
+  d.serial_number,
+  d.model,
+  d.manufacturer,
+  d.`status`,
+  dg.table_name,
+  pd.`name` AS project_name,
+  t.email,
+  t.full_name
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN project_detail pd ON p.id = pd.id_project
+  AND pd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN (
+    SELECT
+      epm.id_project,
+      GROUP_CONCAT(DISTINCT(e.email) SEPARATOR ', ') AS email,
+      CONCAT(e.first_name, ' ', e.last_name) AS full_name
+    FROM
+      emloyee_project_map epm
+      LEFT JOIN employee e ON e.id = epm.id_employee
+    GROUP BY
+      epm.id_project
+  ) t ON p.id = t.id_project
+WHERE
+  d.id_device = 'SMA-139F5006736701N100'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+LIMIT
+  1;
+[2021-11-24T23:17:54.037] [INFO] SQLMapperLog - param: {
+  status: 'OK',
+  deviceID: 'SMA-139F5006736701N100',
+  timestamp: 1632407737,
+  timestamp_format: '2021-09-23 14:35:37',
+  deviceInfo: {
+    manufacturer: null,
+    model: null,
+    serialNumber: null,
+    modbusUnitID: null
+  },
+  payload: {
+    activeEnergy: 100,
+    activeEnergyRate1: 100,
+    activeEnergyRate2: 100,
+    activeEnergyRate3: 100,
+    reactiveEnergyInductive: 100,
+    reactiveEnergyInductiveRate1: 100,
+    reactiveEnergyInductiveRate2: 100,
+    reactiveEnergyInductiveRate3: 100,
+    reactiveEnergyCapacitive: 100,
+    reactiveEnergyCapacitiveRate1: 100,
+    reactiveEnergyCapacitiveRate2: 100,
+    reactiveEnergyCapacitiveRate3: 100,
+    currentPhaseA: 100,
+    currentPhaseB: 100,
+    currentPhaseC: 100,
+    voltagePhaseA: 100,
+    voltagePhaseB: 100,
+    voltagePhaseC: 100,
+    powerFrequency: 100,
+    activePower: 100,
+    reactivePower: 100,
+    powerFactor: 100,
+    activePowerPhaseA: 100,
+    activePowerPhaseB: 100,
+    activePowerPhaseC: 100,
+    reactivePowerPhaseA: 100,
+    reactivePowerPhaseB: 100,
+    reactivePowerPhaseC: 100,
+    activePowerMaxDemand: 100,
+    activePowerMaxDemandRate1: 100,
+    activePowerMaxDemandRate2: 100,
+    activePowerMaxDemandRate3: 100,
+    powerFactorPhaseA: 100,
+    powerFactorPhaseB: 100,
+    powerFactorPhaseC: 100,
+    CTratioPrimary: 100,
+    CTratioSecondary: 100,
+    PTratioPrimary: 100,
+    PTratioSecondary: 100
+  },
+  action: 'getDataRaw',
+  lang: 'vi',
+  lang_default: 'vi'
+}
+[2021-11-24T23:17:54.051] [INFO] SQLMapperLog - [sqlId:ModelReadings.checkExistAlerm] SELECT
+  *
+FROM
+  alert a
+WHERE
+  a.id_device = 39
+  AND a.id_error = 429
+  OR a.id_alert_state = 1
+  AND a.`status` = 1
+LIMIT
+  1;
+[2021-11-24T23:17:54.052] [INFO] SQLMapperLog - param: { id_device: 39, id_error: 429 }
+[2021-11-24T23:17:54.062] [INFO] SQLMapperLog - [sqlId:ModelReadings.insertModelInverterSMASHP75] INSERT INTO
+  `model_inverter_SMA_SHP75`(
+    `time`,
+    `id_device`,
+    `acCurrent`,
+    `currentPhaseA`,
+    `currentPhaseB`,
+    `currentPhaseC`,
+    `voltagePhaseA`,
+    `voltagePhaseB`,
+    `voltagePhaseC`,
+    `activePower`,
+    `powerFrequency`,
+    `apparentPower`,
+    `reactivePower`,
+    `powerFactor`,
+    `activeEnergy`,
+    `dcCurrent`,
+    `dcVoltage`,
+    `dcPower`,
+    `internalTemperature`,
+    `heatSinkTemperature`,
+    `transformerTemperature`
+  )
+VALUES(
+    1632407737,
+    39,
+    NULL,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    NULL,
+    100,
+    100,
+    100,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+  );
+[2021-11-24T23:17:54.063] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: '',
+  created_date: '',
+  updated_by: '',
+  updated_date: '',
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  time: 1632407737,
+  id_device: 39,
+  acCurrent: null,
+  currentPhaseA: 100,
+  currentPhaseB: 100,
+  currentPhaseC: 100,
+  voltagePhaseA: 100,
+  voltagePhaseB: 100,
+  voltagePhaseC: 100,
+  activePower: 100,
+  powerFrequency: 100,
+  apparentPower: null,
+  reactivePower: 100,
+  powerFactor: 100,
+  activeEnergy: 100,
+  dcCurrent: null,
+  dcVoltage: null,
+  dcPower: null,
+  internalTemperature: null,
+  heatSinkTemperature: null,
+  transformerTemperature: null,
+  activeEnergyRate1: 100,
+  activeEnergyRate2: 100,
+  activeEnergyRate3: 100,
+  reactiveEnergyInductive: 100,
+  reactiveEnergyInductiveRate1: 100,
+  reactiveEnergyInductiveRate2: 100,
+  reactiveEnergyInductiveRate3: 100,
+  reactiveEnergyCapacitive: 100,
+  reactiveEnergyCapacitiveRate1: 100,
+  reactiveEnergyCapacitiveRate2: 100,
+  reactiveEnergyCapacitiveRate3: 100,
+  activePowerPhaseA: 100,
+  activePowerPhaseB: 100,
+  activePowerPhaseC: 100,
+  reactivePowerPhaseA: 100,
+  reactivePowerPhaseB: 100,
+  reactivePowerPhaseC: 100,
+  activePowerMaxDemand: 100,
+  activePowerMaxDemandRate1: 100,
+  activePowerMaxDemandRate2: 100,
+  activePowerMaxDemandRate3: 100,
+  powerFactorPhaseA: 100,
+  powerFactorPhaseB: 100,
+  powerFactorPhaseC: 100,
+  CTratioPrimary: 100,
+  CTratioSecondary: 100,
+  PTratioPrimary: 100,
+  PTratioSecondary: 100
+}
+[2021-11-24T23:24:40.050] [INFO] SQLMapperLog - [sqlId:ErrorLevel.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_level` AS p
+  LEFT JOIN error_level_detail pd ON pd.id_error_level = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:24:40.051] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:24:40.117] [INFO] SQLMapperLog - [sqlId:ErrorType.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_type` AS p
+  LEFT JOIN error_type_detail pd ON pd.id_error_type = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:24:40.118] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:24:40.262] [INFO] SQLMapperLog - [sqlId:MainActivities.getList] SELECT
+  a.id,
+  a.id_error,
+  a.id_alert_state,
+  FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN TIMESTAMPDIFF(
+      DAY,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN TIMESTAMPDIFF(
+      HOUR,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN TIMESTAMPDIFF(
+      MINUTE,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    ELSE 0
+  END AS times_ago,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN 'DAY'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN 'HOUR'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN 'MINUTE'
+    ELSE 'NOW'
+  END AS times_ago_unit,
+  a.end_date,
+  a.`status`,
+  a.note,
+  ed.message,
+  ed.description,
+  ed.solutions,
+  eld.`name` as error_level_name,
+  etd.`name` AS error_type_name,
+  el.thumbnail,
+  e.id_error_level,
+  d.name,
+  e.id_error_type,
+  0 AS is_checked,
+  asd.`name` AS alert_state_name
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN alert_state als ON als.id = a.id_alert_state
+  LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id
+  AND asd.id_language = 2
+WHERE
+  a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+  AND p.`status` = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  a.id DESC
+LIMIT
+  0, 30
+[2021-11-24T23:24:40.263] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  errorLevel: [],
+  errorType: [],
+  dataStatus: [],
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en',
+  errorLevelList: '',
+  errorTypeList: '',
+  statusList: ''
+}
+[2021-11-24T23:24:40.342] [INFO] SQLMapperLog - [sqlId:MainActivities.getSize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+  AND p.`status` = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = '615a2d053d9636ca8cec57251df40d89'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2021-11-24T23:24:40.342] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  id_employee: 1,
+  hash_id: '615a2d053d9636ca8cec57251df40d89',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en',
+  errorLevelList: null,
+  errorTypeList: null,
+  statusList: null
+}
+[2021-11-24T23:53:49.853] [INFO] SQLMapperLog - [sqlId:ErrorType.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_type` AS p
+  LEFT JOIN error_type_detail pd ON pd.id_error_type = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:53:49.878] [INFO] SQLMapperLog - [sqlId:ErrorLevel.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_level` AS p
+  LEFT JOIN error_level_detail pd ON pd.id_error_level = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:53:49.861] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:53:49.879] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:53:50.304] [INFO] SQLMapperLog - [sqlId:MainActivities.getList] SELECT
+  a.id,
+  a.id_error,
+  a.id_alert_state,
+  FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN TIMESTAMPDIFF(
+      DAY,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN TIMESTAMPDIFF(
+      HOUR,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN TIMESTAMPDIFF(
+      MINUTE,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    ELSE 0
+  END AS times_ago,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN 'DAY'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN 'HOUR'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN 'MINUTE'
+    ELSE 'NOW'
+  END AS times_ago_unit,
+  a.end_date,
+  a.`status`,
+  a.note,
+  ed.message,
+  ed.description,
+  ed.solutions,
+  eld.`name` as error_level_name,
+  etd.`name` AS error_type_name,
+  el.thumbnail,
+  e.id_error_level,
+  d.name,
+  e.id_error_type,
+  0 AS is_checked,
+  asd.`name` AS alert_state_name
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN alert_state als ON als.id = a.id_alert_state
+  LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id
+  AND asd.id_language = 2
+WHERE
+  a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+  AND p.`status` = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  a.id DESC
+LIMIT
+  0, 30
+[2021-11-24T23:53:50.306] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  id_employee: 1,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  errorLevel: [],
+  errorType: [],
+  dataStatus: [],
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'vi',
+  errorLevelList: '',
+  errorTypeList: '',
+  statusList: ''
+}
+[2021-11-24T23:53:50.396] [INFO] SQLMapperLog - [sqlId:MainActivities.getSize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+  AND p.`status` = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2021-11-24T23:53:50.396] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  id_employee: 1,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'vi',
+  errorLevelList: null,
+  errorTypeList: null,
+  statusList: null
+}
+[2021-11-24T23:53:51.717] [INFO] SQLMapperLog - [sqlId:MainPlant.getGroupDeviceInverter] SELECT
+  d.id,
+  d.id_project,
+  d.id_device_group,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+GROUP BY
+  dg.id
+[2021-11-24T23:53:51.719] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_employee: 1,
+  id_language: 2,
+  filterBy: 'today',
+  data_send_time: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getChartData',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:53:51.733] [INFO] SQLMapperLog - [sqlId:MainPlant.getListDeviceInverter] SELECT
+  d.id,
+  d.id_project,
+  d.id_device_group,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+GROUP BY
+  d.id
+[2021-11-24T23:53:51.733] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_employee: 1,
+  id_language: 2,
+  filterBy: 'today',
+  data_send_time: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getChartData',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:53:51.762] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataEnergyFifteenMinutes] SELECT
+  t.time,
+  t.time_format,
+  t.time_full,
+  ROUND((SUM(t.activeEnergy) / 1000), 1) AS today_activeEnergy,
+  t.group_day,
+  ROUND((SUM(t.activePower) / 1000), 1) AS activePower
+FROM
+  (
+    SELECT
+      m.time,
+      m.time_format,
+      m.time_full,
+      ROUND(SUM(m.activePower), 1) AS activePower,
+      SUM(m.activeEnergy) AS activeEnergy,
+      m.group_day
+    FROM
+      (
+        SELECT
+          dv.time,
+          FROM_UNIXTIME(
+            (
+              UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+            ) * 900,
+            '%Y-%m-%d %H:%i'
+          ) AS time_format,
+          FLOOR(
+            UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) / (15 * 60)
+          ) AS time_key,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i') AS time_full,
+          AVG(dv.activePower) AS activePower,
+          MAX(dv.activeEnergy) AS activeEnergy,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+        FROM
+          model_inverter_ABB_PVS100 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+          LEFT JOIN project p ON p.id = d.id_project
+        WHERE
+          p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+          AND d.id_device_group = 18
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 19:00:00', '%d/%m/%Y')
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 05:00'
+          )
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 19:00'
+          )
+          AND p.`status` = 1
+          AND d.`status` = 1
+        GROUP BY
+          d.id,
+          time_key
+      ) m
+    GROUP BY
+      m.time_format
+  ) t
+GROUP BY
+  t.time_format
+[2021-11-24T23:53:51.763] [INFO] SQLMapperLog - param: {
+  groupInverter: [
+    {
+      hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+      id_device_group: 18,
+      start_date: ' 00:00:00',
+      end_date: '2021-11-24 19:00:00',
+      table_name: 'model_inverter_ABB_PVS100'
+    }
+  ],
+  item: {
+    hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+    id_device_group: 18,
+    start_date: ' 00:00:00',
+    end_date: '2021-11-24 19:00:00',
+    table_name: 'model_inverter_ABB_PVS100'
+  }
+}
+[2021-11-24T23:53:51.794] [INFO] SQLMapperLog - [sqlId:MainPlant.getDetail] SELECT
+  p.id,
+  p.hash_id,
+  p.thumbnail,
+  p.address,
+  p.lat,
+  p.lng,
+  p.installed_power,
+  DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+  DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+  DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+  YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+  pd.`name`,
+  pd.site_name,
+  pgd.`name` AS project_group_name,
+  IFNULL(t.config_revenue, 0) AS config_revenue
+FROM
+  project p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  AND pd.id_language = 2
+  LEFT JOIN project_group pg ON pg.id = p.id_project_group
+  LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id
+  AND pgd.id_language = 2
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+  LEFT JOIN(
+    SELECT
+      pc.id_project,
+      pc.config_revenue
+    FROM
+      project_config pc
+    WHERE
+      NOW() >= pc.start_date
+      AND NOW() <= pc.end_date
+      AND pc.`status` = 1
+    GROUP BY
+      pc.id_project
+  ) t ON t.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND pg.`status` = 1
+  AND epm.id_employee = 1
+  AND p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+LIMIT
+  1;
+[2021-11-24T23:53:51.795] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDetail',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:53:51.845] [INFO] SQLMapperLog - [sqlId:MainPlant.getTotalInverter] SELECT
+  COUNT(d.id) AS totalInverter
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+  AND d.`status` = 1
+  AND p.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+[2021-11-24T23:53:51.845] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDetail',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:53:51.867] [INFO] SQLMapperLog - [sqlId:MainPlant.getGroupDeviceByProjectId] SELECT
+  dg.id,
+  dg.`name`,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+WHERE
+  d.id_project = 41
+  AND d.`status` = 1
+  AND dg.`status` = 1
+GROUP BY
+  dg.id
+UNION ALL
+SELECT
+  dg.id,
+  dg.`name`,
+  dg.table_name
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON d.id = pm.id_device
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+WHERE
+  pm.id_project = 41
+  AND d.`status` = 1
+  AND dg.`status` = 1
+GROUP BY
+  dg.id
+[2021-11-24T23:53:51.868] [INFO] SQLMapperLog - param: { id_project: 41 }
+[2021-11-24T23:53:51.878] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceEnergy] SELECT
+  d.id_project,
+  SUM(t.today_activeEnergy) AS today_activeEnergy,
+  SUM(t.lifetime) AS lifetime,
+  SUM(g.power_now) AS power_now,
+  SUM(g.dc_power) AS dc_power,
+  IFNULL(SUM(g.deviceOn), 0) AS totalInverterOn
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_ABB_PVS100 dv
+      LEFT JOIN device d ON d.id = dv.id_device
+    WHERE
+      dv.activeEnergy > 0
+      AND d.id_project = 41
+      AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON d.id = t.id_device
+  LEFT JOIN (
+    SELECT
+      m.id_device,
+      m.activePower AS power_now,
+      m.dcPower AS dc_power,
+      IF(
+        m.activePower > 0
+        AND m.activePower IS NOT NULL,
+        1,
+        0
+      ) AS deviceOn
+    FROM
+      model_inverter_ABB_PVS100 m
+      LEFT JOIN device d ON d.id = m.id_device
+      INNER JOIN (
+        SELECT
+          dv.id_device,
+          MAX(dv.time) AS time
+        FROM
+          model_inverter_ABB_PVS100 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+        WHERE
+          d.id_project = 41
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+        GROUP BY
+          dv.id_device
+      ) b ON b.time = m.time
+    GROUP BY
+      m.id_device
+  ) g ON d.id = g.id_device
+WHERE
+  d.id_project = 41
+  AND d.id_device_group = 18
+LIMIT
+  1;
+[2021-11-24T23:53:51.879] [INFO] SQLMapperLog - param: {
+  id_project: 41,
+  id_device_group: 18,
+  table_name: 'model_inverter_ABB_PVS100'
+}
+[2021-11-24T23:53:52.017] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceIrradiance] SELECT
+  dv.id_device,
+  d.id_project,
+  dv.time,
+  IFNULL(dv.cellTemp, 0) AS cellTemp,
+  IFNULL(dv.irradiancePoA, 0) AS irradiancePoA,
+  IFNULL(dv.panelTemp, 0) AS panelTemp
+FROM
+  device d
+  LEFT JOIN model_sensor_IMT_SiRS485 dv ON d.id = dv.id_device
+  LEFT JOIN (
+    SELECT
+      dv.id_device,
+      MAX(dv.time) AS max_time
+    FROM
+      model_sensor_IMT_SiRS485 dv
+    GROUP BY
+      dv.id_device
+  ) t ON dv.time = t.max_time
+  AND dv.id_device = t.id_device
+WHERE
+  d.id_project = 41
+  AND d.id_device_group = 25
+  AND d.`status` = 1
+GROUP BY
+  d.id
+UNION ALL
+SELECT
+  dv.id_device,
+  pm.id_project,
+  dv.time,
+  IFNULL(dv.cellTemp, 0) AS cellTemp,
+  IFNULL(dv.irradiancePoA, 0) AS irradiancePoA,
+  IFNULL(dv.panelTemp, 0) AS panelTemp
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON d.id = pm.id_device
+  LEFT JOIN model_sensor_IMT_SiRS485 dv ON dv.id_device = pm.id_device
+  LEFT JOIN (
+    SELECT
+      dv.id_device,
+      MAX(dv.time) AS max_time
+    FROM
+      model_sensor_IMT_SiRS485 dv
+    GROUP BY
+      dv.id_device
+  ) t ON dv.time = t.max_time
+  AND dv.id_device = t.id_device
+WHERE
+  pm.id_project = 41
+  AND d.id_device_group = 25
+  AND d.`status` = 1
+GROUP BY
+  d.id
+[2021-11-24T23:53:52.018] [INFO] SQLMapperLog - param: {
+  id_project: 41,
+  id_device_group: 25,
+  table_name: 'model_sensor_IMT_SiRS485'
+}
+[2021-11-24T23:53:52.034] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceAmbientEmperature] SELECT
+  d.id,
+  d.`name`,
+  IFNULL(t.ambientTemp, 0) AS ambientTemp
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      MAX(FROM_UNIXTIME(dv.time)) AS max_time,
+      dv.id_device,
+      dv.ambientTemp
+    FROM
+      model_sensor_IMT_TaRS485 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON t.id_device = d.id
+WHERE
+  d.id_project = 41
+  AND d.id_device_group = 26
+GROUP BY
+  d.id
+UNION ALL
+SELECT
+  d.id,
+  d.`name`,
+  IFNULL(t.ambientTemp, 0) AS ambientTemp
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON pm.id_device = d.id
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      MAX(FROM_UNIXTIME(dv.time)) AS max_time,
+      dv.id_device AS id_device,
+      dv.ambientTemp
+    FROM
+      model_sensor_IMT_TaRS485 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON t.id_device = d.id
+WHERE
+  pm.id_project = 41
+  AND d.id_device_group = 26
+  AND d.`status` = 1
+GROUP BY
+  d.id
+[2021-11-24T23:53:52.034] [INFO] SQLMapperLog - param: {
+  id_project: 41,
+  id_device_group: 26,
+  table_name: 'model_sensor_IMT_TaRS485'
+}
+[2021-11-24T23:59:09.405] [INFO] SQLMapperLog - [sqlId:ClientNotify.getNotifySize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` = 1
+  AND p.`status` = 1
+  AND el.id IN(1, 4)
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+      LEFT JOIN emloyee_project_map ep ON ep.id_project = p.id
+    WHERE
+      ep.id_employee = 1
+      AND p.`status` = 1
+      AND d.`status` = 1
+      AND d.is_virtual = 1
+  )
+[2021-11-24T23:59:09.406] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getNotifySize',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:59:09.412] [INFO] SQLMapperLog - [sqlId:MainPlant.getDetail] SELECT
+  p.id,
+  p.hash_id,
+  p.thumbnail,
+  p.address,
+  p.lat,
+  p.lng,
+  p.installed_power,
+  DATE_FORMAT(p.commisioning_date, '%d/%m/%Y') AS commisioning_date,
+  DATE_FORMAT(p.last_updated, '%d/%m/%Y') AS last_updated,
+  DATE_FORMAT(p.installed_date, '%d/%m/%Y') AS installed_date,
+  YEAR(NOW()) - YEAR(p.installed_date) AS total_year,
+  pd.`name`,
+  pd.site_name,
+  pgd.`name` AS project_group_name,
+  IFNULL(t.config_revenue, 0) AS config_revenue
+FROM
+  project p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  AND pd.id_language = 2
+  LEFT JOIN project_group pg ON pg.id = p.id_project_group
+  LEFT JOIN project_group_detail pgd ON pgd.id_project_group = pg.id
+  AND pgd.id_language = 2
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+  LEFT JOIN(
+    SELECT
+      pc.id_project,
+      pc.config_revenue
+    FROM
+      project_config pc
+    WHERE
+      NOW() >= pc.start_date
+      AND NOW() <= pc.end_date
+      AND pc.`status` = 1
+    GROUP BY
+      pc.id_project
+  ) t ON t.id_project = p.id
+WHERE
+  p.`status` = 1
+  AND pg.`status` = 1
+  AND epm.id_employee = 1
+  AND p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+LIMIT
+  1;
+[2021-11-24T23:59:09.413] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:59:09.416] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllScope] SELECT
+  p.id,
+  pd.`name`,
+  pd.id_language,
+  1 AS show_child
+FROM
+  project_group p
+  LEFT JOIN project_group_detail pd ON p.id = pd.id_project_group
+  AND pd.id_language = 2
+WHERE
+  p.`status` = 1
+[2021-11-24T23:59:09.417] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: null,
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getAllProjectByEmployeeId',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:59:09.424] [INFO] SQLMapperLog - [sqlId:MainPlant.getTotalInverter] SELECT
+  COUNT(d.id) AS totalInverter
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+  AND d.`status` = 1
+  AND p.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+[2021-11-24T23:59:09.424] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: null,
+  end_date: null,
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_language: 2,
+  id_employee: 1,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-24T23:59:09.454] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 4
+  AND epm.id_employee = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:59:09.454] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 4,
+  name: 'Linh Trung',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2021-11-24T23:59:09.464] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 5
+  AND epm.id_employee = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:59:09.465] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 5,
+  name: 'Tài Lộc 2',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2021-11-24T23:59:09.469] [INFO] SQLMapperLog - [sqlId:MainPlant.getGroupDeviceByProjectId] SELECT
+  dg.id,
+  dg.`name`,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+WHERE
+  d.id_project = 41
+  AND d.`status` = 1
+  AND dg.`status` = 1
+GROUP BY
+  dg.id
+UNION ALL
+SELECT
+  dg.id,
+  dg.`name`,
+  dg.table_name
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON d.id = pm.id_device
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+WHERE
+  pm.id_project = 41
+  AND d.`status` = 1
+  AND dg.`status` = 1
+GROUP BY
+  dg.id
+[2021-11-24T23:59:09.469] [INFO] SQLMapperLog - param: { id_project: 41 }
+[2021-11-24T23:59:09.479] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 6
+  AND epm.id_employee = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:59:09.479] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 6,
+  name: 'Tài Lộc 1',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2021-11-24T23:59:09.481] [INFO] SQLMapperLog - [sqlId:MainPlant.getGroupDeviceInverter] SELECT
+  d.id,
+  d.id_project,
+  d.id_device_group,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+GROUP BY
+  dg.id
+[2021-11-24T23:59:09.481] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_employee: 1,
+  id_language: 2,
+  filterBy: 'today',
+  data_send_time: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getChartData',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:59:09.486] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceEnergy] SELECT
+  d.id_project,
+  SUM(t.today_activeEnergy) AS today_activeEnergy,
+  SUM(t.lifetime) AS lifetime,
+  SUM(g.power_now) AS power_now,
+  SUM(g.dc_power) AS dc_power,
+  IFNULL(SUM(g.deviceOn), 0) AS totalInverterOn
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      dv.id_device,
+      (MAX(dv.activeEnergy)) - (MIN(dv.activeEnergy)) AS today_activeEnergy,
+      MAX(dv.activeEnergy) AS lifetime
+    FROM
+      model_inverter_ABB_PVS100 dv
+      LEFT JOIN device d ON d.id = dv.id_device
+    WHERE
+      dv.activeEnergy > 0
+      AND d.id_project = 41
+      AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON d.id = t.id_device
+  LEFT JOIN (
+    SELECT
+      m.id_device,
+      m.activePower AS power_now,
+      m.dcPower AS dc_power,
+      IF(
+        m.activePower > 0
+        AND m.activePower IS NOT NULL,
+        1,
+        0
+      ) AS deviceOn
+    FROM
+      model_inverter_ABB_PVS100 m
+      LEFT JOIN device d ON d.id = m.id_device
+      INNER JOIN (
+        SELECT
+          dv.id_device,
+          MAX(dv.time) AS time
+        FROM
+          model_inverter_ABB_PVS100 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+        WHERE
+          d.id_project = 41
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+        GROUP BY
+          dv.id_device
+      ) b ON b.time = m.time
+    GROUP BY
+      m.id_device
+  ) g ON d.id = g.id_device
+WHERE
+  d.id_project = 41
+  AND d.id_device_group = 18
+LIMIT
+  1;
+[2021-11-24T23:59:09.487] [INFO] SQLMapperLog - param: {
+  id_project: 41,
+  id_device_group: 18,
+  table_name: 'model_inverter_ABB_PVS100'
+}
+[2021-11-24T23:59:09.491] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 7
+  AND epm.id_employee = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:59:09.491] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 7,
+  name: 'Chùa QAKT',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2021-11-24T23:59:09.493] [INFO] SQLMapperLog - [sqlId:MainPlant.getListDeviceInverter] SELECT
+  d.id,
+  d.id_project,
+  d.id_device_group,
+  dg.table_name
+FROM
+  device d
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+  AND d.id_device_group IN(18, 19, 20, 21, 22, 28)
+GROUP BY
+  d.id
+[2021-11-24T23:59:09.494] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_project_group: null,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  thumbnail: null,
+  address: null,
+  lat: null,
+  lng: null,
+  installed_power: null,
+  commisioning_date: null,
+  installed_date: null,
+  last_updated: null,
+  status: 1,
+  total_year: 0,
+  year: null,
+  config_revenue: 0,
+  start_date: ' 00:00:00',
+  end_date: '2021-11-24 19:00:00',
+  jan: null,
+  feb: null,
+  mar: null,
+  apr: null,
+  may: null,
+  jun: null,
+  jul: null,
+  aug: null,
+  sep: null,
+  oct: null,
+  nov: null,
+  dec: null,
+  yearly_egrade_default: null,
+  yearly_egrade_two: null,
+  config_yi: 0,
+  config_po: 0,
+  total_loss_factor: 1,
+  config_yi1: 0,
+  config_po1: 0,
+  total_loss_factor1: 1,
+  id_employee: 1,
+  id_language: 2,
+  filterBy: 'today',
+  data_send_time: 2,
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getChartData',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-24T23:59:09.498] [INFO] SQLMapperLog - [sqlId:ClientProject.getAllProjectByEmployeeId] SELECT
+  p.id,
+  p.hash_id,
+  pd.`name`,
+  pd.site_name,
+  p.id AS `value`,
+  '/project' AS module_path,
+  '/private' AS main_module_path,
+  epm.id_employee
+FROM
+  `project` AS p
+  LEFT JOIN project_detail pd ON pd.id_project = p.id
+  LEFT JOIN emloyee_project_map epm ON epm.id_project = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+  AND p.id_project_group = 12
+  AND epm.id_employee = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-24T23:59:09.499] [INFO] SQLMapperLog - param: RowDataPacket {
+  id: 12,
+  name: 'TE-Test',
+  id_language: 2,
+  show_child: 1,
+  id_employee: 1
+}
+[2021-11-24T23:59:09.521] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataEnergyFifteenMinutes] SELECT
+  t.time,
+  t.time_format,
+  t.time_full,
+  ROUND((SUM(t.activeEnergy) / 1000), 1) AS today_activeEnergy,
+  t.group_day,
+  ROUND((SUM(t.activePower) / 1000), 1) AS activePower
+FROM
+  (
+    SELECT
+      m.time,
+      m.time_format,
+      m.time_full,
+      ROUND(SUM(m.activePower), 1) AS activePower,
+      SUM(m.activeEnergy) AS activeEnergy,
+      m.group_day
+    FROM
+      (
+        SELECT
+          dv.time,
+          FROM_UNIXTIME(
+            (
+              UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) DIV 900
+            ) * 900,
+            '%Y-%m-%d %H:%i'
+          ) AS time_format,
+          FLOOR(
+            UNIX_TIMESTAMP(FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i')) / (15 * 60)
+          ) AS time_key,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y %H:%i') AS time_full,
+          AVG(dv.activePower) AS activePower,
+          MAX(dv.activeEnergy) AS activeEnergy,
+          FROM_UNIXTIME(dv.time, '%d/%m/%Y') AS group_day
+        FROM
+          model_inverter_ABB_PVS100 dv
+          LEFT JOIN device d ON d.id = dv.id_device
+          LEFT JOIN project p ON p.id = d.id_project
+        WHERE
+          p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+          AND d.id_device_group = 18
+          AND FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT('2021-11-24 19:00:00', '%d/%m/%Y')
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') >= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 05:00'
+          )
+          AND FROM_UNIXTIME(dv.time, '%Y-%m-%d %H:%i') <= CONCAT(
+            DATE_FORMAT('2021-11-24 19:00:00', '%Y-%m-%d'),
+            ' 19:00'
+          )
+          AND p.`status` = 1
+          AND d.`status` = 1
+        GROUP BY
+          d.id,
+          time_key
+      ) m
+    GROUP BY
+      m.time_format
+  ) t
+GROUP BY
+  t.time_format
+[2021-11-24T23:59:09.521] [INFO] SQLMapperLog - param: {
+  groupInverter: [
+    {
+      hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+      id_device_group: 18,
+      start_date: ' 00:00:00',
+      end_date: '2021-11-24 19:00:00',
+      table_name: 'model_inverter_ABB_PVS100'
+    }
+  ],
+  item: {
+    hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+    id_device_group: 18,
+    start_date: ' 00:00:00',
+    end_date: '2021-11-24 19:00:00',
+    table_name: 'model_inverter_ABB_PVS100'
+  }
+}
+[2021-11-24T23:59:09.587] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceIrradiance] SELECT
+  dv.id_device,
+  d.id_project,
+  dv.time,
+  IFNULL(dv.cellTemp, 0) AS cellTemp,
+  IFNULL(dv.irradiancePoA, 0) AS irradiancePoA,
+  IFNULL(dv.panelTemp, 0) AS panelTemp
+FROM
+  device d
+  LEFT JOIN model_sensor_IMT_SiRS485 dv ON d.id = dv.id_device
+  LEFT JOIN (
+    SELECT
+      dv.id_device,
+      MAX(dv.time) AS max_time
+    FROM
+      model_sensor_IMT_SiRS485 dv
+    GROUP BY
+      dv.id_device
+  ) t ON dv.time = t.max_time
+  AND dv.id_device = t.id_device
+WHERE
+  d.id_project = 41
+  AND d.id_device_group = 25
+  AND d.`status` = 1
+GROUP BY
+  d.id
+UNION ALL
+SELECT
+  dv.id_device,
+  pm.id_project,
+  dv.time,
+  IFNULL(dv.cellTemp, 0) AS cellTemp,
+  IFNULL(dv.irradiancePoA, 0) AS irradiancePoA,
+  IFNULL(dv.panelTemp, 0) AS panelTemp
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON d.id = pm.id_device
+  LEFT JOIN model_sensor_IMT_SiRS485 dv ON dv.id_device = pm.id_device
+  LEFT JOIN (
+    SELECT
+      dv.id_device,
+      MAX(dv.time) AS max_time
+    FROM
+      model_sensor_IMT_SiRS485 dv
+    GROUP BY
+      dv.id_device
+  ) t ON dv.time = t.max_time
+  AND dv.id_device = t.id_device
+WHERE
+  pm.id_project = 41
+  AND d.id_device_group = 25
+  AND d.`status` = 1
+GROUP BY
+  d.id
+[2021-11-24T23:59:09.587] [INFO] SQLMapperLog - param: {
+  id_project: 41,
+  id_device_group: 25,
+  table_name: 'model_sensor_IMT_SiRS485'
+}
+[2021-11-24T23:59:09.878] [INFO] SQLMapperLog - [sqlId:MainPlant.getDataDeviceAmbientEmperature] SELECT
+  d.id,
+  d.`name`,
+  IFNULL(t.ambientTemp, 0) AS ambientTemp
+FROM
+  device d
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      MAX(FROM_UNIXTIME(dv.time)) AS max_time,
+      dv.id_device,
+      dv.ambientTemp
+    FROM
+      model_sensor_IMT_TaRS485 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON t.id_device = d.id
+WHERE
+  d.id_project = 41
+  AND d.id_device_group = 26
+GROUP BY
+  d.id
+UNION ALL
+SELECT
+  d.id,
+  d.`name`,
+  IFNULL(t.ambientTemp, 0) AS ambientTemp
+FROM
+  project_map_device_virtual pm
+  LEFT JOIN device d ON pm.id_device = d.id
+  LEFT JOIN (
+    SELECT
+      dv.time,
+      MAX(FROM_UNIXTIME(dv.time)) AS max_time,
+      dv.id_device AS id_device,
+      dv.ambientTemp
+    FROM
+      model_sensor_IMT_TaRS485 dv
+    WHERE
+      FROM_UNIXTIME(dv.time, '%d/%m/%Y') = DATE_FORMAT(NOW(), '%d/%m/%Y')
+    GROUP BY
+      dv.id_device
+  ) t ON t.id_device = d.id
+WHERE
+  pm.id_project = 41
+  AND d.id_device_group = 26
+  AND d.`status` = 1
+GROUP BY
+  d.id
+[2021-11-24T23:59:09.878] [INFO] SQLMapperLog - param: {
+  id_project: 41,
+  id_device_group: 26,
+  table_name: 'model_sensor_IMT_TaRS485'
+}
+[2021-11-25T00:07:41.706] [INFO] SQLMapperLog - [sqlId:ErrorLevel.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_level` AS p
+  LEFT JOIN error_level_detail pd ON pd.id_error_level = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-25T00:07:41.707] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:07:41.874] [INFO] SQLMapperLog - [sqlId:ErrorType.getDropDownList] SELECT
+  p.id,
+  pd.`name`,
+  pd.`name` AS label,
+  p.id AS `value`
+FROM
+  `error_type` AS p
+  LEFT JOIN error_type_detail pd ON pd.id_error_type = p.id
+WHERE
+  pd.id_language = 2
+  AND p.`status` = 1
+ORDER BY
+  p.`id` ASC
+[2021-11-25T00:07:41.875] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  thumbnail: null,
+  status: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDropDownList',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:07:42.048] [INFO] SQLMapperLog - [sqlId:MainActivities.getList] SELECT
+  a.id,
+  a.id_error,
+  a.id_alert_state,
+  FROM_UNIXTIME(a.start_date, '%d/%m/%Y %H:%i') AS start_date_format,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN TIMESTAMPDIFF(
+      DAY,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN TIMESTAMPDIFF(
+      HOUR,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN TIMESTAMPDIFF(
+      MINUTE,
+      FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s'),
+      NOW()
+    )
+    ELSE 0
+  END AS times_ago,
+  CASE
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 DAY) THEN 'DAY'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 HOUR) THEN 'HOUR'
+    WHEN FROM_UNIXTIME(a.start_date, '%Y-%m-%d %H:%i:%s') < DATE_ADD(NOW(), INTERVAL - 1 MINUTE) THEN 'MINUTE'
+    ELSE 'NOW'
+  END AS times_ago_unit,
+  a.end_date,
+  a.`status`,
+  a.note,
+  ed.message,
+  ed.description,
+  ed.solutions,
+  eld.`name` as error_level_name,
+  etd.`name` AS error_type_name,
+  el.thumbnail,
+  e.id_error_level,
+  d.name,
+  e.id_error_type,
+  0 AS is_checked,
+  asd.`name` AS alert_state_name
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN alert_state als ON als.id = a.id_alert_state
+  LEFT JOIN alert_state_detail asd ON asd.id_alert_state = als.id
+  AND asd.id_language = 2
+WHERE
+  a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+  AND p.`status` = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+ORDER BY
+  a.id DESC
+LIMIT
+  0, 30
+[2021-11-25T00:07:42.049] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  id_employee: 1,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  errorLevel: [],
+  errorType: [],
+  dataStatus: [],
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en',
+  errorLevelList: '',
+  errorTypeList: '',
+  statusList: ''
+}
+[2021-11-25T00:07:42.134] [INFO] SQLMapperLog - [sqlId:MainActivities.getSize] SELECT
+  count(a.id) totalRow
+FROM
+  alert a
+  LEFT JOIN error e ON e.id = a.id_error
+  LEFT JOIN error_detail ed ON ed.id_error = e.id
+  AND ed.id_language = 2
+  LEFT JOIN error_level el ON el.id = e.id_error_level
+  LEFT JOIN error_level_detail eld ON eld.id_error_level = el.id
+  AND eld.id_language = 2
+  LEFT JOIN error_type et ON et.id = e.id_error_type
+  LEFT JOIN error_type_detail etd ON etd.id_error_type = et.id
+  AND etd.id_language = 2
+  LEFT JOIN device d ON d.id = a.id_device
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  a.`status` IN(0, 1)
+  AND el.`status` = 1
+  AND et.`status` = 1
+  AND e.`status` = 1
+  AND p.`status` = 1
+  AND d.id IN (
+    SELECT
+      d.id
+    FROM
+      project_map_device_virtual pm
+      LEFT JOIN device d ON d.id = pm.id_device
+      LEFT JOIN project p ON p.id = pm.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+    GROUP BY
+      d.id
+    UNION ALL
+    SELECT
+      d.id
+    FROM
+      device d
+      LEFT JOIN project p ON p.id = d.id_project
+    WHERE
+      p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+      AND p.`status` = 1
+      AND d.`status` = 1
+  )
+[2021-11-25T00:07:42.135] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_error: null,
+  start_date: null,
+  end_date: null,
+  note: null,
+  id_alert_state: null,
+  status: null,
+  limit: 30,
+  offset: 0,
+  index: 1,
+  id_language: 2,
+  id_employee: 1,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  type: 'private',
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getList',
+  lang: 'en',
+  lang_default: 'en',
+  errorLevelList: null,
+  errorTypeList: null,
+  statusList: null
+}
+[2021-11-25T00:08:40.721] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = NULL
+LIMIT
+  1;
+[2021-11-25T00:08:40.723] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:08:40.825] [INFO] SQLMapperLog - [sqlId:MainConfig.getListAllDeviceByProject] SELECT
+  d.id,
+  d.id_device,
+  d.`name`,
+  d.model,
+  d.serial_number,
+  p.installed_power,
+  0 AS is_checked
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+WHERE
+  p.`status` = 1
+  AND d.`status` = 1
+  AND p.hash_id = 'a9b365b5e3910f21ac1c97d0ad61e2f3'
+[2021-11-25T00:08:40.827] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  hash_id: 'a9b365b5e3910f21ac1c97d0ad61e2f3',
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getListAllDeviceByProject',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-25T00:08:40.976] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = NULL
+LIMIT
+  1;
+[2021-11-25T00:08:40.977] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:08:40.981] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = NULL
+LIMIT
+  1;
+[2021-11-25T00:08:40.982] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'en'
+}
+[2021-11-25T00:10:23.860] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = NULL
+LIMIT
+  1;
+[2021-11-25T00:10:23.861] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: null,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:52.927] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 220
+LIMIT
+  1;
+[2021-11-25T00:18:52.928] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 220,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:54.019] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 192
+LIMIT
+  1;
+[2021-11-25T00:18:54.021] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 192,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:55.126] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 220
+LIMIT
+  1;
+[2021-11-25T00:18:55.128] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 220,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:56.016] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 192
+LIMIT
+  1;
+[2021-11-25T00:18:56.017] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 192,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:56.618] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 220
+LIMIT
+  1;
+[2021-11-25T00:18:56.619] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 220,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:57.681] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 192
+LIMIT
+  1;
+[2021-11-25T00:18:57.683] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 192,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:18:59.604] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 191
+LIMIT
+  1;
+[2021-11-25T00:18:59.605] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 191,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:19:00.060] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 190
+LIMIT
+  1;
+[2021-11-25T00:19:00.062] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 190,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:19:00.676] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 192
+LIMIT
+  1;
+[2021-11-25T00:19:00.677] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 192,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:19:01.714] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 220
+LIMIT
+  1;
+[2021-11-25T00:19:01.715] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 220,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-11-25T00:19:16.880] [INFO] SQLMapperLog - [sqlId:MainConfig.getDeviceDetail] SELECT
+  d.*
+FROM
+  `device` d
+WHERE
+  d.id = 220
+LIMIT
+  1;
+[2021-11-25T00:19:16.882] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: null,
+  created_date: null,
+  updated_by: null,
+  updated_date: null,
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  id: 220,
+  id_device: null,
+  id_project: null,
+  id_device_type: null,
+  name: null,
+  model: null,
+  serial_number: null,
+  manufacturer: null,
+  installed_at: null,
+  description: null,
+  status: 1,
+  is_virtual: 1,
+  id_employee: 1,
+  id_language: 2,
+  currentUser: 'thanhan27011989@gmail.com',
+  action: 'getDeviceDetail',
+  lang: 'en',
+  lang_default: 'vi'
+}
+[2021-12-03T16:16:35.945] [INFO] SQLMapperLog - [sqlId:ModelReadings.getDeviceInfo] SELECT
+  d.id,
+  d.id_device,
+  d.id_device_group,
+  d.id_project,
+  d.`name`,
+  d.serial_number,
+  d.model,
+  d.manufacturer,
+  d.`status`,
+  dg.table_name,
+  pd.`name` AS project_name,
+  t.email,
+  t.full_name
+FROM
+  device d
+  LEFT JOIN project p ON p.id = d.id_project
+  LEFT JOIN project_detail pd ON p.id = pd.id_project
+  AND pd.id_language = 2
+  LEFT JOIN device_group dg ON dg.id = d.id_device_group
+  LEFT JOIN (
+    SELECT
+      epm.id_project,
+      GROUP_CONCAT(DISTINCT(e.email) SEPARATOR ', ') AS email,
+      CONCAT(e.first_name, ' ', e.last_name) AS full_name
+    FROM
+      emloyee_project_map epm
+      LEFT JOIN employee e ON e.id = epm.id_employee
+    GROUP BY
+      epm.id_project
+  ) t ON p.id = t.id_project
+WHERE
+  d.id_device = 'GelexEmic-2110007723'
+  AND d.`status` = 1
+  AND dg.`status` = 1
+LIMIT
+  1;
+[2021-12-03T16:16:35.947] [INFO] SQLMapperLog - param: {
+  status: 'OK',
+  deviceID: 'GelexEmic-2110007723',
+  timestamp: 1632407737,
+  timestamp_format: '2021-09-23 14:35:37',
+  deviceInfo: {
+    manufacturer: null,
+    model: null,
+    serialNumber: null,
+    modbusUnitID: null
+  },
+  payload: {
+    activeEnergyExport: 200,
+    activeEnergyExportRate1: 100,
+    activeEnergyExportRate2: 100,
+    activeEnergyExportRate3: 100,
+    activeEnergyImport: 100,
+    activeEnergyImportRate1: 100,
+    activeEnergyImportRate2: 100,
+    activeEnergyImportRate3: 100,
+    reactiveEnergyExport: 100,
+    reactiveEnergyImport: 100,
+    voltagePhaseA: 100,
+    voltagePhaseB: 100,
+    voltagePhaseC: 100,
+    currentPhaseA: 100,
+    currentPhaseB: 100,
+    currentPhaseC: 100,
+    powerFactor: 100
+  },
+  action: 'getDataRaw',
+  lang: 'vi',
+  lang_default: 'vi'
+}
+[2021-12-03T16:16:35.959] [INFO] SQLMapperLog - [sqlId:ModelReadings.checkExistAlerm] SELECT
+  *
+FROM
+  alert a
+WHERE
+  a.id_device = 372
+  AND a.id_error = 649
+  OR a.id_alert_state = 1
+  AND a.`status` = 1
+LIMIT
+  1;
+[2021-12-03T16:16:35.959] [INFO] SQLMapperLog - param: { id_device: 372, id_error: 649 }
+[2021-12-03T16:16:35.971] [INFO] SQLMapperLog - [sqlId:ModelReadings.insertModelEmeterGelexEmicME41] INSERT INTO
+  `model_emeter_GelexEmic_ME41`(
+    `time`,
+    `id_device`,
+    `activeEnergy`,
+    `activeEnergyExport`,
+    `activeEnergyExportRate1`,
+    `activeEnergyExportRate2`,
+    `activeEnergyExportRate3`,
+    `activeEnergyImport`,
+    `activeEnergyImportRate1`,
+    `activeEnergyImportRate2`,
+    `activeEnergyImportRate3`,
+    `reactiveEnergyExport`,
+    `reactiveEnergyImport`,
+    `voltagePhaseA`,
+    `voltagePhaseB`,
+    `voltagePhaseC`,
+    `currentPhaseA`,
+    `currentPhaseB`,
+    `currentPhaseC`,
+    `powerFactor`
+  )
+VALUES(
+    1632407737,
+    372,
+    200,
+    200,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+  );
+[2021-12-03T16:16:35.972] [INFO] SQLMapperLog - param: {
+  mode: null,
+  is_paging: 1,
+  created_by: '',
+  created_date: '',
+  updated_by: '',
+  updated_date: '',
+  is_active: 1,
+  current_row: 0,
+  order_by: null,
+  sort_column: null,
+  max_record: 50,
+  time: 1632407737,
+  id_device: 372,
+  activeEnergy: 200,
+  activeEnergyExport: 200,
+  activeEnergyExportRate1: 100,
+  activeEnergyExportRate2: 100,
+  activeEnergyExportRate3: 100,
+  activeEnergyImport: 100,
+  activeEnergyImportRate1: 100,
+  activeEnergyImportRate2: 100,
+  activeEnergyImportRate3: 100,
+  reactiveEnergyExport: 100,
+  reactiveEnergyImport: 100,
+  voltagePhaseA: 100,
+  voltagePhaseB: 100,
+  voltagePhaseC: 100,
+  currentPhaseA: 100,
+  currentPhaseB: 100,
+  currentPhaseC: 100,
+  powerFactor: 100
+}
